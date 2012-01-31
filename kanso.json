@@ -30,7 +30,10 @@
         "handlebars-helpers": "0.0.2",
         "duality-handlebars": "0.0.2",
         "duality-contrib-session-hb": ">=0.0.2",
+        "couch-audio-recorder" : null,
+        "node-couchapp" : null, 
         "session" : null,
         "users" : null
+
     }
 }

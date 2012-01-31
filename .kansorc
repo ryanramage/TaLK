@@ -1,0 +1,4 @@
+
+exports.package_paths = [
+    '/Users/ryan/github'
+];
