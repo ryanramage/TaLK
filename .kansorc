@@ -2,3 +2,10 @@
 exports.package_paths = [
     '/Users/ryan/github'
 ];
+
+exports.env = {
+    // the default env will be used when you just do "kanso push"
+    'default': {
+        db: 'http://admin:admin@localhost:5984/geo'
+    }
+};
