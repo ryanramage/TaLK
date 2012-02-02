@@ -4,6 +4,14 @@ var couch = require('db');
 var current_db = couch.current();
 var session = require('session');
 var users = require("users");
+var async = require('async');
+
+
+// unfortunate mix
+
+$.couch.urlPrefix = '_db';
+var jquery_db = $.couch.db('');
+
 
 
 var activeNav = function(what) {
@@ -49,7 +57,9 @@ function events_new() {
 
         current_db.saveDoc(event, function(err, response) {
             if (err) return alert('Could not create event');
-            events_show(response.id);
+
+            router.setRoute('/events/' + response.id);
+
         });
 
 
@@ -88,7 +98,8 @@ function session_new(eventId) {
 
             current_db.saveDoc(event_session, function(err, response) {
                 if (err) return alert('Could not create event');
-                session_show(eventId, response.id);
+
+                router.setRoute('/events/' + eventId + '/session/' + response.id);
             });
 
             return false;
@@ -104,7 +115,49 @@ function session_new(eventId) {
 }
 
 function session_show(eventId, sessionId) {
-    
+    async.parallel({
+        assets : function(callback) {
+            // get all the session assets
+            current_db.getView('geo-stories', 'session_assets', { include_docs: true, start_key:[sessionId], end_key:[sessionId, {}] }, function(err, resp) {
+               callback(err, resp.rows);
+            });
+        },
+        event : function(callback) {
+            current_db.getDoc(eventId, function(err, resp) {
+                callback(err, resp)
+            });           
+        }     
+    },
+    function(err, result) {
+        if (err) return alert('error: ' + err);
+        result.session = _.find(result.assets, function(asset){  if(asset.doc.type === 'session') return true;  } )
+        result.recording = _.find(result.assets, function(asset){  if(asset.doc.type !== 'session') return true;  } )
+
+       
+
+        $('.main').html(handlebars.templates['session-show.html'](result, {}));
+
+        var recorder = $('.recorder').couchaudiorecorder({
+                  db : jquery_db,
+                  designDoc : 'geo-stories'
+        });
+
+        console.log(result);
+
+        if (result.recording) {
+          recorder.couchaudiorecorder("loadRecording", result.recording.doc._id);
+        } else {
+          recorder.couchaudiorecorder("newRecording", {
+              additionalProperties : {
+                  sessionId : sessionId
+              }
+          });
+        }
+
+
+
+
+    });
 }
 
 
@@ -126,6 +179,9 @@ router.init('/events');
 
 
 $(function() {
+
+    
+
 
     $('.help').twipsy({placement: 'bottom'});
     $('.modal .cancel').live('click', function() {
