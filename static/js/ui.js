@@ -153,7 +153,15 @@ function session_show(eventId, sessionId) {
               }
           });
         }
+        recorder.bind("recorderAsked", function(event, doc) {
+            // update the view
+            current_db.getView('geo-stories', 'session_assets', { stale : 'update_after', start_key:[sessionId], end_key:[sessionId, {}] }, function(err, resp) {
+               
+            });
 
+        }).bind("recordingComplete", function(event, doc) {
+
+        });
 
 
 
