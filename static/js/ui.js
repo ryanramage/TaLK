@@ -36,7 +36,6 @@ function events_all () {
     activeNav('events-all');
     current_db.getView('geo-stories', 'by_event', function(err, resp) {
         if (err) return alert('Cant get all');
-        console.log(resp);
         $('.main').html(handlebars.templates['events-all.html'](resp, {}));
     })
 
@@ -72,13 +71,36 @@ function events_new() {
     });
 }
 
-
+function load_event_sessions(eventId, callback) {
+    current_db.getView('geo-stories', 'event_sessions', {
+        start_key : [eventId],
+        end_key : [eventId, {}]
+    },function(err, resp) {
+        callback(err, resp.rows);
+    })
+}
 
 function events_show(eventId) {
     activeNav('events-all');
     current_db.getDoc(eventId, function(err, resp) {
-             
+
+        resp.date_formated = moment(resp.date).format('MMMM D, YYYY');
         $('.main').html(handlebars.templates['events-show.html'](resp, {}));
+
+        load_event_sessions(eventId, function(err, data) {
+           var d = {};
+           d.sessions = _.map(data, function(row) {
+               return {
+                   id : row.id,
+                   eventId : eventId, 
+                   date : row.key[1],
+                   date_formatted : moment(row.key[1]).format('h:mm:ss a')
+               }
+           });
+           $('.sessions').html(handlebars.templates['events-session-list.html'](d, {}));
+        });
+
+
     })
 }
 
@@ -142,7 +164,6 @@ function session_show(eventId, sessionId) {
                   designDoc : 'geo-stories'
         });
 
-        console.log(result);
 
         if (result.recording) {
           recorder.couchaudiorecorder("loadRecording", result.recording.doc._id);
