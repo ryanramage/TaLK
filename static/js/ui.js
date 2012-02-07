@@ -189,7 +189,40 @@ function session_show(eventId, sessionId) {
     });
 }
 
+function people_all() {
+    activeNav('people-all');
+    current_db.getView('geo-stories', 'all_people', {include_docs : true}, function(err, resp) {
+        if (err) return alert('Cant get all');
+        console.log(resp);
+        $('.main').html(handlebars.templates['people-all.html'](resp, {}));
+        $("table").tablesorter();
+    })
+}
 
+function people_new(name) {
+    activeNav('people-all');
+    console.log('people', name)
+    $('.main').html(handlebars.templates['people-new.html']({}, {}));
+
+    $('.primary').click(function() {
+        var person  = $('form').formParams();
+        person.type = 'person';
+        current_db.saveDoc(person, function(err, resp) {
+            if (err) return alert(err);
+        });
+        return false;
+    })
+    $('.cancel').click(function() {
+        return false;
+    })
+
+
+    
+}
+
+function person_show(personId) {
+    
+}
 
 
 var routes = {
@@ -197,21 +230,25 @@ var routes = {
   '/events/new' : events_new,
   '/events/:eventId' : events_show,
   '/events/:eventId/session/new' : session_new,
-  '/events/:eventId/session/:sessionId' : session_show
+  '/events/:eventId/session/:sessionId' : session_show,
+  '/people' : people_all,
+  '/people/new' : people_new,
+  '/people/new/:personName' : people_new,
+  '/people/:personId' : person_show,
+  '/legal' : legal_all,
+  '/legal/new' : legal_new,
+  '/legal/:legalId' : legal_show
 };
 
 
 var router = Router(routes);
+router.param('personName', /([^//]+)/);
 router.init('/events');
 
 
 
 
 $(function() {
-
-    
-
-
     $('.help').twipsy({placement: 'bottom'});
     $('.modal .cancel').live('click', function() {
         $(this).parent().parent().modal('hide');

@@ -1,0 +1,50 @@
+
+<ul class="breadcrumb">
+  <li>
+    <a href="#/people">People</a> <span class="divider">/</span>
+  </li>
+  <li class="active">
+    <a href="#/people/new">New</a>
+  </li>
+</ul>
+
+
+<form class="well">
+    <legend>Create Person</legend>
+
+    <label>First Name</label>
+    <input type="text" name="first_name" />
+
+    <label>Last Name</label>
+    <input type="text" name="last_name" />
+
+
+    <fieldset class="control-group">
+          <label class="control-label" for="prependedInput">Tag</label>
+          <div class="controls">
+            <div class="input-prepend">
+              <span class="add-on">@</span>
+              <input class="span3" id="tag" name="tag" size="16" type="text">
+            </div>
+            <p class="help-block">When entering text, use this to reference this person</p>
+          </div>
+     </fieldset>
+
+    <label>Email</label>
+    <input type="text" name="email" />
+
+
+    <label>City</label>
+    <input type="text" name="city" />
+
+    <label>Organization</label>
+    <input type="text" name="org" />
+
+
+    <fieldset class="form-actions">
+        <button class="btn primary">Create</button>
+        <button class="btn cancel">Cancel</button>
+    </fieldset>
+
+</form>
+
