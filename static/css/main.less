@@ -2,5 +2,74 @@
 /* Now use bootstrap and less! */
 
 
+.topics {
+    min-height: 80px;
+}
 
+.topic {
+    float: left;
+    width: 145px; /* should be a variable. 1/3 of span6 */
+    padding: 5px 2px;
+    
+    border: 2px solid #fff;
+    border-radius: 5px;
+}
+
+
+.topics.disabled .topic {
+    opacity:0.3;
+    filter:alpha(opacity=30); /* For IE8 and earlier */
+}
+
+
+.topics.enabled .topic {
+    cursor: pointer;
+}
+
+
+
+.topics.enabled .topic:hover {
+    border: 2px solid #aaa;
+    background-color: #eee;
+    
+}
+
+
+
+
+.topic i {
+    margin-right: 3px;
+
+}
+
+i.red {
+    background-color: red;
+}
+
+
+
+i.green {
+    background-color: green;
+}
+
+i.yellow {
+    background-color: yellow;
+}
+i.blue {
+    background-color: blue;
+}
+
+.tag-text .time {
+    float: right;
+    font-size: 10px;
+    color: #bbb;
+}
+
+.tag-text textarea {
+    width: 490px !important;
+}
+
+.tag-text button.primary {
+    float: right;
+}
 

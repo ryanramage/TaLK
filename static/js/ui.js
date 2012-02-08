@@ -159,6 +159,8 @@ function session_show(eventId, sessionId) {
 
         $('.main').html(handlebars.templates['session-show.html'](result, {}));
 
+
+
         var recorder = $('.recorder').couchaudiorecorder({
                   db : jquery_db,
                   designDoc : 'geo-stories'
@@ -180,11 +182,20 @@ function session_show(eventId, sessionId) {
                
             });
 
+        }).bind("startComplete", function(event, doc) {
+            $('.topics')
+                .removeClass('disabled')
+                .addClass('enabled');
+          
         }).bind("recordingComplete", function(event, doc) {
 
         });
 
+        $('.topic').click(function(){
+           $(this).toggleClass('highlight');
+        });
 
+        $('.help').twipsy({placement: 'bottom'});
 
     });
 }
@@ -223,6 +234,21 @@ function people_new(name) {
 function person_show(personId) {
     
 }
+
+
+function legal_all() {
+
+}
+
+
+function legal_new() {
+
+}
+
+function legal_show(legalId) {
+    
+}
+
 
 
 var routes = {
