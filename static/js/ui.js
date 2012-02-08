@@ -191,6 +191,55 @@ function session_show(eventId, sessionId) {
 
         });
 
+
+
+        var queryTags = function(query, callback) {
+            var tags = [];
+            tags.push ({
+                id: 'dsadasd',
+                name : 'fish',
+                type : 'tag'
+            })
+            callback.call(this, tags);
+        }
+
+        var queryPeople = function(query, callback) {
+            var people = [];
+            current_db.getView('geo-stories', 'all_people', {
+               reduce: false,
+               startkey : '"' + query + '"',
+               endkey : '"' + query + '\ufff0' + '"',
+               include_docs : false
+            },function(err, resp) {
+
+                people = _.map(resp.rows, function(row) {
+                    return {
+                        id: row.id,
+                        name: row.key,
+                        type: 'person'
+                    }
+                })
+                callback.call(this, people);
+            })
+        }
+
+
+
+        $('.tag-text textarea').mentionsInput({
+            triggerChar : ['#', '@'],
+            onDataRequest : function(mode, query, callback, triggerChar) {
+                if (triggerChar === '#') {
+                    queryTags.call(this, query, callback);
+                }
+                if (triggerChar === '@') {
+                    queryPeople.call(this, query, callback);
+                }
+            }
+        });
+
+
+
+
         $('.topic').click(function(){
            $(this).toggleClass('highlight');
         });
