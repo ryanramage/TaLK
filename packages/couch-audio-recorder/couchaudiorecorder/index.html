@@ -1,0 +1,172 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <title>Couch Audio Recorder</title>
+
+  <link type="text/css" href="css/bootstrap.min.css" rel="stylesheet" />
+  <link type="text/css" href="skin/couchaudiorecorder.default.css" rel="stylesheet" />
+  <link type="text/css" href="css/local.css" rel="stylesheet" />
+  <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+  <script type="text/javascript" src="js/jquery.couch.js"></script>
+  <script type="text/javascript" src="js/jquery.couchLogin.js"></script>
+  <script type="text/javascript" src="js/sha1.js"></script>
+  <script type="text/javascript" src="js/jquery.couchaudiorecorder.js"></script>
+ 
+  <script type="text/javascript">
+      $(function() {
+          jQuery.couch.urlPrefix = 'api';
+
+          var db = $.couch.db('');
+
+
+          $('.recordBtn').hide();
+          $('.login').couchLogin({
+              loggedIn : function() {
+                  $('.recordBtn').show();
+              },
+              loggedOut : function() {
+                $('.recordBtn').hide();
+              }
+          })
+
+
+          db.view('couchaudiorecorder/recordings', {
+              include_docs: true,
+              descending: true,
+              success : function(data) {
+                  $.each(data.rows, function(i, row) {                      
+                      var $row = $('<tr></tr>');
+
+
+
+
+                      $row.append('<td><a href="record.html#' + row.id +'">'+ row.id +'</a></td>')
+
+
+                      var recordingDoc = row.doc;
+
+                      if (recordingDoc.userCtx) {
+                          $row.append('<td>'+ recordingDoc.userCtx.name +'</td>')
+                      } else {
+                          $row.append('<td></td>')
+                      }
+
+
+
+
+                      var status = $.couchaudiorecorder.recordingStatus(recordingDoc);
+                      $row.append('<td>' + status+'</td>')
+
+
+                      if (row.doc.recordingState && row.doc.recordingState.startComplete) {
+                          var $stream = $('<td><a href="stream.html#'+ row.id +'">stream</a></td>');
+                          $row.append($stream);
+                      } else {
+                          $row.append('<td></td>');
+                      }
+
+
+                      if (row.doc._attachments) {
+                          var $mp3 = $('<td><a href="audio/'+ row.id +'/complete.mp3">mp3</a></td>');
+                          $row.append($mp3);
+                          var $ogg = $('<td><a href="audio/'+ row.id +'/complete.ogg">ogg</a></td>');
+                          $row.append($ogg);
+                      } else {
+                          $row.append('<td></td><td></td>');
+                      }
+
+                      var $col = $('<td></td>');
+                      if (row.doc._attachments) {
+                          var $delete = $('<button class="btn">&#10008;</button>');
+                          $delete.click(function() {
+                              console.log('delete', row.id);
+                              $.couchaudiorecorder.deleteRecording(row.id, db, function() {
+                                 // delete the row
+                                 console.log("callback called");
+                                 $row.remove();
+                              });
+                          });
+                          $col.append($delete);
+                      }
+                      
+                      
+                      $row.append($col);
+
+
+
+                      $('.recordings tbody').append($row);
+                  })
+              }
+          })
+
+
+
+
+      });
+
+  </script>
+</head>
+
+<body>
+      <div class="container">
+
+            <ul class="breadcrumb">
+              <li class="active">Home</li>
+            </ul>
+
+
+            <h1>Couch Audio Recorder</h1>
+
+            <div class="alert-message block-message info">
+                <span class="label warning">Warning</span> <em>This is pre-alpha software.</em> Data, may be deleted at anytime.
+                Follow us :
+                    <a href="https://github.com/ryanramage/couch-audio-recorder">github</a>,
+                    <a href="http://twitter.com/eckoit">twitter</a>.
+                    By <a href="http://eckoit.com">eckoit</a>
+            </div>
+
+            <div class="row">
+                <div class="span4 login">
+                    
+                </div>
+            </div>
+
+            <div class="row">
+
+
+                <div class="span4">
+                    <a href="record.html" class="btn large  primary recordBtn" disabled="disabled">New Recording</a>
+                </div>
+                
+            </div>
+            <div class="row">
+                <div class="span4">
+                    &nbsp;
+                </div>
+            </div>
+            <div class="row">
+                <div class="span16">
+                    <table class="recordings bordered-table zebra-striped">
+                        <thead>
+                            <tr>
+                                <th>Recording</th>
+                                <th>User</th>
+                                <th>Status</th>
+                                <th>Stream</th>
+                                <th>mp3</th>
+                                <th>ogg</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+      </div>
+
+</body>
+</html>

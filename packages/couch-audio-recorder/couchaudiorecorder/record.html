@@ -1,0 +1,128 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <title>Couch Audio Recorder</title>
+
+  <link type="text/css" href="css/bootstrap.min.css" rel="stylesheet" />
+  <link type="text/css" href="skin/couchaudiorecorder.default.css" rel="stylesheet" />
+
+  <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+  <script type="text/javascript" src="js/jquery.couch.js"></script>
+  <script type="text/javascript" src="js/jquery.couchLogin.js"></script>
+  <script type="text/javascript" src="js/sha1.js"></script>
+  <script type="text/javascript" src="js/jquery.couchaudiorecorder.js"></script>
+  <script type="text/javascript">
+      $(function() {
+          jQuery.couch.urlPrefix = 'api';
+
+          var db = $.couch.db('');
+
+
+          function setupRecorder(userCtx) {
+              var div = $('.recorder').couchaudiorecorder({
+                  db : db
+              });
+
+              var hash = location.hash;
+
+
+              function showStreamInfo(doc) {
+                  console.log(doc);
+                  var $stream = $('<a href="stream.html#'+ doc._id +'">stream</a>');
+                  $('.stream').html($stream);
+              }
+
+              function showfiles(doc) {
+                  var $mp3 = $('<a href="audio/'+ doc._id +'/complete.mp3">mp3</a>');
+                  $('.mp3').html($mp3);
+                  var $ogg = $('<a href="audio/'+ doc._id +'/complete.ogg">ogg</a>');
+                  $('.ogg').html($ogg);
+              }
+
+              
+
+              div.bind("startComplete", function(event, doc) {
+                  showStreamInfo(doc);
+                  location.hash = '#' + doc._id;
+
+              }).bind("recordingComplete", function(event, doc) {
+                 showStreamInfo(doc);
+                 showfiles(doc);
+              });
+              if (hash) {
+                  var docId = hash.substring(1);
+                  div.couchaudiorecorder("loadRecording", docId, userCtx);
+              } else {
+                  div.couchaudiorecorder("newRecording", {}, userCtx);
+              }
+          }
+
+
+          $('.login').couchLogin({
+              loggedIn : function(userCtx) {
+                  setupRecorder(userCtx);
+              },
+              loggedOut : function() {
+                window.location = ".";
+              }
+          })
+
+
+
+
+
+
+
+
+          
+      });
+
+  </script>
+</head>
+
+<body>
+    <div class="container">
+        <ul class="breadcrumb">
+            <li><a href=".">Home</a> <span class="divider">/</span></li>
+            <li class="active">Recorder</li>
+        </ul>
+
+
+        
+        <h2>Recorder</h2>
+
+            <div class="alert-message block-message info">
+                <span class="label warning">Warning</span> <em>This is pre-alpha software.</em> Data, may be deleted at anytime.
+                Follow us :
+                    <a href="https://github.com/ryanramage/couch-audio-recorder">github</a>,
+                    <a href="http://twitter.com/eckoit">twitter</a>.
+                    By <a href="http://eckoit.com">eckoit</a>
+            </div>
+        
+        
+
+
+        <div class="row">
+            <div class="span4 login">
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="span6">&nbsp;</div>
+            <div class="span6 recorder"></div>
+            <div class="span6">&nbsp;</div>
+        </div>
+        <div class="row">
+            <div class="span6">
+
+                    <p><span class="stream"></span></p>
+                    <p><span class="mp3"></span></p>
+                    <p><span class="ogg"></span></p>
+
+            </div>
+        </div>
+        
+
+    </div>
+</body>
+</html>
