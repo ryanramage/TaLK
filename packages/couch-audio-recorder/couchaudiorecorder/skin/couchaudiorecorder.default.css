@@ -1,0 +1,43 @@
+/*
+ * Default Skin for the couch audio recorder
+ *
+ */
+
+ .couchaudiorecorder {
+     width: 120px;
+}
+
+ .couchaudiorecorder .mic-icon {
+     width: 65px;
+     height: 100px;
+     margin-left: auto;
+     margin-right: auto;
+     background-image: url(noun_project_171_1.png);
+     background-repeat: no-repeat;
+}
+
+.mic-recording {
+    background-image: url(noun_project_171_2.png) !important;
+}
+
+
+
+.couchaudiorecorder .timer {
+    font-family: monospace;
+    font-size: 20px;
+    text-align: center;
+}
+
+.couchaudiorecorder .status {
+    font-family: helvetica;
+    font-size: 9px;
+    color: 999;
+}
+
+.couchaudiorecorder .icon {
+    background-image: url(loading.gif);
+    display: none;
+    width: 16px;
+    height: 16px;
+    float: right;
+}
