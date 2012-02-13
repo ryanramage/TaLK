@@ -29,7 +29,8 @@
         "handlebars-helpers": "0.0.2",
         "couch-audio-recorder" : null,
         "session" : null,
-        "users" : null
+        "users" : null,
+        "garden-app-support" : null
 
     }
 }
