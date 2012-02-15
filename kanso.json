@@ -2,7 +2,25 @@
     "name": "geo-stories",
     "version": "0.0.1",
     "description": "Record stories of people, while sittling around a map",
+    "long_description": "GeoStories is used to collect traditional knowledge from people. It is usually done around a map.",
+    "url": "https://github.com/datalaundry/geo-stories",
+    "categories": ["audio"],
     "attachments": ["static", "index.html"],
+    "icons": {
+        "16": "static/icons/wiki_icon_16.png",
+        "48": "static/icons/wiki_icon_48.png",
+        "96": "static/icons/wiki_icon_96.png",
+        "128": "static/icons/wiki_icon_128.png"
+    },
+    "promo_images": {
+        "small": "static/images/promo_small.png"
+    },
+    "screenshots": [
+        "static/images/screenshot1.png",
+        "static/images/screenshot2.png",
+        "static/images/screenshot3.png"
+    ],
+
     "modules": "lib",
     "load": "lib/app",
     "less": {
@@ -30,7 +48,9 @@
         "couch-audio-recorder" : null,
         "session" : null,
         "users" : null,
-        "garden-app-support" : null
+        "garden-app-support" : null,
+        "git-info" : null,
+        "jsonp" : null
 
     }
 }

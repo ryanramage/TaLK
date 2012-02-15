@@ -1,16 +1,13 @@
 var _ = require('underscore')._;
 var handlebars = require('handlebars');
-var couch = require('db');
-var current_db = couch.current();
-var session = require('session');
-var users = require("users");
+
 var async = require('async');
 
 
 // unfortunate mix
 
 $.couch.urlPrefix = '_db';
-var jquery_db = $.couch.db('');
+var db = $.couch.db('');
 
 
 
@@ -26,21 +23,21 @@ var queryTags = function(query, callback) {
 
 var queryPeople = function(query, callback) {
     var people = [];
-    current_db.getView('geo-stories', 'all_people', {
-       reduce: false,
-       startkey : '"' + query + '"',
-       endkey : '"' + query + '\ufff0' + '"',
-       include_docs : false
-    },function(err, resp) {
-
-        people = _.map(resp.rows, function(row) {
-            return {
-                id: row.id,
-                name: row.key,
-                type: 'person'
-            }
-        })
-        callback.call(this, people);
+    db.view('geo-stories/all_people', {
+        reduce: false,
+        startkey :  query ,
+        endkey :  query + '\ufff0' ,
+        include_docs : false,
+        success : function(resp) {
+            people = _.map(resp.rows, function(row) {
+                return {
+                    id: row.id,
+                    name: row.key,
+                    type: 'person'
+                }
+            })
+            callback.call(this, people);
+        }
     })
 }
 
@@ -65,9 +62,10 @@ function dbRoot(location) {
 
 function events_all () {
     activeNav('events-all');
-    current_db.getView('geo-stories', 'by_event', function(err, resp) {
-        if (err) return alert('Cant get all');
+    db.view('geo-stories/by_event', {
+       success : function(resp) {
         $('.main').html(handlebars.templates['events-all.html'](resp, {}));
+       }
     })
 
 }
@@ -84,12 +82,10 @@ function events_new() {
         event.date = new Date(event.date).getTime();
         // should validate
 
-
-        current_db.saveDoc(event, function(err, response) {
-            if (err) return alert('Could not create event');
-
-            router.setRoute('/events/' + response.id);
-
+        db.saveDoc(event, {
+            success: function(response) {
+                router.setRoute('/events/' + response.id);
+            }
         });
 
 
@@ -103,66 +99,66 @@ function events_new() {
 }
 
 function load_event_sessions(eventId, callback) {
-    current_db.getView('geo-stories', 'event_sessions', {
-        start_key : [eventId],
-        end_key : [eventId, {}]
-    },function(err, resp) {
-        callback(err, resp.rows);
+    db.view('geo-stories/event_sessions', {
+        startkey : [eventId],
+        endkey : [eventId, {}],
+        success : function(resp) {
+            callback(null, resp.rows);
+        }
     })
 }
 
 function events_show(eventId) {
     activeNav('events-all');
-    current_db.getDoc(eventId, function(err, resp) {
+    db.openDoc(eventId, {
+        success : function(resp) {
 
-        resp.date_formated = moment(resp.date).format('MMMM D, YYYY');
-        $('.main').html(handlebars.templates['events-show.html'](resp, {}));
+            resp.date_formated = moment(resp.date).format('MMMM D, YYYY');
+            $('.main').html(handlebars.templates['events-show.html'](resp, {}));
 
-        load_event_sessions(eventId, function(err, data) {
-           var d = {};
-           d.sessions = _.map(data, function(row) {
-               return {
-                   id : row.id,
-                   eventId : eventId, 
-                   date : row.key[1],
-                   date_formatted : moment(row.key[1]).format('h:mm:ss a')
-               }
-           });
-           $('.sessions').html(handlebars.templates['events-session-list.html'](d, {}));
-        });
-
-
+            load_event_sessions(eventId, function(err, data) {
+               var d = {};
+               d.sessions = _.map(data, function(row) {
+                   return {
+                       id : row.id,
+                       eventId : eventId,
+                       date : row.key[1],
+                       date_formatted : moment(row.key[1]).format('h:mm:ss a')
+                   }
+               });
+               $('.sessions').html(handlebars.templates['events-session-list.html'](d, {}));
+            });
+        }
     })
 }
 
 
 function session_new(eventId) {
-    current_db.getDoc(eventId, function(err, resp) {
-        if (err) return alert('Cant load the event');
+    db.openDoc(eventId, {
+        success : function(resp) {
 
-        $('.main').html(handlebars.templates['session-new.html'](resp, {}));
+            $('.main').html(handlebars.templates['session-new.html'](resp, {}));
 
-        $('.primary').click(function() {
-            var event_session = {};
-            event_session.type = 'session';
-            event_session.event = eventId;
-            event_session.created = new Date().getTime();
-            // should validate
+            $('.primary').click(function() {
+                var event_session = {};
+                event_session.type = 'session';
+                event_session.event = eventId;
+                event_session.created = new Date().getTime();
+                // should validate
 
-            current_db.saveDoc(event_session, function(err, response) {
-                if (err) return alert('Could not create event');
+                db.saveDoc(event_session, {
+                    success : function(response) {
 
-                router.setRoute('/events/' + eventId + '/session/' + response.id);
+                        router.setRoute('/events/' + eventId + '/session/' + response.id);
+                    }
+                });
+                return false;
             });
-
-            return false;
-        });
-        $('.cancel').click(function() {
-           history.back();
-           return false;
-        });
-
-        
+            $('.cancel').click(function() {
+               history.back();
+               return false;
+            });
+        }
     });
 
 }
@@ -171,14 +167,21 @@ function session_show(eventId, sessionId) {
     async.parallel({
         assets : function(callback) {
             // get all the session assets
-            current_db.getView('geo-stories', 'session_assets', { include_docs: true, start_key:[sessionId], end_key:[sessionId, {}] }, function(err, resp) {
-               callback(err, resp.rows);
+            db.view('geo-stories/session_assets', {
+                include_docs: true,
+                startkey:[sessionId],
+                endkey:[sessionId, {}] ,
+                success : function(resp) {
+                    callback(null, resp.rows);
+                }
             });
         },
         event : function(callback) {
-            current_db.getDoc(eventId, function(err, resp) {
-                callback(err, resp)
-            });           
+            db.openDoc(eventId, {
+                success : function(resp) {
+                    callback(null, resp)
+                }
+            });
         }     
     },
     function(err, result) {
@@ -193,7 +196,7 @@ function session_show(eventId, sessionId) {
 
 
         var recorder = $('.recorder').couchaudiorecorder({
-                  db : jquery_db,
+                  db : db,
                   designDoc : 'geo-stories'
         });
 
@@ -209,8 +212,11 @@ function session_show(eventId, sessionId) {
         }
         recorder.bind("recorderAsked", function(event, doc) {
             // update the view
-            current_db.getView('geo-stories', 'session_assets', { stale : 'update_after', start_key:[sessionId], end_key:[sessionId, {}] }, function(err, resp) {
-               
+            db.view('geo-stories/session_assets', {
+                stale : 'update_after',
+                startkey:[sessionId],
+                endkey:[sessionId, {}],
+                success: function() { }
             });
 
         }).bind("startComplete", function(event, doc) {
@@ -254,11 +260,13 @@ function session_show(eventId, sessionId) {
 
 function people_all() {
     activeNav('people-all');
-    current_db.getView('geo-stories', 'all_people', {include_docs : true}, function(err, resp) {
-        if (err) return alert('Cant get all');
-        console.log(resp);
-        $('.main').html(handlebars.templates['people-all.html'](resp, {}));
-        $("table").tablesorter();
+    db.view('geo-stories/all_people', {
+        include_docs : true,
+        success : function(resp) {
+            console.log(resp);
+            $('.main').html(handlebars.templates['people-all.html'](resp, {}));
+            $("table").tablesorter();
+        }
     })
 }
 
@@ -270,11 +278,12 @@ function people_new(name) {
     $('.primary').click(function() {
         var person  = $('form').formParams();
         person.type = 'person';
-        current_db.saveDoc(person, function(err, resp) {
-            if (err) return alert(err);
+        db.saveDoc(person, {
+
         });
         return false;
-    })
+    });
+
     $('.cancel').click(function() {
         return false;
     })
@@ -331,7 +340,14 @@ $(function() {
     $('.modal .cancel').live('click', function() {
         $(this).parent().parent().modal('hide');
     });
+    // version info
+    $.getJSON("./_info",  function(data) {
+        var git_rev_small = data.git.commit.substring(0,7);
+        var modified = "";
+        if (data.git.uncommitted && data.git.uncommitted.length > 0) modified = "*";
+        $('footer span.version').text(data.config.version + ':' + git_rev_small + modified);
 
+    })
 });
 
 
