@@ -7,27 +7,7 @@ All people
 
 
 
-<table class="table striped-table">
-  <thead>
-    <tr>
-      <th>First</th>
-      <th>Last</th>      
-      <th>City</th>
-      <th>Org</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-{{#each rows}}
-    <tr>
-      <td>{{doc.first_name}}</td>
-      <td>{{doc.last_name}}</td>
-      <td>{{doc.city}}</td>
-      <td>{{doc.org}}</td>
-    </tr>
-{{/each}}
-  </tbody>
-</table>
+{{{include "people-table.html"}}}
 
 
 

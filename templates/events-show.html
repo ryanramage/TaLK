@@ -13,21 +13,26 @@
 <h5>{{date_formated}}</h5>
 
 
+<ul class="nav tabs">
+  <li class="active"><a href="#attendeesTab" data-toggle="tab">Attendees</a></li>
+  <li><a href="#agendaTab" data-toggle="tab">Agenda</a></li>
+  <li><a href="#sessionsTab" data-toggle="tab">Sessions</a></li>
+</ul>
 
+<div class="tab-content">
+    <div class="tab-pane active" id="attendeesTab">
+        <div class="attendees"></div>
+        <div class="personAutoComplete">
+            <input type="text" name="name" placeholder="Person search"/><button  class="btn add-attendee">Add Person</button>
+        </div>
+    </div>
+    <div class="tab-pane" id="agendaTab">
+        Agendas
+    </div>
+    <div class="tab-pane" id="sessionsTab">
+        <div class="sessions">
 
-
-<h3>Attendees</h3>
-
-
-
-
-
-
-
-<h3>Sessions</h3>
-<div class="sessions">
-    
+        </div>
+        <a href="#/events/{{_id}}/session/new" class="btn add-session">Create Session</a>
+    </div>
 </div>
-
-
-<a href="#/events/{{_id}}/session/new" class="btn add-session">Create Session</a>

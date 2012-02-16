@@ -123,6 +123,35 @@ function load_event_sessions(eventId, callback) {
     })
 }
 
+function load_event_attendees(event, callback) {
+    db.view('geo-stories/all_people', {
+        keys: event.attendees,
+        include_docs : true,
+        success : function(resp) {
+            callback(null, resp.rows);
+        }
+    });
+}
+
+function createPersonAutoComplete($elem, callback) {
+    var $input = $elem.find('input');
+    var $btn   = $elem.find('button');
+    $input.autocomplete({
+        source : function(req, resp) {
+            queryPeople(req.term, function(data) {
+                resp( _.map( data, function( item ) {
+                    return {
+                        label: item.name,
+                        value: item.name
+                    }
+                }));
+            });
+        }
+    });
+
+}
+
+
 function events_show(eventId) {
     activeNav('events-all');
     db.openDoc(eventId, {
@@ -143,6 +172,14 @@ function events_show(eventId) {
                });
                $('.sessions').html(handlebars.templates['events-session-list.html'](d, {}));
             });
+            if (!resp.attendees) resp.attendees = [];
+            load_event_attendees(resp, function(err, data){
+                $('.attendees').html(handlebars.templates['people-table.html'](data, {}));
+            });
+            createPersonAutoComplete($('.personAutoComplete'), function(person) {
+                console.log(person);
+            });
+
         }
     })
 }
@@ -178,6 +215,14 @@ function session_new(eventId) {
 
 }
 
+
+function startNewMark(thing_id) {
+    $('.tag-text').show();
+    var timestamp = new Date().getTime();
+
+}
+
+
 function session_show(eventId, sessionId) {
     async.parallel({
         assets : function(callback) {
@@ -208,7 +253,7 @@ function session_show(eventId, sessionId) {
 
         $('.main').html(handlebars.templates['session-show.html'](result, {}));
 
-
+        $('.help').tooltip({placement: 'bottom'});
 
         var recorder = $('.recorder').couchaudiorecorder({
                   db : db,
@@ -237,8 +282,15 @@ function session_show(eventId, sessionId) {
         }).bind("startComplete", function(event, doc) {
             $('.topics')
                 .removeClass('disabled')
-                .addClass('enabled');
-          
+                .addClass('enabled')
+                .click(function() {
+                    var me = $(this);
+                    var thing_id = me.data('topicid');
+                    startNewMark(thing_id);
+                });
+
+
+
         }).bind("recordingComplete", function(event, doc) {
 
         });
@@ -411,7 +463,7 @@ router.init('/events');
 
 
 $(function() {
-    $('.help').twipsy({placement: 'bottom'});
+    $('.help').tooltip({placement: 'bottom'});
     $('.modal .cancel').live('click', function() {
         $(this).parent().parent().modal('hide');
     });
