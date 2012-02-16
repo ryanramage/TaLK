@@ -9,14 +9,29 @@ var async = require('async');
 $.couch.urlPrefix = '_db';
 var db = $.couch.db('');
 
-
+var createHash = function(text) {
+    return text.toLowerCase().replace(/ /g, '_');
+}
 
 var queryTags = function(query, callback) {
     var tags = [];
-    tags.push ({
-        id: 'dsadasd',
-        name : 'fish',
-        type : 'tag'
+    db.view('geo-stories/all_tags', {
+        reduce : true,
+        group : true,
+        group_level : 1,
+        startkey :  query ,
+        endkey :  query + '\ufff0' ,
+        include_docs : false,
+        success : function(resp) {
+            tags = _.map(resp.rows, function(row) {
+                return {
+                    id: row.key,
+                    name: row.key,
+                    type: 'tag'
+                }
+            })
+            callback.call(this, tags);
+        }
     })
     callback.call(this, tags);
 }
@@ -310,6 +325,50 @@ function legal_show(legalId) {
     
 }
 
+function tags_all() {
+    activeNav('tags-all');
+    db.view('geo-stories/all_tags', {
+        reduce : true,
+        group : true,
+        group_level : 1,
+        success : function(resp) {
+            console.log(resp);
+            $('.main').html(handlebars.templates['tags-all.html'](resp, {}));
+            $("table").tablesorter();
+        }
+    })
+}
+
+function tags_new() {
+    activeNav('tags-all');
+    $('.main').html(handlebars.templates['tags-new.html']({}, {}));
+
+
+    $('form input[name="name"]').change(function() {
+        var hash = createHash($(this).val());
+        console.log(hash);
+        $('form input[name="hash"]').val(hash);
+    })
+
+    $('.primary').click(function() {
+        var tag  = $('form').formParams();
+        tag.type = 'tag';
+        db.saveDoc(tag, {
+            success : function() {
+                router.setRoute('/tags/');
+            }
+        });
+        return false;
+    });
+
+    $('.cancel').click(function() {
+        return false;
+    })
+}
+
+function tags_show(tagHash) {
+
+}
 
 
 var routes = {
@@ -324,7 +383,10 @@ var routes = {
   '/people/:personId' : person_show,
   '/legal' : legal_all,
   '/legal/new' : legal_new,
-  '/legal/:legalId' : legal_show
+  '/legal/:legalId' : legal_show,
+  '/tags' : tags_all,
+  '/tags/new' : tags_new,
+  '/tags/show/:tagHash' : tags_show
 };
 
 

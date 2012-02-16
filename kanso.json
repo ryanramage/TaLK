@@ -6,6 +6,7 @@
     "url": "https://github.com/datalaundry/geo-stories",
     "categories": ["audio"],
     "attachments": ["static", "index.html"],
+    "legacy_mode" : true,
     "icons": {
         "16": "static/icons/wiki_icon_16.png",
         "48": "static/icons/wiki_icon_48.png",
