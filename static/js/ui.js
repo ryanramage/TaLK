@@ -290,11 +290,24 @@ function people_new(name) {
     console.log('people', name)
     $('.main').html(handlebars.templates['people-new.html']({}, {}));
 
+    var generateTag = function() {
+        var first = $('form input[name="first_name"]').val();
+        var last  = $('form input[name="last_name"]').val();
+        var hash = createHash(first + ' ' + last);
+        $('form input[name="tag"]').val(hash);
+    }
+
+
+    $('form input[name="first_name"]').change(generateTag);
+    $('form input[name="last_name"]').change(generateTag);
+
     $('.primary').click(function() {
         var person  = $('form').formParams();
         person.type = 'person';
         db.saveDoc(person, {
-
+            success : function() {
+                router.setRoute('/people');
+            }
         });
         return false;
     });
@@ -355,7 +368,7 @@ function tags_new() {
         tag.type = 'tag';
         db.saveDoc(tag, {
             success : function() {
-                router.setRoute('/tags/');
+                router.setRoute('/tags');
             }
         });
         return false;
