@@ -124,11 +124,12 @@ function load_event_sessions(eventId, callback) {
 }
 
 function load_event_attendees(event, callback) {
+    console.log(event.attendees);
     db.view('geo-stories/all_people', {
         keys: event.attendees,
         include_docs : true,
         success : function(resp) {
-            callback(null, resp.rows);
+            callback(null, resp);
         }
     });
 }
@@ -181,15 +182,16 @@ function events_show(eventId) {
                });
                $('.sessions').html(handlebars.templates['events-session-list.html'](d, {}));
             });
-            if (!resp.attendees) resp.attendees = [];
-            load_event_attendees(resp, function(err, data){
-                $('.attendees').html(handlebars.templates['people-table.html'](data, {}));
-            });
+            if (!resp.attendees) {
+                resp.attendees = [];
+            } else {
+                load_event_attendees(resp, function(err, data){
+                   $('.attendees').html(handlebars.templates['people-table.html'](data, {}));
+               });
+            }
             createPersonAutoComplete($('.personAutoComplete'), function(personHash) {
                 updateEventAttendees(eventId, personHash, 'add', function(result) {
-                    load_event_attendees(resp, function(err, data){
-                        $('.attendees').html(handlebars.templates['people-table.html'](data, {}));
-                    });
+                    window.location.reload();
                 });
             });
 
@@ -200,28 +202,47 @@ function events_show(eventId) {
 
 function session_new(eventId) {
     db.openDoc(eventId, {
-        success : function(resp) {
+        success : function(event) {
+            load_event_attendees(event, function(err, attendees_full){
 
-            $('.main').html(handlebars.templates['session-new.html'](resp, {}));
+                event.attendees_full = attendees_full.rows;
+                $('.main').html(handlebars.templates['session-new.html'](event, {}));
 
-            $('.primary').click(function() {
-                var event_session = {};
-                event_session.type = 'session';
-                event_session.event = eventId;
-                event_session.created = new Date().getTime();
-                // should validate
 
-                db.saveDoc(event_session, {
-                    success : function(response) {
+                $('table.attendees tr').click(function() {
+                    var $checkbox = $(this).find(':checkbox');
+                    $checkbox.prop('checked', !$checkbox[0].checked);
+                })
 
-                        router.setRoute('/events/' + eventId + '/session/' + response.id);
-                    }
+
+                $('.primary').click(function() {
+
+                    var participants = [];
+                    $('table.attendees input').each(function() {
+                        participants.push($(this).attr('name'));
+                    })
+
+                    console.log(participants);
+
+                    var event_session = {};
+                    event_session.participants = participants
+                    event_session.type = 'session';
+                    event_session.event = eventId;
+                    event_session.created = new Date().getTime();
+                    // should validate
+
+                    db.saveDoc(event_session, {
+                        success : function(response) {
+
+                            router.setRoute('/events/' + eventId + '/session/' + response.id);
+                        }
+                    });
+                    return false;
                 });
-                return false;
-            });
-            $('.cancel').click(function() {
-               history.back();
-               return false;
+                $('.cancel').click(function() {
+                   history.back();
+                   return false;
+                });
             });
         }
     });
@@ -333,7 +354,7 @@ function session_show(eventId, sessionId) {
            $(this).toggleClass('highlight');
         });
 
-        $('.help').twipsy({placement: 'bottom'});
+        $('.help').tooltip({placement: 'bottom'});
 
     });
 }

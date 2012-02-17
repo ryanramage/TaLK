@@ -17,20 +17,21 @@
     <h2>New Session</h2>
 
     <h4>Select Participants</h4>
-    <table class="table table-bordered table-condensed">
+    <table class="table table-bordered table-condensed attendees">
         <thead>
             <tr>
-                <th></th><th>Last</th><th>First</th><th>Community</th><th>Org</th>
+                <th></th><th>First</th><th>Last</th><th>Community</th><th>Org</th>
             </tr>
         </thead>
         <tbody>
+        {{#each attendees_full}}
             <tr>
-                <td><input type="checkbox" name="dsadsadsadsa1" /></td>
-                <td>Ramage</td>
-                <td>Ryan</td>
-                <td>Edmonton</td>
-                <td>Eckoit</td>
-            </tr>
+                <td><input type="checkbox" name="{{doc.tag}}"  /></td>
+                <td>{{doc.first_name}}</td>
+                <td>{{doc.last_name}}</td>
+                <td>{{doc.city}}</td>
+                <td>{{doc.org}}</td>
+        {{/each}}
         </tbody>
     </table>
 
