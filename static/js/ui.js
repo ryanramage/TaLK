@@ -146,11 +146,20 @@ function createPersonAutoComplete($elem, callback) {
                     }
                 }));
             });
+        },
+        select: function(event, ui) {
+            callback(ui.item.value);
         }
     });
 
 }
 
+
+function updateEventAttendees(eventID, personHash, action, callback) {
+    $.post('./_db/_design/geo-stories/_update/updateAttendees/' + eventID + '?personHash=' + personHash + '&action=' + action, function(result) {
+        callback(null, result);
+    });
+}
 
 function events_show(eventId) {
     activeNav('events-all');
@@ -176,8 +185,12 @@ function events_show(eventId) {
             load_event_attendees(resp, function(err, data){
                 $('.attendees').html(handlebars.templates['people-table.html'](data, {}));
             });
-            createPersonAutoComplete($('.personAutoComplete'), function(person) {
-                console.log(person);
+            createPersonAutoComplete($('.personAutoComplete'), function(personHash) {
+                updateEventAttendees(eventId, personHash, 'add', function(result) {
+                    load_event_attendees(resp, function(err, data){
+                        $('.attendees').html(handlebars.templates['people-table.html'](data, {}));
+                    });
+                });
             });
 
         }
