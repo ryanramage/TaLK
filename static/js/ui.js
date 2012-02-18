@@ -13,6 +13,12 @@ var createHash = function(text) {
     return text.toLowerCase().replace(/ /g, '_');
 }
 
+var createPersonHash = function(fistName, lastName) {
+    var full = fistName;
+    if (lastName) full += '.' + lastName;
+    return full.toLowerCase().replace(/\W/g, '.');
+}
+
 var queryTags = function(query, callback) {
     var tags = [];
     db.view('geo-stories/all_tags', {
@@ -124,7 +130,6 @@ function load_event_sessions(eventId, callback) {
 }
 
 function load_event_attendees(event, callback) {
-    console.log(event.attendees);
     db.view('geo-stories/all_people', {
         keys: event.attendees,
         include_docs : true,
@@ -218,8 +223,8 @@ function session_new(eventId) {
                 $('.primary').click(function() {
 
                     var participants = [];
-                    $('table.attendees input').each(function() {
-                        participants.push($(this).attr('name'));
+                    $('table.attendees input:checked').each(function() {
+                            participants.push($(this).attr('name'));
                     })
 
                     console.log(participants);
@@ -256,6 +261,33 @@ function startNewMark(thing_id) {
 
 }
 
+function endSpeaker(sessionSpeakerId) {
+    $.post('./_db/_design/geo-stories/_update/endSessionSpeaker/' + sessionSpeakerId , function(result) {
+        //callback(null, result);
+    });
+}
+
+function startSpeaker(sessionId, personHash, callback){
+    var timestamp = new Date().getTime();
+    var sessionSpeaker = {
+        type : 'sessionEvent',
+        sessionId : sessionId,
+        sessionType: 'speaker',
+        startTime : timestamp,
+        person: personHash
+    }
+    db.saveDoc(sessionSpeaker, {
+        success: callback
+    });
+}
+
+
+function sessionListener(sessionId, $trascriptDiv) {
+    var $changes = db.changes(null, {filter :  "geo-stories/sessionEvents", include_docs: true, sessionId : sessionId});
+    $changes.onChange(function (change) {
+        console.log(change);
+    });
+}
 
 function session_show(eventId, sessionId) {
     async.parallel({
@@ -264,7 +296,7 @@ function session_show(eventId, sessionId) {
             db.view('geo-stories/session_assets', {
                 include_docs: true,
                 startkey:[sessionId],
-                endkey:[sessionId, {}] ,
+                endkey:[sessionId, {}, {}] ,
                 success : function(resp) {
                     callback(null, resp.rows);
                 }
@@ -272,8 +304,11 @@ function session_show(eventId, sessionId) {
         },
         event : function(callback) {
             db.openDoc(eventId, {
-                success : function(resp) {
-                    callback(null, resp)
+                success : function(event) {
+                    load_event_attendees(event, function(err, attendees_full){
+                         event.attendees_full = attendees_full.rows;
+                         callback(null, event);
+                    });
                 }
             });
         }     
@@ -282,8 +317,13 @@ function session_show(eventId, sessionId) {
         if (err) return alert('error: ' + err);
         result.session = _.find(result.assets, function(asset){  if(asset.doc.type === 'session') return true;  } )
         result.recording = _.find(result.assets, function(asset){  if(asset.doc.type !== 'session') return true;  } )
+        result.events = _.filter(result.assets, function(asset){ if(asset.doc.type === 'sessionEvent') return true;   });
 
-       
+        result.session.doc.participants_full = _.map(result.session.doc.participants, function(participant){
+            return _.find(result.event.attendees_full, function(attendee){return attendee.key === participant});
+        });
+
+        console.log(result);
 
         $('.main').html(handlebars.templates['session-show.html'](result, {}));
 
@@ -294,6 +334,9 @@ function session_show(eventId, sessionId) {
                   designDoc : 'geo-stories'
         });
 
+
+
+        session_show_transcripts(result.events, sessionStartTime(result));
 
         if (result.recording) {
           recorder.couchaudiorecorder("loadRecording", result.recording.doc._id);
@@ -314,19 +357,42 @@ function session_show(eventId, sessionId) {
             });
 
         }).bind("startComplete", function(event, doc) {
-            $('.topics')
+            $('.topics, .participants li')
                 .removeClass('disabled')
-                .addClass('enabled')
-                .click(function() {
-                    var me = $(this);
-                    var thing_id = me.data('topicid');
-                    startNewMark(thing_id);
-                });
+                .addClass('enabled');
+
+
+            $('.topics').click(function() {
+                var me = $(this);
+                var thing_id = me.data('topicid');
+                startNewMark(thing_id);
+            });
+            $('.participants li').click(function() {
+                var me = $(this);
+                var personHash = me.data('topicid');
+                var currentlyTalking = me.hasClass('talking');
+                me.toggleClass('talking');
+                if (currentlyTalking) {
+                    var sessionSpeakerId = me.data('sessionSpeakerId');
+                    endSpeaker(sessionSpeakerId);
+                } else {
+                    startSpeaker(sessionId, personHash, function(doc) {
+                        console.log(doc);
+                        me.data('sessionSpeakerId', doc.id);
+                    })
+                }
+            });
+            $('.transcript').show();
+            sessionListener(sessionId, $('.transcript'));
+
+
 
 
 
         }).bind("recordingComplete", function(event, doc) {
-
+                $('.topics, .participants li')
+                    .addClass('disabled')
+                    .removeClass('enabled');
         });
 
 
@@ -359,6 +425,35 @@ function session_show(eventId, sessionId) {
     });
 }
 
+function sessionStartTime(sessionDetails) {
+    if (sessionDetails.recording && sessionDetails.recording.doc.recordingState && sessionDetails.recording.doc.recordingState.startComplete) {
+        return sessionDetails.recording.doc.recordingState.startComplete;
+    }
+    return sessionDetails.session.doc.created;
+}
+
+
+function session_show_transcripts(transcript_events, startTime) {
+    console.log('show trans', transcript_events);
+    _.each(transcript_events, function(sessionEvent) {
+        if (sessionEvent.doc.sessionType == 'speaker') {
+            renderSpeaker(sessionEvent.doc, startTime);
+        }
+    } )
+}
+
+function renderSpeaker(sessionEvent, startTime) {
+    sessionEvent.startTime_formated = moment(sessionEvent.startTime).format('h:mm:ss a');
+    var offset = (sessionEvent.startTime - startTime) / 1000;
+    sessionEvent.offset_formated = offset;
+    console.log(sessionEvent);
+    $('.transcript').append(handlebars.templates['session-show-transcript-speaker.html'](sessionEvent, {}));
+}
+
+
+
+
+
 function people_all() {
     activeNav('people-all');
     db.view('geo-stories/all_people', {
@@ -379,7 +474,7 @@ function people_new(name) {
     var generateTag = function() {
         var first = $('form input[name="first_name"]').val();
         var last  = $('form input[name="last_name"]').val();
-        var hash = createHash(first + ' ' + last);
+        var hash = createPersonHash(first,last);
         $('form input[name="tag"]').val(hash);
     }
 
@@ -423,6 +518,47 @@ function legal_new() {
 function legal_show(legalId) {
     
 }
+
+function topics_all() {
+    activeNav('topics-all');
+    db.view('geo-stories/all_topics', {
+        include_docs : true,
+        success : function(resp) {
+            $('.main').html(handlebars.templates['topics-all.html'](resp, {}));
+            $("table").tablesorter();
+        }
+    })
+
+}
+
+
+function topics_new() {
+    activeNav('topics-all');
+    $('.main').html(handlebars.templates['topics-new.html']({}, {}));
+
+
+
+    $('.primary').click(function() {
+        var topic  = $('form').formParams();
+        topic.type = 'topic';
+        topic.slug = createHash(topic.name);
+        db.saveDoc(topic, {
+            success : function() {
+                router.setRoute('/topics');
+            }
+        });
+        return false;
+    });
+
+    $('.cancel').click(function() {
+        return false;
+    })
+}
+
+function topics_show(legalId) {
+
+}
+
 
 function tags_all() {
     activeNav('tags-all');
@@ -485,7 +621,10 @@ var routes = {
   '/legal/:legalId' : legal_show,
   '/tags' : tags_all,
   '/tags/new' : tags_new,
-  '/tags/show/:tagHash' : tags_show
+  '/tags/show/:tagHash' : tags_show,
+   '/topics' : topics_all,
+   '/topics/new' : topics_new,
+   '/topics/show/:topicId/:topicSlug' : topics_show
 };
 
 

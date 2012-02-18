@@ -45,32 +45,18 @@
             
         </form>
 
-        <div class="transcript" style="display: none;">
-            <div class="entry">
-                <label class="time">8:29pm [00:01:39]</label>
-                <label><i class="icon tag yellow"></i> #2</label>
-                <div class="text">
-                    Fish had worms in gills.
-                </div>
-            </div>
-            <div class="entry">
-                <label class="time">8:23pm [00:00:39]</label>
-                <label><i class="icon tag blue"></i> #1</label>
-                <div class="text">
-                    Noticed a green color on the shore. 
-                </div>
-            </div>
-
+        <div class="transcript" >
 
         </div>
 
 
     </div>
     <div class="span3">
-        <ul class="">
-            <li class="active">Ryan Ramage</li>
-            <li class=""      >Mike West</li>
-            <li class="active">Caolan McMahon</li>
+        <h4>Who is speaking?</h4>
+        <ul class="participants disabled">
+            {{#each session.doc.participants_full}}
+               <li class="active disabled" data-topicId="{{doc.tag}}">{{doc.first_name}} {{doc.last_name}}</li>
+            {{/each}}
 
         </ul>
     </div>

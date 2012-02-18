@@ -1,0 +1,24 @@
+
+<div>
+    <a class="btn info" href="./#/topics/new">New Topic</a>
+</div>
+
+
+
+
+<table class="table striped-table">
+  <thead>
+    <tr>
+      <th>Topic</th>
+    </tr>
+  </thead>
+  <tbody>
+{{#each rows}}
+    <tr>
+      <td><a href="#/topics/show/{{id}}/{{key}}">{{doc.name}}</a></td>
+    </tr>
+{{/each}}
+  </tbody>
+</table>
+
+

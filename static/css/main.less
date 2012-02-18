@@ -9,31 +9,40 @@
 .topic {
     float: left;
     width: 145px; /* should be a variable. 1/3 of span6 */
+}
+
+.participants li, .topic {
     padding: 5px 2px;
-    
     border: 2px solid #fff;
     border-radius: 5px;
 }
 
+ul.participants {
+    list-style: none;
+    margin-left: 0;
+}
 
-.topics.disabled .topic {
+.topics.disabled .topic, .participants li.disabled {
     opacity:0.3;
     filter:alpha(opacity=30); /* For IE8 and earlier */
 }
 
 
-.topics.enabled .topic {
+.topics.enabled .topic , .participants li.enabled {
     cursor: pointer;
 }
 
 
 
-.topics.enabled .topic:hover {
+.topics.enabled .topic:hover, .participants li.enabled:hover {
     border: 2px solid #aaa;
-    background-color: #eee;
-    
+
 }
 
+ .participants li.talking {
+    border: 2px solid #aaa;
+    background-color: @infoBackground !important;
+ }
 
 
 
@@ -80,6 +89,7 @@ i.blue {
 
 .tag-text textarea {
     width: 490px !important;
+    min-height: 50px;
 }
 
 .tag-text button.primary {
