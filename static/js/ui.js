@@ -22,16 +22,14 @@ var createPersonHash = function(fistName, lastName) {
 var queryTags = function(query, callback) {
     var tags = [];
     db.view('geo-stories/all_tags', {
-        reduce : true,
-        group : true,
-        group_level : 1,
+        reduce : false,
         startkey :  query ,
         endkey :  query + '\ufff0' ,
         include_docs : false,
         success : function(resp) {
             tags = _.map(resp.rows, function(row) {
                 return {
-                    id: row.key,
+                    id: row.id,
                     name: row.key,
                     type: 'tag'
                 }
@@ -58,6 +56,24 @@ var queryPeople = function(query, callback) {
                 }
             })
             callback.call(this, people);
+        }
+    })
+}
+
+var queryTopics = function(query, callback) {
+    var topics = [];
+    db.view('geo-stories/all_topics', {
+        startkey :  query ,
+        endkey :  query + '\ufff0' ,
+        success : function(resp) {
+            topics = _.map(resp.rows, function(row) {
+                return {
+                    id: row.id,
+                    name: row.value,
+                    type: 'topic'
+                }
+            })
+            callback.call(this, topics);
         }
     })
 }
@@ -129,12 +145,62 @@ function load_event_sessions(eventId, callback) {
     })
 }
 
+function load_event_agendas(eventId, callback) {
+    db.view('geo-stories/event_agendas', {
+        key : eventId,
+        include_docs : true,
+        success : function(resp) {
+            callback(null, resp.rows);
+        }
+    })
+}
+
 function load_event_attendees(event, callback) {
     db.view('geo-stories/all_people', {
         keys: event.attendees,
         include_docs : true,
         success : function(resp) {
             callback(null, resp);
+        }
+    });
+}
+
+function createTagAutoComplete($elem, callback) {
+    var $input = $elem.find('input');
+    $input.autocomplete({
+        source : function(req, resp) {
+            queryTags(req.term, function(data) {
+;                resp( _.map( data, function( item ) {
+                    return {
+                        label: item.name,
+                        value: item.name,
+                        id : item.id
+                    }
+                }));
+            });
+        },
+        select: function(event, ui) {
+            callback(ui.item.id, ui.item.value);
+        }
+    });
+}
+
+function createTopicAutoComplete($elem, callback) {
+    var $input = $elem.find('input');
+    $input.autocomplete({
+        source : function(req, resp) {
+            queryTopics(req.term, function(data) {
+;                resp( _.map( data, function( item ) {
+                    return {
+                        label: item.name,
+                        value: item.name,
+                        id : item.id
+                    }
+                }));
+            });
+        },
+        select: function(event, ui) {
+            callback(ui.item.id, ui.item.value);
         }
     });
 }
@@ -148,13 +214,14 @@ function createPersonAutoComplete($elem, callback) {
                 resp( _.map( data, function( item ) {
                     return {
                         label: item.name,
-                        value: item.name
+                        value: item.name,
+                        id : item.id
                     }
                 }));
             });
         },
         select: function(event, ui) {
-            callback(ui.item.value);
+            callback(ui.item.id, ui.item.value);
         }
     });
 
@@ -194,14 +261,74 @@ function events_show(eventId) {
                    $('.attendees').html(handlebars.templates['people-table.html'](data, {}));
                });
             }
-            createPersonAutoComplete($('.personAutoComplete'), function(personHash) {
+            createPersonAutoComplete($('.personAutoComplete'), function(id, personHash) {
                 updateEventAttendees(eventId, personHash, 'add', function(result) {
                     window.location.reload();
                 });
             });
 
+            load_event_agendas(eventId, function(err, agendas) {
+                _.each(agendas, function(agenda_row) {
+                    appendAgenda(agenda_row.doc);
+                })
+            });
+            $('.add-agenda').click(function(){
+                var name = $('input[name="agendaName"]').val();
+                var agenda = {
+                    name : name,
+                    event : eventId,
+                    type : "sessionAgenda",
+                    items : []
+                }
+                db.saveDoc(agenda, {
+                    success : function(data) {
+                        console.log(data);
+                        appendAgenda(agenda);
+                    }
+                })
+            });
         }
     })
+}
+
+function appendAgenda (agenda) {
+    console.log(agenda);
+    $('.agendas').append(handlebars.templates['events-agenda.html'](agenda, {}));
+
+    createPersonAutoComplete($('#' + agenda._id +  ' .agenda-listing .personAutoComplete'), function(id, personHash) {
+        addAgendaItem(agenda._id, id, 'person', personHash, 'blue', function(err, result) {
+
+        });
+    });
+    createTagAutoComplete($('#' + agenda._id +  '.agenda-listing .tagAutoComplete'), function(id, tagHash) {
+        addAgendaItem(agenda._id, id, 'tag', tagHash, 'red', function(err, result) {
+
+        });
+    });
+    createTopicAutoComplete($('#' + agenda._id +  '.agenda-listing .topicAutoComplete'), function(id, name) {
+        addAgendaItem(agenda._id, id, 'topic', name, 'green', function(err, result) {
+
+        });
+    });
+}
+
+
+function addAgendaItem(agenda_id, id, type, text, colour, callback  ) {
+    $.post('./_db/_design/geo-stories/_update/updateAgenda/' + agenda_id + '?action=add&id=' + id + '&type=' + type +'&text=' + text + '&colour=' + colour, function(result) {
+        callback(null, result);
+    });
+}
+
+function removeAgendaItem(agenda_id, id,  callback  ) {
+    $.post('./_db/_design/geo-stories/_update/updateAgenda/' + agenda_id + '?action=remove&id=' + id , function(result) {
+        callback(null, result);
+    });
+}
+
+function updateAgendaItem(agenda_id, id, type, text, colour, callback  ) {
+    $.post('./_db/_design/geo-stories/_update/updateAgenda/' + agenda_id + '?action=update&id=' + id + '&type=' + type + '&text=' + text + '&colour=' + colour, function(result) {
+        callback(null, result);
+    });
 }
 
 
@@ -211,42 +338,48 @@ function session_new(eventId) {
             load_event_attendees(event, function(err, attendees_full){
 
                 event.attendees_full = attendees_full.rows;
-                $('.main').html(handlebars.templates['session-new.html'](event, {}));
 
 
-                $('table.attendees tr').click(function() {
-                    var $checkbox = $(this).find(':checkbox');
-                    $checkbox.prop('checked', !$checkbox[0].checked);
-                })
+                load_event_agendas(eventId, function(err, agendas) {
+                    console.log(agendas);
+                    event.agendas_full = agendas;
+                    $('.main').html(handlebars.templates['session-new.html'](event, {}));
 
 
-                $('.primary').click(function() {
-
-                    var participants = [];
-                    $('table.attendees input:checked').each(function() {
-                            participants.push($(this).attr('name'));
+                    $('table.attendees tr').click(function() {
+                        var $checkbox = $(this).find(':checkbox');
+                        $checkbox.prop('checked', !$checkbox[0].checked);
                     })
 
-                    console.log(participants);
 
-                    var event_session = {};
-                    event_session.participants = participants
-                    event_session.type = 'session';
-                    event_session.event = eventId;
-                    event_session.created = new Date().getTime();
-                    // should validate
+                    $('.primary').click(function() {
 
-                    db.saveDoc(event_session, {
-                        success : function(response) {
+                        var participants = [];
+                        $('table.attendees input:checked').each(function() {
+                                participants.push($(this).attr('name'));
+                        })
 
-                            router.setRoute('/events/' + eventId + '/session/' + response.id);
-                        }
+                        console.log(participants);
+
+                        var event_session = {};
+                        event_session.participants = participants
+                        event_session.type = 'session';
+                        event_session.event = eventId;
+                        event_session.created = new Date().getTime();
+                        // should validate
+
+                        db.saveDoc(event_session, {
+                            success : function(response) {
+
+                                router.setRoute('/events/' + eventId + '/session/' + response.id);
+                            }
+                        });
+                        return false;
                     });
-                    return false;
-                });
-                $('.cancel').click(function() {
-                   history.back();
-                   return false;
+                    $('.cancel').click(function() {
+                       history.back();
+                       return false;
+                    });
                 });
             });
         }

@@ -35,6 +35,11 @@
         </tbody>
     </table>
 
+
+    <h4>Select Agenda</h4>
+    {{#each agendas_full}}
+        <input type="radio" name="agenda" value="{{id}}" /> {{doc.name}} </br>
+    {{/each}}
 <form>
     <fieldset class="form-actions">
         <button class="btn primary">Create</button>
