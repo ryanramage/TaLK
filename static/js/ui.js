@@ -319,23 +319,53 @@ function appendAgenda (agenda) {
         });
     })
 
+    var initalColour = "000000";
 
     createPersonAutoComplete($('#' + agenda._id +  '.agenda-listing .personAutoComplete'), function(id, personHash) {
-        addAgendaItem(agenda._id, id, 'person', personHash, '000000', function(err, result) {
-
+        addAgendaItem(agenda._id, id, 'person', personHash, initalColour, function(err, result) {
+            addAgendaItemToUI(agenda, id, 'person', personHash, initalColour);
         });
     });
     createTagAutoComplete($('#' + agenda._id +  '.agenda-listing .tagAutoComplete'), function(id, tagHash) {
-        addAgendaItem(agenda._id, id, 'tag', tagHash, '000000', function(err, result) {
-
+        addAgendaItem(agenda._id, id, 'tag', tagHash, initalColour, function(err, result) {
+            addAgendaItemToUI(agenda, id, 'tag', tagHash, initalColour);
         });
     });
     createTopicAutoComplete($('#' + agenda._id +  '.agenda-listing .topicAutoComplete'), function(id, name) {
-        addAgendaItem(agenda._id, id, 'topic', name, '000000', function(err, result) {
-
+        addAgendaItem(agenda._id, id, 'topic', name, initalColour, function(err, result) {
+            addAgendaItemToUI(agenda, id, 'topic', name, initalColour);
         });
     });
 }
+
+
+function addAgendaItemToUI(agenda, id, type, text, colour) {
+    var item = {
+        id: id,
+        type: type,
+        colour: colour,
+        text: text
+    }
+    $('.agendas tbody').append(handlebars.templates['events-agenda-row.html'](item, {}));
+    $('#' + id +  ' .simple_color').bind('change', function(){
+        var colour = $(this).val();
+        if (colour) colour = colour.substring(1, colour.length); // remove the #
+        var id = $(this).data('id');
+        updateAgendaItemColour(agenda._id, id, colour, function(err, result) {
+
+        });
+    }).simpleColor();
+    $('#' + id +  ' button.delete').bind('click', function(){
+        var $me = $(this);
+        var id = $me.data('id');
+        removeAgendaItem(agenda._id, id,  function(err, result) {
+            $me.closest('tr').remove();
+        });
+    });
+}
+
+
+
 
 
 function addAgendaItem(agenda_id, id, type, text, colour, callback  ) {
