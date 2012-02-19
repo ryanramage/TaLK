@@ -181,6 +181,8 @@ function createTagAutoComplete($elem, callback) {
         },
         select: function(event, ui) {
             callback(ui.item.id, ui.item.value);
+            $input.val('');
+            return false;
         }
     });
 }
@@ -201,6 +203,8 @@ function createTopicAutoComplete($elem, callback) {
         },
         select: function(event, ui) {
             callback(ui.item.id, ui.item.value);
+            $input.val('');
+            return false;
         }
     });
 }
@@ -210,6 +214,7 @@ function createPersonAutoComplete($elem, callback) {
     var $btn   = $elem.find('button');
     $input.autocomplete({
         source : function(req, resp) {
+            console.log(req.term);
             queryPeople(req.term, function(data) {
                 resp( _.map( data, function( item ) {
                     return {
@@ -222,6 +227,8 @@ function createPersonAutoComplete($elem, callback) {
         },
         select: function(event, ui) {
             callback(ui.item.id, ui.item.value);
+            $input.val('');
+            return false;
         }
     });
 
@@ -313,7 +320,7 @@ function appendAgenda (agenda) {
     })
 
 
-    createPersonAutoComplete($('#' + agenda._id +  ' .agenda-listing .personAutoComplete'), function(id, personHash) {
+    createPersonAutoComplete($('#' + agenda._id +  '.agenda-listing .personAutoComplete'), function(id, personHash) {
         addAgendaItem(agenda._id, id, 'person', personHash, '000000', function(err, result) {
 
         });
