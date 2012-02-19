@@ -304,6 +304,15 @@ function appendAgenda (agenda) {
         });
     }).simpleColor();
 
+    $('#' + agenda._id +  ' button.delete').bind('click', function() {
+        var $me = $(this);
+        var id = $me.data('id');
+        removeAgendaItem(agenda._id, id,  function(err, result) {
+            $me.closest('tr').remove();
+        });
+    })
+
+
     createPersonAutoComplete($('#' + agenda._id +  ' .agenda-listing .personAutoComplete'), function(id, personHash) {
         addAgendaItem(agenda._id, id, 'person', personHash, '000000', function(err, result) {
 
@@ -329,7 +338,7 @@ function addAgendaItem(agenda_id, id, type, text, colour, callback  ) {
 }
 
 function removeAgendaItem(agenda_id, id,  callback  ) {
-    $.post('./_db/_design/geo-stories/_update/updateAgenda/' + agenda_id + '?action=remove&id=' + id , function(result) {
+    $.post('./_db/_design/geo-stories/_update/updateAgenda/' + agenda_id + '?action=delete&id=' + id , function(result) {
         callback(null, result);
     });
 }
