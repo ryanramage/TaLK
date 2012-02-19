@@ -295,18 +295,27 @@ function appendAgenda (agenda) {
     console.log(agenda);
     $('.agendas').append(handlebars.templates['events-agenda.html'](agenda, {}));
 
+    $('#' + agenda._id +  ' .simple_color').bind('change', function() {
+        var colour = $(this).val();
+        if (colour) colour = colour.substring(1, colour.length); // remove the #
+        var id = $(this).data('id');
+        updateAgendaItemColour(agenda._id, id, colour, function(err, result) {
+
+        });
+    }).simpleColor();
+
     createPersonAutoComplete($('#' + agenda._id +  ' .agenda-listing .personAutoComplete'), function(id, personHash) {
-        addAgendaItem(agenda._id, id, 'person', personHash, 'blue', function(err, result) {
+        addAgendaItem(agenda._id, id, 'person', personHash, '000000', function(err, result) {
 
         });
     });
     createTagAutoComplete($('#' + agenda._id +  '.agenda-listing .tagAutoComplete'), function(id, tagHash) {
-        addAgendaItem(agenda._id, id, 'tag', tagHash, 'red', function(err, result) {
+        addAgendaItem(agenda._id, id, 'tag', tagHash, '000000', function(err, result) {
 
         });
     });
     createTopicAutoComplete($('#' + agenda._id +  '.agenda-listing .topicAutoComplete'), function(id, name) {
-        addAgendaItem(agenda._id, id, 'topic', name, 'green', function(err, result) {
+        addAgendaItem(agenda._id, id, 'topic', name, '000000', function(err, result) {
 
         });
     });
@@ -325,8 +334,9 @@ function removeAgendaItem(agenda_id, id,  callback  ) {
     });
 }
 
-function updateAgendaItem(agenda_id, id, type, text, colour, callback  ) {
-    $.post('./_db/_design/geo-stories/_update/updateAgenda/' + agenda_id + '?action=update&id=' + id + '&type=' + type + '&text=' + text + '&colour=' + colour, function(result) {
+function updateAgendaItemColour(agenda_id, id, colour, callback  ) {
+    console.log(colour);
+    $.post('./_db/_design/geo-stories/_update/updateAgenda/' + agenda_id + '?action=update&id=' + id + '&colour=' + colour, function(result) {
         callback(null, result);
     });
 }
