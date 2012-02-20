@@ -28,20 +28,19 @@
 
 
         <div class="topics disabled">
-            <div class="topic"><i class="icon tag red"></i>Water</div>
-            <div class="topic"><i class="icon tag green"></i>Land Use</div>
-            <div class="topic"><i class="icon tag blue"></i>Soil</div>
-            <div class="topic"><i class="icon tag yellow"></i>Hunting & Fishing</div>
+            {{#each session.doc.agenda.items}}
+                <div class="topic" data-id="{{id}}" data-colour="{{colour}}"><i class="icon tag" style="background-color: #{{colour}}}"></i><span>{{text}}</span></div>
+            {{/each}}
         </div>
 
         <form class="tag-text well" style="display: none;">
-            <label class="time">8:29pm [00:01:39]</label>
-            <label><i class="icon tag yellow"></i> #3</label>
+            <label class="time"><span class="date-formatted"></span> <span class="time-formatted"></span></label>
+            <label><i class="icon tag"></i> #3</label>
             
             <textarea class="input-xlarge" name="textarea" id="textarea" rows="3"></textarea>
 
-            <button class="btn primary">Save</button>
-            <a class="btn help" href="#" title="Mark as important"><i class="icon flag" ></i></a>
+            <button class="btn primary save-mark">Save</button>
+            <a class="btn help mark-important" href="#" title="Mark as important"><i class="icon flag" ></i></a>
             
         </form>
 

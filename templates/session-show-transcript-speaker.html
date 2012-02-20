@@ -1,9 +1,11 @@
 <div class="entry">
      <label class="time">{{startTime_formated}} {{offset_formated}} </label>
      <div class="text">
-
-         <b>{{person}}</b> started talking
-
+         {{#if endTime}}
+            <b>{{person}}</b> finished talking
+         {{else}}
+             <b>{{person}}</b> started talking
+         {{/if}}
      </div>
 
 </div>

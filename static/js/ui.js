@@ -299,12 +299,11 @@ function events_show(eventId) {
 }
 
 function appendAgenda (agenda) {
-    console.log(agenda);
     $('.agendas').append(handlebars.templates['events-agenda.html'](agenda, {}));
 
     $('#' + agenda._id +  ' .simple_color').bind('change', function() {
         var colour = $(this).val();
-        if (colour) colour = colour.substring(1, colour.length); // remove the #
+        if (colour) colour = ''+ colour.substring(1, colour.length); // remove the #
         var id = $(this).data('id');
         updateAgendaItemColour(agenda._id, id, colour, function(err, result) {
 
@@ -349,7 +348,7 @@ function addAgendaItemToUI(agenda, id, type, text, colour) {
     $('.agendas tbody').append(handlebars.templates['events-agenda-row.html'](item, {}));
     $('#' + id +  ' .simple_color').bind('change', function(){
         var colour = $(this).val();
-        if (colour) colour = colour.substring(1, colour.length); // remove the #
+        if (colour) colour = '' + colour.substring(1, colour.length); // remove the #
         var id = $(this).data('id');
         updateAgendaItemColour(agenda._id, id, colour, function(err, result) {
 
@@ -397,7 +396,6 @@ function session_new(eventId) {
 
 
                 load_event_agendas(eventId, function(err, agendas) {
-                    console.log(agendas);
                     event.agendas_full = agendas;
                     $('.main').html(handlebars.templates['session-new.html'](event, {}));
 
@@ -417,10 +415,21 @@ function session_new(eventId) {
 
                         console.log(participants);
 
+
+                        var agenda_id;
+                        $('input[name="agenda"]:checked').each(function() {
+                            agenda_id = $(this).val();
+                        })
+
+                        var agenda_selected = _.find(event.agendas_full, function(agenda) { return agenda.id === agenda_id });
+
+
+
                         var event_session = {};
                         event_session.participants = participants
                         event_session.type = 'session';
                         event_session.event = eventId;
+                        event_session.agenda = agenda_selected.doc;
                         event_session.created = new Date().getTime();
                         // should validate
 
@@ -444,11 +453,52 @@ function session_new(eventId) {
 }
 
 
-function startNewMark(thing_id) {
+var ugly_current_session_mark;
+
+function startNewMark(sessionId, startTime, thing_id, colour, text ) {
     $('.tag-text').show();
     var timestamp = new Date().getTime();
+    var sessionMark = {
+        type : 'sessionEvent',
+        sessionId : sessionId,
+        sessionType: 'mark',
+        startTime : timestamp,
+        thing_id : thing_id,
+        colour : colour,
+        text : text
+    }
+    var startTime_formated = moment(sessionMark.startTime).format('h:mm:ss a');
+    var offset = (sessionMark.startTime - startTime) / 1000;
+    var offset_formated = convertTime(offset);
+
+    $('form.tag-text  label.time span.date-formatted').text(startTime_formated);
+    $('form.tag-text label.time span.time-formatted').text('[' + offset_formated + ']');
+    console.log(colour);
+    $('form.tag-text i.icon.tag').css('background-color', '#' + colour);
+    ugly_current_session_mark = sessionMark;
 
 }
+
+function setSessionMarkAsImportant () {
+    ugly_current_session_mark.important = true;
+}
+
+function saveSessionMark() {
+    $('.tag-text textarea').mentionsInput('val', function(text) {
+        ugly_current_session_mark.text = text;
+        $('.tag-text textarea').mentionsInput('getMentions', function(tags) {
+            ugly_current_session_mark.tags = tags;
+            ugly_current_session_mark.endTime = new Date().getTime();
+            db.saveDoc(ugly_current_session_mark, {
+                success : function(doc) {
+                    $('.tag-text textarea').mentionsInput('reset');
+                    $('.tag-text').hide(100);
+                }
+            })
+        })
+    })
+}
+
 
 function endSpeaker(sessionSpeakerId) {
     $.post('./_db/_design/geo-stories/_update/endSessionSpeaker/' + sessionSpeakerId , function(result) {
@@ -471,12 +521,6 @@ function startSpeaker(sessionId, personHash, callback){
 }
 
 
-function sessionListener(sessionId, $trascriptDiv) {
-    var $changes = db.changes(null, {filter :  "geo-stories/sessionEvents", include_docs: true, sessionId : sessionId});
-    $changes.onChange(function (change) {
-        console.log(change);
-    });
-}
 
 function session_show(eventId, sessionId) {
     async.parallel({
@@ -551,10 +595,12 @@ function session_show(eventId, sessionId) {
                 .addClass('enabled');
 
 
-            $('.topics').click(function() {
+            $('.topics .topic').click(function() {
                 var me = $(this);
-                var thing_id = me.data('topicid');
-                startNewMark(thing_id);
+                var thing_id = me.data('id');
+                var colour   = me.data('colour');
+                var text     = me.find('span').text();
+                startNewMark(sessionId, doc.recordingState.startComplete, thing_id, colour, text);
             });
             $('.participants li').click(function() {
                 var me = $(this);
@@ -571,8 +617,19 @@ function session_show(eventId, sessionId) {
                     })
                 }
             });
+            $('.mark-important').button().click(function() {
+                $(this).button('toggle');
+                setSessionMarkAsImportant();
+            });
+            $('.save-mark').click(function(){
+                $('.mark-important').button('reset').removeClass('active');
+                saveSessionMark();
+                return false;
+            });
+
+
             $('.transcript').show();
-            sessionListener(sessionId, $('.transcript'));
+            sessionListener(sessionId, $('.transcript'), doc.recordingState.startComplete);
 
 
 
@@ -614,6 +671,16 @@ function session_show(eventId, sessionId) {
     });
 }
 
+function sessionListener(sessionId, $trascriptDiv, startTime) {
+    var $changes = db.changes(null, {filter :  "geo-stories/sessionEvents", include_docs: true, sessionId : sessionId});
+    $changes.onChange(function (change) {
+        console.log(change);
+        _.each(change.results, function(result){
+            session_show_transcripts([result], startTime);
+        });
+    });
+}
+
 function sessionStartTime(sessionDetails) {
     if (sessionDetails.recording && sessionDetails.recording.doc.recordingState && sessionDetails.recording.doc.recordingState.startComplete) {
         return sessionDetails.recording.doc.recordingState.startComplete;
@@ -628,15 +695,27 @@ function session_show_transcripts(transcript_events, startTime) {
         if (sessionEvent.doc.sessionType == 'speaker') {
             renderSpeaker(sessionEvent.doc, startTime);
         }
+        if (sessionEvent.doc.sessionType == 'mark') {
+            renderMark(sessionEvent.doc, startTime);
+        }
     } )
 }
 
+function addTimeFormatting(sessionThing, startTime) {
+    sessionThing.startTime_formated = moment(sessionThing.startTime).format('h:mm:ssa');
+    var offset = (sessionThing.startTime - startTime) / 1000;
+    sessionThing.offset_formated = convertTime(offset);
+}
+
+function renderMark(sessionMark, startTime) {
+    addTimeFormatting(sessionMark, startTime);
+    $('.transcript').prepend(handlebars.templates['session-show-transcript-mark.html'](sessionMark, {}));
+}
+
+
 function renderSpeaker(sessionEvent, startTime) {
-    sessionEvent.startTime_formated = moment(sessionEvent.startTime).format('h:mm:ss a');
-    var offset = (sessionEvent.startTime - startTime) / 1000;
-    sessionEvent.offset_formated = offset;
-    console.log(sessionEvent);
-    $('.transcript').append(handlebars.templates['session-show-transcript-speaker.html'](sessionEvent, {}));
+    addTimeFormatting(sessionEvent, startTime);
+    $('.transcript').prepend(handlebars.templates['session-show-transcript-speaker.html'](sessionEvent, {}));
 }
 
 
@@ -648,7 +727,6 @@ function people_all() {
     db.view('geo-stories/all_people', {
         include_docs : true,
         success : function(resp) {
-            console.log(resp);
             $('.main').html(handlebars.templates['people-all.html'](resp, {}));
             $("table").tablesorter();
         }
@@ -756,7 +834,6 @@ function tags_all() {
         group : true,
         group_level : 1,
         success : function(resp) {
-            console.log(resp);
             $('.main').html(handlebars.templates['tags-all.html'](resp, {}));
             $("table").tablesorter();
         }
@@ -839,5 +916,26 @@ $(function() {
     })
 });
 
+var timeFormat = {
+         showHour: true,
+         showMin: true,
+         showSec: true,
+         padHour: false,
+         padMin: true,
+         padSec: true,
+         sepHour: ":",
+         sepMin: ":",
+         sepSec: ""
+ };
 
+ var convertTime = function(s) {
+         var myTime = new Date(s * 1000);
+         var hour = myTime.getUTCHours();
+         var min = myTime.getUTCMinutes();
+         var sec = myTime.getUTCSeconds();
+         var strHour = (timeFormat.padHour && hour < 10) ? "0" + hour : hour;
+         var strMin = (timeFormat.padMin && min < 10) ? "0" + min : min;
+         var strSec = (timeFormat.padSec && sec < 10) ? "0" + sec : sec;
+         return ( strHour + timeFormat.sepHour ) + ((timeFormat.showMin) ? strMin + timeFormat.sepMin : "") + ((timeFormat.showSec) ? strSec + timeFormat.sepSec : "");
+ };
 
