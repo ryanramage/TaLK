@@ -214,7 +214,7 @@ function createPersonAutoComplete($elem, callback) {
     var $btn   = $elem.find('button');
     $input.autocomplete({
         source : function(req, resp) {
-            console.log(req.term);
+
             queryPeople(req.term, function(data) {
                 resp( _.map( data, function( item ) {
                     return {
@@ -289,7 +289,7 @@ function events_show(eventId) {
                 }
                 db.saveDoc(agenda, {
                     success : function(data) {
-                        console.log(data);
+
                         appendAgenda(agenda);
                     }
                 })
@@ -380,7 +380,7 @@ function removeAgendaItem(agenda_id, id,  callback  ) {
 }
 
 function updateAgendaItemColour(agenda_id, id, colour, callback  ) {
-    console.log(colour);
+
     $.post('./_db/_design/geo-stories/_update/updateAgenda/' + agenda_id + '?action=update&id=' + id + '&colour=' + colour, function(result) {
         callback(null, result);
     });
@@ -413,7 +413,7 @@ function session_new(eventId) {
                                 participants.push($(this).attr('name'));
                         })
 
-                        console.log(participants);
+
 
 
                         var agenda_id;
@@ -455,7 +455,7 @@ function session_new(eventId) {
 
 var ugly_current_session_mark;
 
-function startNewMark(sessionId, startTime, thing_id, colour, text ) {
+function startNewMark(sessionId, startTime, thing_id, colour, text) {
     $('.tag-text').show();
     var timestamp = new Date().getTime();
     var sessionMark = {
@@ -465,7 +465,8 @@ function startNewMark(sessionId, startTime, thing_id, colour, text ) {
         startTime : timestamp,
         thing_id : thing_id,
         colour : colour,
-        text : text
+        text : text,
+        sessionEventCount : 1
     }
     var startTime_formated = moment(sessionMark.startTime).format('h:mm:ss a');
     var offset = (sessionMark.startTime - startTime) / 1000;
@@ -473,9 +474,19 @@ function startNewMark(sessionId, startTime, thing_id, colour, text ) {
 
     $('form.tag-text  label.time span.date-formatted').text(startTime_formated);
     $('form.tag-text label.time span.time-formatted').text('[' + offset_formated + ']');
-    console.log(colour);
+
     $('form.tag-text i.icon.tag').css('background-color', '#' + colour);
+
     ugly_current_session_mark = sessionMark;
+
+
+    findHighestSessionEventNumber(sessionId, function(err, highest) {
+        highest += 1;
+
+        $('form.tag-text span.sessionEventCount').text(highest + '');
+        ugly_current_session_mark.sessionEventCount = highest;
+    })
+
 
 }
 
@@ -520,7 +531,19 @@ function startSpeaker(sessionId, personHash, callback){
     });
 }
 
-
+function findHighestSessionEventNumber(sessionId, callback) {
+    var highest = 0;
+    db.view('geo-stories/session_highest_session_number', {
+        key:sessionId,
+        reduce: true ,
+        success : function(resp) {
+            if (resp.rows.length == 1 && resp.rows[0].value) {
+                highest = resp.rows[0].value.max;
+            }
+            callback(null, highest);
+        }
+    });
+}
 
 function session_show(eventId, sessionId) {
     async.parallel({
@@ -557,10 +580,10 @@ function session_show(eventId, sessionId) {
         });
 
         var session_startTime = sessionStartTime(result);
-        console.log(session_startTime);
+
         result.startTime_formated = moment(session_startTime).format('MMM DD, YYYY, h:mm:ss a')
 
-        console.log(result.startTime_formated);
+
         $('.main').html(handlebars.templates['session-show.html'](result, {}));
 
         $('.help').tooltip({placement: 'bottom'});
@@ -615,7 +638,6 @@ function session_show(eventId, sessionId) {
                     endSpeaker(sessionSpeakerId);
                 } else {
                     startSpeaker(sessionId, personHash, function(doc) {
-                        console.log(doc);
                         me.data('sessionSpeakerId', doc.id);
                     })
                 }
@@ -639,7 +661,7 @@ function session_show(eventId, sessionId) {
 
 
         }).bind("recordingComplete", function(event, doc) {
-                console.log(doc);
+
                 $('.topics, .participants li')
                     .addClass('disabled')
                     .removeClass('enabled');
@@ -688,7 +710,6 @@ function session_show(eventId, sessionId) {
 function sessionListener(sessionId, $trascriptDiv, startTime) {
     var $changes = db.changes(null, {filter :  "geo-stories/sessionEvents", include_docs: true, sessionId : sessionId});
     $changes.onChange(function (change) {
-        console.log(change);
         _.each(change.results, function(result){
             session_show_transcripts([result], startTime);
         });
@@ -704,7 +725,7 @@ function sessionStartTime(sessionDetails) {
 
 
 function session_show_transcripts(transcript_events, startTime) {
-    console.log('show trans', transcript_events);
+
     _.each(transcript_events, function(sessionEvent) {
         if (sessionEvent.doc.sessionType == 'speaker') {
             renderSpeaker(sessionEvent.doc, startTime);
@@ -749,7 +770,7 @@ function people_all() {
 
 function people_new(name) {
     activeNav('people-all');
-    console.log('people', name)
+
     $('.main').html(handlebars.templates['people-new.html']({}, {}));
 
     var generateTag = function() {
@@ -861,7 +882,7 @@ function tags_new() {
 
     $('form input[name="name"]').change(function() {
         var hash = createHash($(this).val());
-        console.log(hash);
+
         $('form input[name="hash"]').val(hash);
     })
 
