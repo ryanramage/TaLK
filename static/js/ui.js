@@ -556,8 +556,11 @@ function session_show(eventId, sessionId) {
             return _.find(result.event.attendees_full, function(attendee){return attendee.key === participant});
         });
 
-        console.log(result);
+        var session_startTime = sessionStartTime(result);
+        console.log(session_startTime);
+        result.startTime_formated = moment(session_startTime).format('MMM DD, YYYY, h:mm:ss a')
 
+        console.log(result.startTime_formated);
         $('.main').html(handlebars.templates['session-show.html'](result, {}));
 
         $('.help').tooltip({placement: 'bottom'});
@@ -569,7 +572,7 @@ function session_show(eventId, sessionId) {
 
 
 
-        session_show_transcripts(result.events, sessionStartTime(result));
+        session_show_transcripts(result.events, session_startTime);
 
         if (result.recording) {
           recorder.couchaudiorecorder("loadRecording", result.recording.doc._id);
@@ -636,9 +639,20 @@ function session_show(eventId, sessionId) {
 
 
         }).bind("recordingComplete", function(event, doc) {
+                console.log(doc);
                 $('.topics, .participants li')
                     .addClass('disabled')
                     .removeClass('enabled');
+
+                var recordingComplete = {
+                    doc_id : doc._id,
+                    recorded_date_formatted : moment(doc.recordingState.startComplete).format('MMM DD, YYYY, h:mm:ss a'),
+                    length : convertTime((doc.recordingState.stopComplete - doc.recordingState.startComplete) / 1000)
+                }
+
+
+                $('.recordingComplete').html(handlebars.templates['session-show-recordingComplete.html'](recordingComplete, {}));
+
         });
 
 

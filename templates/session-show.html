@@ -8,7 +8,7 @@
     <a href="#/events/{{event._id}}">{{event.name}}</a> <span class="divider">/</span>
   </li>
   <li class="active">
-    <a href="#/events/{{event._id}}/session/{{session.doc._id}}">{{session.doc.created}}</a>
+    <a href="#/events/{{event._id}}/session/{{session.doc._id}}">{{startTime_formated}}</a>
   </li>
 </ul>
 
@@ -21,6 +21,9 @@
 
     <div class="span2">
         <div class="recorder"></div>
+        <div class="recordingComplete">
+
+        </div>
     </div>
 
     <div class="span7">
