@@ -1,6 +1,6 @@
 @import "packages/bootstrap/bootstrap/lib/bootstrap.less";
 /* Now use bootstrap and less! */
-
+@timebar_height:                 6px;
 
 .topics {
     min-height: 80px;
@@ -129,6 +129,110 @@ table.attendees tr:hover {
     margin-top: 15px;
 }
 
+.play .control .btn {
+    font-size: 30px;
+    line-height: 40px;
+}
+
+.header-controls {
+    position: fixed;
+    background-color: #ffffff;
+    padding-top: 20px;
+    z-index: 10;
+}
+
+
+
+// start
+.play .jp-progress-bar {
+    background: #706d6d;
+
+    -webkit-border-radius:5px;
+    -moz-border-radius:5px;
+    border-radius:5px;
+
+    -webkit-box-shadow:
+        inset 0px 1px 4px rgba(0,0,0,.4),
+        0px 1px 0px rgba(255,255,255,.4);
+    -moz-box-shadow:
+        inset 0px 1px 4px rgba(0,0,0,.4),
+        0px 1px 0px rgba(255,255,255,.4);
+    box-shadow:
+        inset 0px 1px 4px rgba(0,0,0,.4),
+        0px 1px 0px rgba(255,255,255,.4);
+
+    float:left;
+    margin-top: 37px;
+    margin-left: 0;
+    width: 880px;
+}
+
+.play .jp-seek-bar {
+    width:0px;
+    height:100%;
+    cursor: pointer;
+}
+
+.play .jp-seeking-bg {
+    background:#575555;
+    -webkit-border-radius:5px;
+    -moz-border-radius:5px;
+    border-radius:5px;
+}
+
+.play .jp-play-bar {
+    background: url("play-bar.png") left repeat-x;
+    width:0px;
+    height:10px;
+    position:relative;
+    z-index: 9999;
+
+    -webkit-border-radius:5px;
+    -moz-border-radius:5px;
+    border-radius:5px;
+}
+
+.play .jp-play-bar span {
+    position:absolute;
+    top: -3px;
+    right: -12px;
+
+    background:url("handle.png") no-repeat center;
+    width: 16px;
+    height: 17px;
+}
+// end
+
+.play .playlist {
+    min-height: 1000px;
+    margin-top: 70px;
+}
+
+.play .entry {
+    //padding-left: 0 !important;
+    margin-left: -20px;
+}
+
+.play .timebar {
+    position: relative;
+    top: -10px;
+
+    width: 880px;
+    height: @timebar_height;
+}
+
+.play .timebar .time {
+    position: absolute;
+    height: @timebar_height;
+    left: 100px;
+    width: 10px;
+    background-color: #e8e8e8;
+    cursor: pointer;
+}
+
+.static-main {
+    margin-top: 40px;
+}
 
 /*        Sticky Footer */
 

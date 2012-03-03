@@ -545,7 +545,7 @@ function findHighestSessionEventNumber(sessionId, callback) {
     });
 }
 
-function session_show(eventId, sessionId) {
+function load_session_assets(eventId, sessionId, callback) {
     async.parallel({
         assets : function(callback) {
             // get all the session assets
@@ -567,10 +567,10 @@ function session_show(eventId, sessionId) {
                     });
                 }
             });
-        }     
+        }
     },
     function(err, result) {
-        if (err) return alert('error: ' + err);
+        if (err) callback(err);
         result.session = _.find(result.assets, function(asset){  if(asset.doc.type === 'session') return true;  } )
         result.recording = _.find(result.assets, function(asset){  if(asset.doc.type !== 'session') return true;  } )
         result.events = _.filter(result.assets, function(asset){ if(asset.doc.type === 'sessionEvent') return true;   });
@@ -581,20 +581,24 @@ function session_show(eventId, sessionId) {
 
         var session_startTime = sessionStartTime(result);
 
-        result.startTime_formated = moment(session_startTime).format('MMM DD, YYYY, h:mm:ss a')
+        result.startTime_formated = moment(session_startTime).format('MMM DD, YYYY, h:mm:ss a');
+        callback(null, result);
+    });
+
+}
 
 
+function session_show(eventId, sessionId) {
+
+    load_session_assets(eventId, sessionId, function(err, result) {
+        if (err) return alert('error: ' + err);
         $('.main').html(handlebars.templates['session-show.html'](result, {}));
-
         $('.help').tooltip({placement: 'bottom'});
-
         var recorder = $('.recorder').couchaudiorecorder({
                   db : db,
                   designDoc : 'geo-stories'
         });
-
-
-
+        var session_startTime = sessionStartTime(result);
         session_show_transcripts(result.events, session_startTime);
 
         if (result.recording) {
@@ -707,6 +711,84 @@ function session_show(eventId, sessionId) {
     });
 }
 
+
+function session_play(eventId, sessionId) {
+    load_session_assets(eventId, sessionId, function(err, result) {
+        if (err) return alert('error: ' + err);
+        $('.main').html(handlebars.templates['session-play.html'](result, {}));
+        var session_startTime = sessionStartTime(result);
+        session_show_transcripts(result.events, session_startTime, {
+            element : '.playlist',
+            prepend : false,
+            show_timebar: true
+        });
+
+
+        $('.control .btn').button();
+        $('.navbar')
+            .removeClass('navbar-static')
+            .addClass('navbar-fixed');
+        $('.container[role="main"]').addClass('static-main');
+
+        $player = $('.player');
+        $player.jPlayer({
+           swfPath: "/couchaudiorecorder/js/jPlayer",
+           cssSelectorAncestor: "#" + result.session.id,
+           ready : function() {
+               playerReady = true;
+               playDoc($player, result.recording.doc);
+           }
+        }).bind($.jPlayer.event.ended, function(event) {
+
+        });
+        $('.play .jp-play-bar span').draggable({
+            axis: "x",
+            containment: ".jp-progress-bar",
+            opacity: 0.7,
+            helper: "clone"
+        });
+        $('.play .timebar .time').resizable({
+            maxHeight: 4,
+            minHeight: 4,
+            minWidth: 2,
+            containment: "parent",
+            handles: 'e, w'
+        });
+
+    });
+}
+
+function session_play_leave() {
+    $('.navbar')
+        .addClass('navbar-static')
+        .removeClass('navbar-fixed');
+    $('.container[role="main"]').removeClass('static-main');
+}
+
+function playDoc(player, doc) {
+    var attachment = findMp3AttachmentName(doc);
+    var url = 'audio/' + doc._id + '/' + attachment;
+    player.jPlayer("setMedia", {
+        mp3: url
+    }).jPlayer("play");;
+    //uiPlaying(doc);
+}
+
+function findMp3AttachmentName(doc) {
+  var attachment;
+  for (attachment in doc._attachments) {
+      if (attachment.match(/mp3$/)) {
+          return attachment;
+      }
+  }
+  return null;
+}
+
+function endsWith(str, suffix) {
+   return (str[str.length - 1] == suffix);
+}
+
+
 function sessionListener(sessionId, $trascriptDiv, startTime) {
     var $changes = db.changes(null, {filter :  "geo-stories/sessionEvents", include_docs: true, sessionId : sessionId});
     $changes.onChange(function (change) {
@@ -716,6 +798,11 @@ function sessionListener(sessionId, $trascriptDiv, startTime) {
     });
 }
 
+function remove_changes_listeners() {
+
+}
+
+
 function sessionStartTime(sessionDetails) {
     if (sessionDetails.recording && sessionDetails.recording.doc.recordingState && sessionDetails.recording.doc.recordingState.startComplete) {
         return sessionDetails.recording.doc.recordingState.startComplete;
@@ -724,33 +811,61 @@ function sessionStartTime(sessionDetails) {
 }
 
 
-function session_show_transcripts(transcript_events, startTime) {
+function session_show_transcripts(transcript_events, startTime, options) {
 
+    if (!options) options = {};
     _.each(transcript_events, function(sessionEvent) {
+        console.log(sessionEvent);
         if (sessionEvent.doc.sessionType == 'speaker') {
-            renderSpeaker(sessionEvent.doc, startTime);
+            renderSpeaker(sessionEvent.doc, startTime, options);
         }
         if (sessionEvent.doc.sessionType == 'mark') {
-            renderMark(sessionEvent.doc, startTime);
+            renderMark(sessionEvent.doc, startTime, options);
         }
     } )
 }
 
 function addTimeFormatting(sessionThing, startTime) {
     sessionThing.startTime_formated = moment(sessionThing.startTime).format('h:mm:ssa');
-    var offset = (sessionThing.startTime - startTime) / 1000;
-    sessionThing.offset_formated = convertTime(offset);
+    sessionThing.offset             = (sessionThing.startTime - startTime) / 1000;
+    sessionThing.offset_end         = (sessionThing.endTime - startTime) / 1000;
+    sessionThing.offset_formated = convertTime(sessionThing.offset);
 }
 
-function renderMark(sessionMark, startTime) {
+function renderMark(sessionMark, startTime, settings) {
+    var defaults = {
+        element : '.transcript',
+        prepend : true,
+        show_timebar : false
+    }
+    settings = _.defaults(settings, defaults);
     addTimeFormatting(sessionMark, startTime);
-    $('.transcript').prepend(handlebars.templates['session-show-transcript-mark.html'](sessionMark, {}));
+    sessionMark.show_timebar = settings.show_timebar;
+    var rendered = handlebars.templates['session-show-transcript-mark.html'](sessionMark, {});
+    if (settings.prepend) {
+        $(settings.element).prepend(rendered);
+    } else {
+        $(settings.element).append(rendered);
+    }
+
 }
 
 
-function renderSpeaker(sessionEvent, startTime) {
+function renderSpeaker(sessionEvent, startTime, settings) {
+    var defaults = {
+        element : '.transcript',
+        prepend : true,
+        show_timebar : false
+    }
+    settings = _.defaults(settings, defaults);
     addTimeFormatting(sessionEvent, startTime);
-    $('.transcript').prepend(handlebars.templates['session-show-transcript-speaker.html'](sessionEvent, {}));
+    sessionEvent.show_timebar = settings.show_timebar;
+    var rendered = handlebars.templates['session-show-transcript-speaker.html'](sessionEvent, {});
+    if (settings.prepend) {
+        $(settings.element).prepend(rendered);
+    } else {
+        $(settings.element).apped(rendered);
+    }
 }
 
 
@@ -912,7 +1027,14 @@ var routes = {
   '/events/new' : events_new,
   '/events/:eventId' : events_show,
   '/events/:eventId/session/new' : session_new,
-  '/events/:eventId/session/:sessionId' : session_show,
+  '/events/:eventId/session/:sessionId/play' : {
+      on : session_play,
+      after : session_play_leave
+  },
+  '/events/:eventId/session/:sessionId' : {
+      on : session_show,
+      after : remove_changes_listeners
+  },
   '/people' : people_all,
   '/people/new' : people_new,
   '/people/new/:personName' : people_new,
