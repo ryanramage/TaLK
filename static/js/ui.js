@@ -717,10 +717,17 @@ function session_play(eventId, sessionId) {
         if (err) return alert('error: ' + err);
         $('.main').html(handlebars.templates['session-play.html'](result, {}));
         var session_startTime = sessionStartTime(result);
+        var session_endTime = sessionEndTime(result);
+        var audio_duration = session_endTime - session_startTime;
+
+        var timeline_width = parseInt( $('.jp-progress-bar').width() );
+        var pps = calculatePixelsPerSecond(timeline_width, audio_duration / 1000, 1 );
+
         session_show_transcripts(result.events, session_startTime, {
             element : '.playlist',
             prepend : false,
-            show_timebar: true
+            show_timebar: true,
+            pps : pps
         });
 
 
@@ -753,7 +760,7 @@ function session_play(eventId, sessionId) {
             minWidth: 2,
             containment: "parent",
             handles: 'e, w'
-        });
+        }).tooltip({placement: 'right', delay: { show: 500, hide: 100 } });
 
     });
 }
@@ -811,6 +818,14 @@ function sessionStartTime(sessionDetails) {
 }
 
 
+function sessionEndTime(sessionDetails) {
+    if (sessionDetails.recording && sessionDetails.recording.doc.recordingState && sessionDetails.recording.doc.recordingState.stopComplete) {
+        return sessionDetails.recording.doc.recordingState.stopComplete;
+    }
+    return sessionDetails.session.doc.created;
+}
+
+
 function session_show_transcripts(transcript_events, startTime, options) {
 
     if (!options) options = {};
@@ -841,6 +856,12 @@ function renderMark(sessionMark, startTime, settings) {
     settings = _.defaults(settings, defaults);
     addTimeFormatting(sessionMark, startTime);
     sessionMark.show_timebar = settings.show_timebar;
+    if (sessionMark.show_timebar) {
+        sessionMark.timebar_left = settings.pps * sessionMark.offset;
+        sessionMark.timebar_width = settings.pps * (sessionMark.offset_end - sessionMark.offset);
+    }
+
+
     var rendered = handlebars.templates['session-show-transcript-mark.html'](sessionMark, {});
     if (settings.prepend) {
         $(settings.element).prepend(rendered);
@@ -1072,6 +1093,22 @@ $(function() {
 
     })
 });
+
+calculatePixelsPerSecond = function(divWidth, audioDuration, zoom ) {
+	if (!zoom) zoom = 1;
+	return divWidth / (audioDuration * zoom);
+}
+
+calculateSecondsPerPixel = function(divWidth, audioDuration, zoom ) {
+	if (!zoom) zoom = 1;
+	return (audioDuration * zoom)/divWidth;
+}
+
+calculateSecondsPixelSize = function(seconds, pps) {
+	var result =  Math.round(seconds * pps);
+	if (!result) return 1;
+	return result;
+}
 
 var timeFormat = {
          showHour: true,
