@@ -712,57 +712,103 @@ function session_show(eventId, sessionId) {
 }
 
 
-function session_play(eventId, sessionId) {
-    load_session_assets(eventId, sessionId, function(err, result) {
-        if (err) return alert('error: ' + err);
-        $('.main').html(handlebars.templates['session-play.html'](result, {}));
-        var session_startTime = sessionStartTime(result);
-        var session_endTime = sessionEndTime(result);
-        var audio_duration = session_endTime - session_startTime;
+function fromTimeString(string) {
 
-        var timeline_width = parseInt( $('.jp-progress-bar').width() );
-        var pps = calculatePixelsPerSecond(timeline_width, audio_duration / 1000, 1 );
-
-        session_show_transcripts(result.events, session_startTime, {
-            element : '.playlist',
-            prepend : false,
-            show_timebar: true,
-            pps : pps
-        });
+}
 
 
-        $('.control .btn').button();
+function calculateStartTimeSeconds(startRequest, sessionEvents, event_start) {
+    if (startRequest === 'start') return 0;
+    if (startRequest.indexOf(':') > 0 ) {
+        return fromTimeString(startRequest);
+    }
+    // it is an event id
+    console.log('event id');
+    var session_event = _.find(sessionEvents, function(event) {
+        console.log(event, startRequest);
+        if (startRequest === event.id)  return true;
+    })
+    if (session_event) {
+        console.log(session_event, event_start);
+        return (session_event.doc.startTime - event_start  ) / 1000;
+    }
+}
+
+var cached_session_assets;
+
+function session_play(eventId, sessionId, startRequest) {
+    var start = start || 0;
+    // check to see if we are already loaded
+    if ($('#' + sessionId).length == 1) {
+        var session_startTime = sessionStartTime(cached_session_assets);
+        var startTime = calculateStartTimeSeconds(startRequest, cached_session_assets.events, session_startTime);
+        console.log('loaded, start: ', startTime);
+        $('.player').jPlayer('play', startTime);
         $('.navbar')
             .removeClass('navbar-static')
             .addClass('navbar-fixed');
         $('.container[role="main"]').addClass('static-main');
+    } else {
+        load_session_assets(eventId, sessionId, function(err, result) {
+            if (err) return alert('error: ' + err);
+            console.log(result);
+            $('.main').html(handlebars.templates['session-play.html'](result, {}));
+            cached_session_assets = result;
+            var session_startTime = sessionStartTime(result);
+            var session_endTime = sessionEndTime(result);
+            var audio_duration = session_endTime - session_startTime;
 
-        $player = $('.player');
-        $player.jPlayer({
-           swfPath: "/couchaudiorecorder/js/jPlayer",
-           cssSelectorAncestor: "#" + result.session.id,
-           ready : function() {
-               playerReady = true;
-               playDoc($player, result.recording.doc);
-           }
-        }).bind($.jPlayer.event.ended, function(event) {
+            var timeline_width = parseInt( $('.jp-progress-bar').width() );
+            var pps = calculatePixelsPerSecond(timeline_width, audio_duration / 1000, 1 );
+
+            session_show_transcripts(result.events, session_startTime, {
+                element : '.playlist',
+                prepend : false,
+                show_timebar: true,
+                pps : pps
+            });
+
+
+            $('.control .btn').button();
+            $('.navbar')
+                .removeClass('navbar-static')
+                .addClass('navbar-fixed');
+            $('.container[role="main"]').addClass('static-main');
+
+            $player = $('.player');
+            $player.jPlayer({
+               swfPath: "/couchaudiorecorder/js/jPlayer",
+               cssSelectorAncestor: "#" + result.session.id,
+               ready : function() {
+                   var session_startTime = sessionStartTime(cached_session_assets);
+                   var startTime = calculateStartTimeSeconds(startRequest, cached_session_assets.events, session_startTime);
+                   playDoc($player, result.recording.doc, startTime);
+               }
+            }).bind($.jPlayer.event.ended, function(event) {
+
+            });
+            $('.play .jp-play-bar span').draggable({
+                axis: "x",
+                containment: ".jp-progress-bar",
+                opacity: 0.7,
+                helper: "clone"
+            });
+            $('.play .timebar .time').resizable({
+                maxHeight: 4,
+                minHeight: 4,
+                minWidth: 2,
+                containment: "parent",
+                handles: 'e, w'
+            }).tooltip({placement: 'right', delay: { show: 500, hide: 100 } })
+              .on('click', function() {
+                    var id = $(this).data('id');
+                    router.setRoute('events/' + eventId + '/session/' + sessionId + '/play/' + id);
+              });
 
         });
-        $('.play .jp-play-bar span').draggable({
-            axis: "x",
-            containment: ".jp-progress-bar",
-            opacity: 0.7,
-            helper: "clone"
-        });
-        $('.play .timebar .time').resizable({
-            maxHeight: 4,
-            minHeight: 4,
-            minWidth: 2,
-            containment: "parent",
-            handles: 'e, w'
-        }).tooltip({placement: 'right', delay: { show: 500, hide: 100 } });
+    }
 
-    });
+
 }
 
 function session_play_leave() {
@@ -772,12 +818,13 @@ function session_play_leave() {
     $('.container[role="main"]').removeClass('static-main');
 }
 
-function playDoc(player, doc) {
+function playDoc(player, doc, startTime) {
+    console.log('play doc: ', startTime);
     var attachment = findMp3AttachmentName(doc);
     var url = 'audio/' + doc._id + '/' + attachment;
     player.jPlayer("setMedia", {
         mp3: url
-    }).jPlayer("play");;
+    }).jPlayer("play", startTime);;
     //uiPlaying(doc);
 }
 
@@ -1048,7 +1095,7 @@ var routes = {
   '/events/new' : events_new,
   '/events/:eventId' : events_show,
   '/events/:eventId/session/new' : session_new,
-  '/events/:eventId/session/:sessionId/play' : {
+  '/events/:eventId/session/:sessionId/play/:start' : {
       on : session_play,
       after : session_play_leave
   },
