@@ -806,14 +806,26 @@ function session_play(eventId, sessionId, startRequest) {
                     var id = $me.data('id');
                     var left = $me.css('left').replace('px', '');
                     var width = $me.css('width').replace('px', '');
-                    var new_start_time = (calculateSecondsFromPixals(left, pps) * 1000)  + session_startTime
+                    var start = calculateSecondsFromPixals(left, pps);
+                    var new_start_time = (start * 1000)  + session_startTime
                     var new_end_time = (calculateSecondsFromPixals(width, pps) * 1000) + new_start_time;
-                    updateSessionEvent(id, new_start_time, new_end_time);
+                    updateSessionEvent(id, new_start_time, new_end_time, function(err) {
+                        if (err) return alert('could not update: ' + err);
+                        $player.jPlayer('play', start);
+                    });
                 }
             }).tooltip({placement: 'right', delay: { show: 500, hide: 100 } })
               .on('click', function() {
                     var id = $(this).data('id');
-                    router.setRoute('events/' + eventId + '/session/' + sessionId + '/play/' + id);
+                    var route = 'events/' + eventId + '/session/' + sessionId + '/play/' + id;
+                    if (window.location.hash == '#/' + route) {
+                        // since we are on the url, we have to play direct
+                        var left = $(this).css('left').replace('px', '');
+                        var start = calculateSecondsFromPixals(left, pps);
+                        $player.jPlayer('play', start);
+                    } else {
+                        router.setRoute('events/' + eventId + '/session/' + sessionId + '/play/' + id);
+                    }
               });
 
         });
@@ -822,18 +834,23 @@ function session_play(eventId, sessionId, startRequest) {
 
 }
 
-function updateSessionEvent (id, new_start_time, new_end_time) {
+function updateSessionEvent (id, new_start_time, new_end_time, callback) {
     $.post('./_db/_design/geo-stories/_update/updateSessionEvent/' + id + '?start_time=' + new_start_time + '&end_time=' + new_end_time , function(result) {
-        if (result === 'update complete') {
-            if (!cached_session_assets) return;
-            // update any cache
-            _.each(cached_session_assets.events, function(event) {
-                if (event.id === id) {
-                    event.doc.startTime = new_start_time;
-                    event.doc.endTime = new_end_time;
-                }
-            });
+        console.log(result);
+        if (result == 'update complete') {
+            console.log('assets');
+            if (cached_session_assets) {
+                // update any cache
+                _.each(cached_session_assets.events, function(event) {
+                    if (event.id === id) {
+                        event.doc.startTime = new_start_time;
+                        event.doc.endTime = new_end_time;
+                    }
+                });
+            }
+            return callback(null);
         }
+        return callback(result);
     });
 }
 
