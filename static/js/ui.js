@@ -574,6 +574,8 @@ function load_session_assets(eventId, sessionId, callback) {
         result.session = _.find(result.assets, function(asset){  if(asset.doc.type === 'session') return true;  } )
         result.recording = _.find(result.assets, function(asset){  if(asset.doc.type !== 'session') return true;  } )
         result.events = _.filter(result.assets, function(asset){ if(asset.doc.type === 'sessionEvent') return true;   });
+        result.events = _.sortBy(result.events, function(event){ return event.doc.sessionEventCount });
+
 
         result.session.doc.participants_full = _.map(result.session.doc.participants, function(participant){
             return _.find(result.event.attendees_full, function(attendee){return attendee.key === participant});
@@ -798,7 +800,16 @@ function session_play(eventId, sessionId, startRequest) {
                 minHeight: 4,
                 minWidth: 2,
                 containment: "parent",
-                handles: 'e, w'
+                handles: 'e, w',
+                stop: function(event, ui) {
+                    var $me = $(this);
+                    var id = $me.data('id');
+                    var left = $me.css('left').replace('px', '');
+                    var width = $me.css('width').replace('px', '');
+                    var new_start_time = (calculateSecondsFromPixals(left, pps) * 1000)  + session_startTime
+                    var new_end_time = (calculateSecondsFromPixals(width, pps) * 1000) + new_start_time;
+                    updateSessionEvent(id, new_start_time, new_end_time);
+                }
             }).tooltip({placement: 'right', delay: { show: 500, hide: 100 } })
               .on('click', function() {
                     var id = $(this).data('id');
@@ -810,6 +821,22 @@ function session_play(eventId, sessionId, startRequest) {
 
 
 }
+
+function updateSessionEvent (id, new_start_time, new_end_time) {
+    $.post('./_db/_design/geo-stories/_update/updateSessionEvent/' + id + '?start_time=' + new_start_time + '&end_time=' + new_end_time , function(result) {
+        if (result === 'update complete') {
+            if (!cached_session_assets) return;
+            // update any cache
+            _.each(cached_session_assets.events, function(event) {
+                if (event.id === id) {
+                    event.doc.startTime = new_start_time;
+                    event.doc.endTime = new_end_time;
+                }
+            });
+        }
+    });
+}
+
 
 function session_play_leave() {
     $('.navbar')
@@ -1156,6 +1183,11 @@ calculateSecondsPixelSize = function(seconds, pps) {
 	if (!result) return 1;
 	return result;
 }
+
+calculateSecondsFromPixals = function(pixals, pps) {
+    return pixals / pps;
+}
+
 
 var timeFormat = {
          showHour: true,
