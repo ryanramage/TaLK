@@ -1,53 +1,59 @@
-VERSION=2.0.0
-BOOTSTRAP = ./bootstrap.css
-BOOTSTRAP_MIN = ./bootstrap.min.css
-BOOTSTRAP_LESS = ./lib/bootstrap.less
-BOOTSTRAP_RESPONSIVE = ./bootstrap-responsive.css
-BOOTSTRAP_RESPONSIVE_MIN = ./bootstrap-responsive.min.css
-BOOTSTRAP_RESPONSIVE_LESS = ./lib/responsive.less
+BOOTSTRAP = ./docs/assets/css/bootstrap.css
+BOOTSTRAP_LESS = ./less/bootstrap.less
+BOOTSTRAP_RESPONSIVE = ./docs/assets/css/bootstrap-responsive.css
+BOOTSTRAP_RESPONSIVE_LESS = ./less/responsive.less
 LESS_COMPRESSOR ?= `which lessc`
-UGLIFY_JS ?= `which uglifyjs`
 WATCHR ?= `which watchr`
 
 #
-# Build less files
+# BUILD DOCS
 #
 
-build:
-	@@if test ! -z ${LESS_COMPRESSOR}; then \
-		sed -e 's/@VERSION/'"v${VERSION}"'/' -e 's/@DATE/'"`date`"'/' <${BOOTSTRAP_LESS} >${BOOTSTRAP_LESS}.tmp; \
-		lessc ${BOOTSTRAP_LESS}.tmp > ${BOOTSTRAP}; \
-		lessc ${BOOTSTRAP_LESS}.tmp > ${BOOTSTRAP_MIN} --compress; \
-		rm -f ${BOOTSTRAP_LESS}.tmp; \
-		sed -e 's/@VERSION/'"v${VERSION}"'/' -e 's/@DATE/'"`date`"'/' <${BOOTSTRAP_RESPONSIVE_LESS} >${BOOTSTRAP_RESPONSIVE_LESS}.tmp; \
-		lessc ${BOOTSTRAP_RESPONSIVE_LESS}.tmp > ${BOOTSTRAP_RESPONSIVE}; \
-		lessc ${BOOTSTRAP_RESPONSIVE_LESS}.tmp > ${BOOTSTRAP_RESPONSIVE_MIN} --compress; \
-		rm -f ${BOOTSTRAP_RESPONSIVE_LESS}.tmp; \
-		echo "Bootstrap successfully built! - `date`"; \
-	else \
-		echo "You must have the LESS compiler installed in order to build Bootstrap."; \
-		echo "You can install it by running: npm install less -g"; \
-	fi
+docs: bootstrap
+	rm docs/assets/bootstrap.zip
+	zip -r docs/assets/bootstrap.zip bootstrap
+	rm -r bootstrap
+	lessc ${BOOTSTRAP_LESS} > ${BOOTSTRAP}
+	lessc ${BOOTSTRAP_RESPONSIVE_LESS} > ${BOOTSTRAP_RESPONSIVE}
+	node docs/build
+	cp img/* docs/assets/img/
+	cp js/*.js docs/assets/js/
+	cp js/tests/vendor/jquery.js docs/assets/js/
+	cp js/tests/vendor/jquery.js docs/assets/js/
 
 #
-# Watch less files
+# BUILD SIMPLE BOOTSTRAP DIRECTORY
+# lessc & uglifyjs are required
+#
+
+bootstrap:
+	mkdir -p bootstrap/img
+	mkdir -p bootstrap/css
+	mkdir -p bootstrap/js
+	cp img/* bootstrap/img/
+	lessc ${BOOTSTRAP_LESS} > bootstrap/css/bootstrap.css
+	lessc --compress ${BOOTSTRAP_LESS} > bootstrap/css/bootstrap.min.css
+	lessc ${BOOTSTRAP_RESPONSIVE_LESS} > bootstrap/css/bootstrap-responsive.css
+	lessc --compress ${BOOTSTRAP_RESPONSIVE_LESS} > bootstrap/css/bootstrap-responsive.min.css
+	cat js/bootstrap-transition.js js/bootstrap-alert.js js/bootstrap-button.js js/bootstrap-carousel.js js/bootstrap-collapse.js js/bootstrap-dropdown.js js/bootstrap-modal.js js/bootstrap-tooltip.js js/bootstrap-popover.js js/bootstrap-scrollspy.js js/bootstrap-tab.js js/bootstrap-typeahead.js > bootstrap/js/bootstrap.js
+	uglifyjs -nc bootstrap/js/bootstrap.js > bootstrap/js/bootstrap.min.js
+
+#
+# MAKE FOR GH-PAGES 4 FAT & MDO ONLY (O_O  )
+#
+
+gh-pages: docs
+	rm -f ../bootstrap-gh-pages/assets/bootstrap.zip
+	node docs/build production
+	cp -r docs/* ../bootstrap-gh-pages
+
+#
+# WATCH LESS FILES
 #
 
 watch:
-	@@if test ! -z ${WATCHR}; then \
-	  echo "Watching less files..."; \
-	  watchr -e "watch('lib/.*\.less') { system 'make' }"; \
-	else \
-		echo "You must have the watchr installed in order to watch Bootstrap Less files."; \
-		echo "You can install it by running: gem install watchr"; \
-	fi
-
-#
-# Build docs from templates
-#
-
-docs:
-	@ node docs/build
+	echo "Watching less files..."; \
+	watchr -e "watch('less/.*\.less') { system 'make' }"
 
 
-.PHONY: build watch docs
+.PHONY: dist docs watch gh-pages

@@ -4,8 +4,9 @@
   <h1>{{_i}}Base CSS{{/i}}</h1>
   <p class="lead">{{_i}}On top of the scaffolding, basic HTML elements are styled and enhanced with extensible classes to provide a fresh, consistent look and feel.{{/i}}</p>
   <div class="subnav">
-    <ul class="nav pills">
+    <ul class="nav nav-pills">
       <li><a href="#typography">{{_i}}Typography{{/i}}</a></li>
+      <li><a href="#code">{{_i}}Code{{/i}}</a></li>
       <li><a href="#tables">{{_i}}Tables{{/i}}</a></li>
       <li><a href="#forms">{{_i}}Forms{{/i}}</a></li>
       <li><a href="#buttons">{{_i}}Buttons{{/i}}</a></li>
@@ -28,7 +29,7 @@
   <div class="row">
     <div class="span4">
       <h3>{{_i}}Typographic scale{{/i}}</h3>
-      <p>{{_i}}The entire typographic grid is based on two Less variables in our preboot.less file: <code>@baseFontSize</code> and <code>@baseLineHeight</code>. The first is the base font-size used throughout and the second is the base line-height.{{/i}}</p>
+      <p>{{_i}}The entire typographic grid is based on two Less variables in our variables.less file: <code>@baseFontSize</code> and <code>@baseLineHeight</code>. The first is the base font-size used throughout and the second is the base line-height.{{/i}}</p>
       <p>{{_i}}We use those variables, and some math, to create the margins, paddings, and line-heights of all our type and more.{{/i}}</p>
     </div>
     <div class="span4">
@@ -278,104 +279,53 @@
       </dl>
     </div>
   </div><!-- /row -->
+</section>
 
 
-  <!-- Code -->
 
-  <h2>{{_i}}Code <small>Inline and block</small>{{/i}}</h2>
-  <table class="table table-bordered table-striped">
-    <thead>
-      <tr>
-        <th style="width: 190px;">{{_i}}Element{{/i}}</th>
-        <th>{{_i}}Result{{/i}}</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>&lt;code&gt;</code></td>
-        <td>{{_i}}In a line of text like this, your wrapped code will look like this <code>&lt;html&gt;</code> element.{{/i}}</td>
-      </tr>
-      <tr>
-        <td><code>&lt;pre&gt;</code></td>
-        <td>
-<pre>&lt;div&gt;
-  &lt;h1&gt;{{_i}}Heading{{/i}}&lt;/h1&gt;
-  &lt;p&gt;{{_i}}Something right here…{{/i}}&lt;/p&gt;
-&lt;/div&gt;</pre>
-          <p>{{_i}}<strong>Note:</strong> Be sure to keep code within <code>&lt;pre&gt;</code> tags as close to the left as possible; it will render all tabs.{{/i}}</p>
-        </td>
-      </tr>
-      <tr>
-        <td><code>&lt;pre class="prettyprint"&gt;</code></td>
-        <td>
-          <p>{{_i}}Using the google-code-prettify library, your blocks of code get a slightly different visual style and automatic syntax highlighting. You can also add an additional class to add line numbers.{{/i}}</p>
-<pre class="prettyprint">&lt;div&gt;
-  &lt;h1&gt;{{_i}}Heading{{/i}}&lt;/h1&gt;
-  &lt;p&gt;{{_i}}Something right here…{{/i}}&lt;/p&gt;
-&lt;/div&gt;</pre>
-<pre class="prettyprint linenums">&lt;div&gt;
-  &lt;h1&gt;{{_i}}Heading{{/i}}&lt;/h1&gt;
-  &lt;p&gt;{{_i}}Something right here…{{/i}}&lt;/p&gt;
-&lt;/div&gt;</pre>
-          <p>{{_i}}<a href="http://code.google.com/p/google-code-prettify/">Download google-code-prettify</a> and view the readme for <a href="http://google-code-prettify.googlecode.com/svn/trunk/README.html">how to use</a>.{{/i}}</p>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <!-- Labels -->
-  <h2>{{_i}}Inline labels <small>for special attention</small>{{/i}}</h2>
-  <table class="table table-bordered table-striped">
-    <thead>
-      <tr>
-        <th style="width: 190px;">{{_i}}Labels{{/i}}</th>
-        <th>{{_i}}Markup{{/i}}</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>
-          <span class="label">{{_i}}Default{{/i}}</span>
-        </td>
-        <td>
-          <code>&lt;span class="label"&gt;{{_i}}Default{{/i}}&lt;/span&gt;</code>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <span class="label success">{{_i}}New{{/i}}</span>
-        </td>
-        <td>
-          <code>&lt;span class="label success"&gt;{{/_i}}New{{/i}}&lt;/span&gt;</code>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <span class="label warning">{{_i}}Warning{{/i}}</span>
-        </td>
-        <td>
-          <code>&lt;span class="label warning"&gt;{{_i}}Warning{{/i}}&lt;/span&gt;</code>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <span class="label important">{{_i}}Important{{/i}}</span>
-        </td>
-        <td>
-          <code>&lt;span class="label important"&gt;{{_i}}Important{{/i}}&lt;/span&gt;</code>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <span class="label info">{{_i}}Info{{/i}}</span>
-        </td>
-        <td>
-          <code>&lt;span class="label info"&gt;{{_i}}Info{{/i}}&lt;/span&gt;</code>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
+<!-- Code
+================================================== -->
+<section id="code">
+  <div class="page-header">
+    <h1>{{_i}}Code{{/i}} <small>{{_i}}Inline and block code snippets{{/i}}</small></h1>
+  </div>
+  <div class="row">
+    <div class="span4">
+      <h2>Inline</h2>
+      <p>Wrap inline snippets of code with <code>&lt;code&gt;</code>.</p>
+<pre class="prettyprint linenums">
+{{_i}}For example, &lt;code&gt;section&lt;/code&gt; should be wrapped as inline.{{/i}}
+</pre>
+    </div><!--/span-->
+    <div class="span4">
+      <h2>Basic block</h2>
+      <p>{{_i}}Use <code>&lt;pre&gt;</code> for multiple lines of code. Be sure to escape any angle brackets in the code for proper rendering.{{/i}}</p>
+<pre>
+&lt;p&gt;{{_i}}Sample text here...{{/i}}&lt;/p&gt;
+</pre>
+<pre class="prettyprint linenums" style="margin-bottom: 9px;">
+&lt;pre&gt;
+  &amp;lt;p&amp;gt;{{_i}}Sample text here...{{/i}}&amp;lt;/p&amp;gt;
+&lt;/pre&gt;
+</pre>
+      <p>{{_i}}<strong>Note:</strong> Be sure to keep code within <code>&lt;pre&gt;</code> tags as close to the left as possible; it will render all tabs.{{/i}}</p>
+      <p>{{_i}}You may optionally add the <code>.pre-scrollable</code> class which will set a max-height of 350px and provide a y-axis scrollbar.{{/i}}</p>
+    </div><!--/span-->
+    <div class="span4">
+      <h2>Google Prettify</h2>
+      <p>Take the same <code>&lt;pre&gt;</code> element and add two optional classes for enhanced rendering.</p>
+<pre class="prettyprint linenums" style="margin-bottom: 9px;">
+&lt;p&gt;{{_i}}Sample text here...{{/i}}&lt;/p&gt;
+</pre>
+<pre class="prettyprint linenums" style="margin-bottom: 9px;">
+&lt;pre class="prettyprint
+     linenums"&gt;
+  &amp;lt;p&amp;gt;{{_i}}Sample text here...{{/i}}&amp;lt;/p&amp;gt;
+&lt;/pre&gt;
+</pre>
+      <p>{{_i}}<a href="http://code.google.com/p/google-code-prettify/">Download google-code-prettify</a> and view the readme for <a href="http://google-code-prettify.googlecode.com/svn/trunk/README.html">how to use</a>.{{/i}}</p>
+    </div><!--/span-->
+  </div><!--/row-->
 </section>
 
 
@@ -505,7 +455,7 @@
         <td>
           <code>.table-bordered</code>
         </td>
-        <td>{{_i}}Rounds corners and adds outter border{{/i}}</td>
+        <td>{{_i}}Rounds corners and adds outer border{{/i}}</td>
       </tr>
       <tr>
         <td>{{_i}}Zebra-stripe{{/i}}</td>
@@ -575,7 +525,7 @@
   <div class="row">
     <div class="span4">
       <p>{{_i}}Get a little fancy with your tables by adding zebra-striping&mdash;just add the <code>.table-striped</code> class.{{/i}}</p>
-      <p class="muted">{{_i}}<strong>Note:</strong> Sprited tables use the <code>:nth-child</code> CSS selector and is not available in IE7-IE8.{{/i}}</p>
+      <p class="muted">{{_i}}<strong>Note:</strong> Striped tables use the <code>:nth-child</code> CSS selector and is not available in IE7-IE8.{{/i}}</p>
 <pre class="prettyprint linenums" style="margin-bottom: 18px;">
 &lt;table class="table table-striped"&gt;
   …
@@ -808,11 +758,6 @@
         <td>{{_i}}Stacked, left-aligned labels over controls{{/i}}</td>
       </tr>
       <tr>
-        <th>{{_i}}Horizontal{{/i}}</th>
-        <td><code>.form-horizontal</code></td>
-        <td>{{_i}}Float left, right-aligned labels on same line as controls{{/i}}</td>
-      </tr>
-      <tr>
         <th>{{_i}}Inline{{/i}}</th>
         <td><code>.form-inline</code></td>
         <td>{{_i}}Left-aligned label and inline-block controls for compact style{{/i}}</td>
@@ -822,14 +767,19 @@
         <td><code>.form-search</code></td>
         <td>{{_i}}Extra-rounded text input for a typical search aesthetic{{/i}}</td>
       </tr>
+      <tr>
+        <th>{{_i}}Horizontal{{/i}}</th>
+        <td><code>.form-horizontal</code></td>
+        <td>{{_i}}Float left, right-aligned labels on same line as controls{{/i}}</td>
+      </tr>
     </tbody>
   </table>
 
 
   <h2>{{_i}}Example forms <small>using just form controls, no extra markup</small>{{/i}}</h2>
-  <h3>{{_i}}Basic form{{/i}}</h3>
   <div class="row">
     <div class="span3">
+      <h3>{{_i}}Basic form{{/i}}</h3>
       <p>{{_i}}With v2.0, we have lighter and smarter defaults for form styles. No extra markup, just form controls.{{/i}}</p>
     </div>
     <div class="span9">
@@ -841,11 +791,22 @@
         </label>
         <button type="submit" class="btn">{{_i}}Submit{{/i}}</button>
       </form>
+<pre class="prettyprint linenums">
+&lt;form class="well"&gt;
+  &lt;label&gt;{{_i}}Label name{{/i}}&lt;/label&gt;
+  &lt;input type="text" class="span3" placeholder="{{_i}}Type something…{{/i}}"&gt;
+  &lt;span class="help-inline"&gt;Associated help text!&lt;/span&gt;
+  &lt;label class="checkbox"&gt;
+    &lt;input type="checkbox"&gt; {{_i}}Check me out{{/i}}
+  &lt;/label&gt;
+  &lt;button type="submit" class="btn"&gt;{{_i}}Submit{{/i}}&lt;/button&gt;
+&lt;/form&gt;
+</pre>
     </div>
   </div> <!-- /row -->
-  <h3>{{_i}}Search form{{/i}}</h3>
   <div class="row">
     <div class="span3">
+      <h3>{{_i}}Search form{{/i}}</h3>
       <p>{{_i}}Reflecting default WebKit styles, just add <code>.form-search</code> for extra rounded search fields.{{/i}}</p>
     </div>
     <div class="span9">
@@ -853,19 +814,35 @@
         <input type="text" class="input-medium search-query">
         <button type="submit" class="btn">{{_i}}Search{{/i}}</button>
       </form>
+<pre class="prettyprint linenums">
+&lt;form class="well form-search"&gt;
+  &lt;input type="text" class="input-medium search-query"&gt;
+  &lt;button type="submit" class="btn"&gt;{{_i}}Search{{/i}}&lt;/button&gt;
+&lt;/form&gt;
+</pre>
     </div>
   </div> <!-- /row -->
-  <h3>{{_i}}Inline form{{/i}}</h3>
   <div class="row">
     <div class="span3">
+      <h3>{{_i}}Inline form{{/i}}</h3>
       <p>{{_i}}Inputs are block level to start. For <code>.form-inline</code> and <code>.form-horizontal</code>, we use inline-block.{{/i}}</p>
     </div>
     <div class="span9">
-      <form class="well form-search">
+      <form class="well form-inline">
         <input type="text" class="input-small" placeholder="{{_i}}Email{{/i}}">
         <input type="password" class="input-small" placeholder="{{_i}}Password{{/i}}">
-        <button type="submit" class="btn">{{_i}}Go{{/i}}</button>
+        <label class="checkbox">
+          <input type="checkbox"> {{_i}}Remember?{{/i}}
+        </label>
+        <button type="submit" class="btn">{{_i}}Sign in{{/i}}</button>
       </form>
+<pre class="prettyprint linenums">
+&lt;form class="well form-inline"&gt;
+  &lt;input type="text" class="input-small" placeholder="{{_i}}Email{{/i}}"&gt;
+  &lt;input type="password" class="input-small" placeholder="{{_i}}Password{{/i}}"&gt;
+  &lt;button type="submit" class="btn"&gt;{{_i}}Go{{/i}}&lt;/button&gt;
+&lt;/form&gt;
+</pre>
     </div>
   </div><!-- /row -->
 
@@ -889,7 +866,7 @@
             <div class="controls">
               <label class="checkbox">
                 <input type="checkbox" id="optionsCheckbox" value="option1">
-                {{_i}}Option one is this and that&mdash;be sure to include why it’s great{{/i}}
+                {{_i}}Option one is this and that&mdash;be sure to include why it's great{{/i}}
               </label>
             </div>
           </div>
@@ -906,7 +883,7 @@
             </div>
           </div>
           <div class="control-group">
-            <label class="control-label" for="multiSelect">{{_i}}Multi-select{{/i}}</label>
+            <label class="control-label" for="multiSelect">{{_i}}Multicon-select{{/i}}</label>
             <div class="controls">
               <select multiple="multiple" id="multiSelect">
                 <option>1</option>
@@ -930,29 +907,43 @@
             </div>
           </div>
           <div class="form-actions">
-            <button type="submit" class="btn primary">{{_i}}Save changes{{/i}}</button>
-            <button type="reset" class="btn">{{_i}}Cancel{{/i}}</button>
+            <button type="submit" class="btn btn-primary">{{_i}}Save changes{{/i}}</button>
+            <button class="btn">{{_i}}Cancel{{/i}}</button>
           </div>
         </fieldset>
       </form>
+      <h3>{{_i}}Example markup{{/i}}</h3>
+      <p>{{_i}}Given the above example form layout, here's the markup associated with the first input and control group. The <code>.control-group</code>, <code>.control-label</code>, and <code>.controls</code> classes are all required for styling.{{/i}}</p>
+<pre class="prettyprint linenums">
+&lt;form class="form-horizontal"&gt;
+  &lt;fieldset&gt;
+    &lt;legend&gt;{{_i}}Legend text{{/i}}&lt;/legend&gt;
+    &lt;div class="control-group"&gt;
+      &lt;label class="control-label" for="input01"&gt;{{_i}}Text input{{/i}}&lt;/label&gt;
+      &lt;div class="controls"&gt;
+        &lt;input type="text" class="input-xlarge" id="input01"&gt;
+        &lt;p class="help-block"&gt;{{_i}}Supporting help text{{/i}}&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/fieldset&gt;
+&lt;/form&gt;
+</pre>
     </div>
     <div class="span4">
-      <div class="form-docs">
-        <h3>{{_i}}What's included{{/i}}</h3>
-        <p>{{_i}}Shown on the left are all the default form controls we support. Here's the bulleted list:{{/i}}</p>
-        <ul>
-          <li>{{_i}}text inputs (text, password, email, etc){{/i}}</li>
-          <li>{{_i}}checkbox{{/i}}</li>
-          <li>{{_i}}radio{{/i}}</li>
-          <li>{{_i}}select{{/i}}</li>
-          <li>{{_i}}multiple select{{/i}}</li>
-          <li>{{_i}}file input{{/i}}</li>
-          <li>{{_i}}textarea{{/i}}</li>
-        </ul>
-        <hr>
-        <h3>{{_i}}New defaults with v2.0{{/i}}</h3>
-        <p>{{_i}}Up to v1.4, Bootstrap's default form styles used the horizontal layout. With Bootstrap 2, we removed that constraint to have smarter, more scalable defaults for any form.{{/i}}</p>
-      </div>
+      <h3>{{_i}}What's included{{/i}}</h3>
+      <p>{{_i}}Shown on the left are all the default form controls we support. Here's the bulleted list:{{/i}}</p>
+      <ul>
+        <li>{{_i}}text inputs (text, password, email, etc){{/i}}</li>
+        <li>{{_i}}checkbox{{/i}}</li>
+        <li>{{_i}}radio{{/i}}</li>
+        <li>{{_i}}select{{/i}}</li>
+        <li>{{_i}}multiple select{{/i}}</li>
+        <li>{{_i}}file input{{/i}}</li>
+        <li>{{_i}}textarea{{/i}}</li>
+      </ul>
+      <hr>
+      <h3>{{_i}}New defaults with v2.0{{/i}}</h3>
+      <p>{{_i}}Up to v1.4, Bootstrap's default form styles used the horizontal layout. With Bootstrap 2, we removed that constraint to have smarter, more scalable defaults for any form.{{/i}}</p>
     </div>
   </div>
 
@@ -967,6 +958,12 @@
             <label class="control-label" for="focusedInput">{{_i}}Focused input{{/i}}</label>
             <div class="controls">
               <input class="input-xlarge focused" id="focusedInput" type="text" value="{{_i}}This is focused…{{/i}}">
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label">Uneditable input</label>
+            <div class="controls">
+              <span class="input-xlarge uneditable-input">Some value here</span>
             </div>
           </div>
           <div class="control-group">
@@ -985,9 +982,9 @@
             </div>
           </div>
           <div class="control-group warning">
-            <label class="control-label" for="inputError">{{_i}}Input with warning{{/i}}</label>
+            <label class="control-label" for="inputWarning">{{_i}}Input with warning{{/i}}</label>
             <div class="controls">
-              <input type="text" id="inputError">
+              <input type="text" id="inputWarning">
               <span class="help-inline">{{_i}}Something may have gone wrong{{/i}}</span>
             </div>
           </div>
@@ -999,9 +996,9 @@
             </div>
           </div>
           <div class="control-group success">
-            <label class="control-label" for="inputError">{{_i}}Input with success{{/i}}</label>
+            <label class="control-label" for="inputSuccess">{{_i}}Input with success{{/i}}</label>
             <div class="controls">
-              <input type="text" id="inputError">
+              <input type="text" id="inputSuccess">
               <span class="help-inline">{{_i}}Woohoo!{{/i}}</span>
             </div>
           </div>
@@ -1019,26 +1016,24 @@
             </div>
           </div>
           <div class="form-actions">
-            <button type="submit" class="btn primary">{{_i}}Save changes{{/i}}</button>
-            <button type="reset" class="btn">{{_i}}Cancel{{/i}}</button>
+            <button type="submit" class="btn btn-primary">{{_i}}Save changes{{/i}}</button>
+            <button class="btn">{{_i}}Cancel{{/i}}</button>
           </div>
         </fieldset>
       </form>
     </div>
     <div class="span4">
-      <div class="form-docs">
-        <h3>{{_i}}Redesigned browser states{{/i}}</h3>
-        <p>{{_i}}Bootstrap features styles for browser-supported focused and <code>disabled</code> states. We remove the default Webkit <code>outline</code> and apply a <code>box-shadow</code> in it's place for <code>:focus</code>.{{/i}}</p>
-        <hr>
-        <h3>{{_i}}Form validation{{/i}}</h3>
-        <p>{{_i}}It also includes validation styles for errors, warnings, and success. To use, add the a class to the surrounding <code>.control-group</code>.{{/i}}</p>
+      <h3>{{_i}}Redesigned browser states{{/i}}</h3>
+      <p>{{_i}}Bootstrap features styles for browser-supported focused and <code>disabled</code> states. We remove the default Webkit <code>outline</code> and apply a <code>box-shadow</code> in its place for <code>:focus</code>.{{/i}}</p>
+      <hr>
+      <h3>{{_i}}Form validation{{/i}}</h3>
+      <p>{{_i}}It also includes validation styles for errors, warnings, and success. To use, add the error class to the surrounding <code>.control-group</code>.{{/i}}</p>
 <pre class="prettyprint linenums">
 &lt;fieldset
   class="control-group error"&gt;
   …
 &lt;/fieldset&gt;
 </pre>
-      </div>
     </div>
   </div>
 
@@ -1050,12 +1045,42 @@
         <fieldset>
           <legend>{{_i}}Extending form controls{{/i}}</legend>
           <div class="control-group">
-            <label class="control-label">{{_i}}Form sizes{{/i}}</label>
+            <label class="control-label">{{_i}}Form grid sizes{{/i}}</label>
             <div class="controls docs-input-sizes">
+              <input class="span1" type="text" placeholder=".span1">
               <input class="span2" type="text" placeholder=".span2">
               <input class="span3" type="text" placeholder=".span3">
-              <input class="span4" type="text" placeholder=".span4">
+              <select class="span1">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+              </select>
+              <select class="span2">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+              </select>
+              <select class="span3">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+              </select>
               <p class="help-block">{{_i}}Use the same <code>.span*</code> classes from the grid system for input sizes.{{/i}}</p>
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label">{{_i}}Alternate sizes{{/i}}</label>
+            <div class="controls docs-input-sizes">
+              <input class="input-mini" type="text" placeholder=".input-mini">
+              <input class="input-small" type="text" placeholder=".input-small">
+              <input class="input-medium" type="text" placeholder=".input-medium">
+              <p class="help-block">{{_i}}You may also use static classes that don't map to the grid, adapt to the responsive CSS styles, or account for varying types of controls (e.g., <code>input</code> vs. <code>select</code>).{{/i}}</p>
             </div>
           </div>
           <div class="control-group">
@@ -1097,7 +1122,7 @@
             <div class="controls">
               <label class="checkbox">
                 <input type="checkbox" name="optionsCheckboxList1" value="option1">
-                {{_i}}Option one is this and that&mdash;be sure to include why it’s great{{/i}}
+                {{_i}}Option one is this and that&mdash;be sure to include why it's great{{/i}}
               </label>
               <label class="checkbox">
                 <input type="checkbox" name="optionsCheckboxList2" value="option2">
@@ -1107,38 +1132,42 @@
                 <input type="checkbox" name="optionsCheckboxList3" value="option3">
                 {{_i}}Option three can&mdash;yes, you guessed it&mdash;also be checked and included in form results{{/i}}
               </label>
-              <p class="help-text">{{_i}}<strong>Note:</strong> Labels surround all the options for much larger click areas and a more usable form.{{/i}}</p>
+              <p class="help-block">{{_i}}<strong>Note:</strong> Labels surround all the options for much larger click areas and a more usable form.{{/i}}</p>
             </div>
           </div>
           <div class="control-group">
             <label class="control-label">{{_i}}Radio buttons{{/i}}</label>
             <div class="controls">
               <label class="radio">
-                <input type="radio" id="optionsRadios1" value="option1" checked>
-                {{_i}}Option one is this and that&mdash;be sure to include why it’s great{{/i}}
+                <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
+                {{_i}}Option one is this and that&mdash;be sure to include why it's great{{/i}}
               </label>
               <label class="radio">
-                <input type="radio" id="optionsRadios2" value="option2">
+                <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
                 {{_i}}Option two can is something else and selecting it will deselect option one{{/i}}
               </label>
             </div>
           </div>
           <div class="form-actions">
-            <button type="submit" class="btn primary">{{_i}}Save changes{{/i}}</button>
-            <button type="reset" class="btn">{{_i}}Cancel{{/i}}</button>
+            <button type="submit" class="btn btn-primary">{{_i}}Save changes{{/i}}</button>
+            <button class="btn">{{_i}}Cancel{{/i}}</button>
           </div>
         </fieldset>
       </form>
     </div>
     <div class="span4">
-      <div class="form-docs">
-        <h3>{{_i}}Prepend &amp; append inputs{{/i}}</h3>
-        <p>{{_i}}Input groups&mdash;with appended or prepended text&mdash;provide an easy way to give more context for your inputs. Great examples include the @ sign for Twitter usernames or $ for finances.{{/i}}</p>
-        <hr>
-        <h3>{{_i}}Checkboxes and radios{{/i}}</h3>
-        <p>{{_i}}Up to v1.4, Bootstrap required extra markup around checkboxes and radios to stack them. Now, it's a simple matter of repeating the <code>&lt;label class="checkbox"&gt;</code> that wraps the <code>&lt;input type="checkbox"&gt;</code>.{{/i}}</p>
-        <p>{{_i}}Inline checkboxes and radios are also supported. Just add <code>.inline</code> to any <code>.checkbox</code> or <code>.radio</code> and you're done.{{/i}}</p>
-      </div>
+      <h3>{{_i}}Prepend &amp; append inputs{{/i}}</h3>
+      <p>{{_i}}Input groups&mdash;with appended or prepended text&mdash;provide an easy way to give more context for your inputs. Great examples include the @ sign for Twitter usernames or $ for finances.{{/i}}</p>
+      <hr>
+      <h3>{{_i}}Checkboxes and radios{{/i}}</h3>
+      <p>{{_i}}Up to v1.4, Bootstrap required extra markup around checkboxes and radios to stack them. Now, it's a simple matter of repeating the <code>&lt;label class="checkbox"&gt;</code> that wraps the <code>&lt;input type="checkbox"&gt;</code>.{{/i}}</p>
+      <p>{{_i}}Inline checkboxes and radios are also supported. Just add <code>.inline</code> to any <code>.checkbox</code> or <code>.radio</code> and you're done.{{/i}}</p>
+      <hr>
+      <h4>{{_i}}Inline forms and append/prepend{{/i}}</h4>
+      <p>{{_i}}To use prepend or append inputs in an inline form, be sure to place the <code>.add-on</code> and <code>input</code> on the same line, without spaces.{{/i}}</p>
+      <hr>
+      <h4>{{_i}}Form help text{{/i}}</h4>
+      <p>{{_i}}To add help text for your form inputs, include inline help text with <code>&lt;span class="help-inline"&gt;</code> or a help text block with <code>&lt;p class="help-block"&gt;</code> after the input element.{{/i}}</p>
     </div>
   </div><!-- /row -->
 </section>
@@ -1161,29 +1190,39 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="btn" href="#">{{_i}}Default{{/i}}</a></td>
+        <td><button class="btn" href="#">{{_i}}Default{{/i}}</button></td>
         <td><code>.btn</code></td>
         <td>{{_i}}Standard gray button with gradient{{/i}}</td>
       </tr>
       <tr>
-        <td><a class="btn primary" href="#">{{_i}}Primary{{/i}}</a></td>
-        <td><code>.primary</code></td>
+        <td><button class="btn btn-primary" href="#">{{_i}}Primary{{/i}}</button></td>
+        <td><code>.btn-primary</code></td>
         <td>{{_i}}Provides extra visual weight and identifies the primary action in a set of buttons{{/i}}</td>
       </tr>
       <tr>
-        <td><a class="btn info" href="#">{{_i}}Info{{/i}}</a></td>
-        <td><code>.info</code></td>
+        <td><button class="btn btn-info" href="#">{{_i}}Info{{/i}}</button></td>
+        <td><code>.btn-info</code></td>
         <td>{{_i}}Used as an alternate to the default styles{{/i}}</td>
       </tr>
       <tr>
-        <td><a class="btn success" href="#">{{_i}}Success{{/i}}</a></td>
-        <td><code>.success</code></td>
+        <td><button class="btn btn-success" href="#">{{_i}}Success{{/i}}</button></td>
+        <td><code>.btn-success</code></td>
         <td>{{_i}}Indicates a successful or positive action{{/i}}</td>
       </tr>
       <tr>
-        <td><a class="btn danger" href="#">{{_i}}Danger{{/i}}</a></td>
-        <td><code>.danger</code></td>
+        <td><button class="btn btn-warning" href="#">{{_i}}Warning{{/i}}</button></td>
+        <td><code>.btn-warning</code></td>
+        <td>{{_i}}Indicates caution should be taken with this action{{/i}}</td>
+      </tr>
+      <tr>
+        <td><button class="btn btn-danger" href="#">{{_i}}Danger{{/i}}</button></td>
+        <td><code>.btn-danger</code></td>
         <td>{{_i}}Indicates a dangerous or potentially negative action{{/i}}</td>
+      </tr>
+  	  <tr>
+        <td><button class="btn btn-inverse" href="#">{{_i}}Inverse{{/i}}</button></td>
+        <td><code>.btn-inverse</code></td>
+        <td>{{_i}}Alternate dark gray button, not tied to a semantic action or use{{/i}}</td>
       </tr>
     </tbody>
   </table>
@@ -1192,50 +1231,63 @@
     <div class="span4">
       <h3>{{_i}}Buttons for actions{{/i}}</h3>
       <p>{{_i}}As a convention, buttons should only be used for actions while hyperlinks are to be used for objects. For instance, "Download" should be a button while "recent activity" should be a link.{{/i}}</p>
+      <p>{{_i}}Button styles can be applied to anything with the <code>.btn</code> class applied. However, typically you'll want to apply these to only <code>&lt;a&gt;</code> and <code>&lt;button&gt;</code> elements.{{/i}}</p>
+      <h3>{{_i}}Cross browser compatibility{{/i}}</h3>
+      <p>{{_i}}IE9 doesn't crop background gradients on rounded corners, so we remove it. Related, IE9 jankifies disabled <code>button</code> elements, rendering text gray with a nasty text-shadow that we cannot fix.{{/i}}</p>
     </div>
-    <div class="span4">
-      <h3>{{_i}}For anchors and forms{{/i}}</h3>
-      <p>{{_i}}Button styles can be applied to anything with the <code>.btn</code> applied. However, typically you’ll want to apply these to only <code>&lt;a&gt;</code> and <code>&lt;button&gt;</code> elements.{{/i}}</p>
-    </div>
-    <div class="span4">
-      <p>{{_i}}<strong>Note:</strong> All buttons must include the <code>.btn</code> class. Button styles should be applied to <code>&lt;button&gt;</code> and <code>&lt;a&gt;</code> elements for consistency.{{/i}}</p>
-    </div>
-  </div>
-
-  <div class="row">
     <div class="span4">
       <h3>{{_i}}Multiple sizes{{/i}}</h3>
-      <p>{{_i}}Fancy larger or smaller buttons? Have at it!{{/i}}</p>
+      <p>{{_i}}Fancy larger or smaller buttons? Add <code>.btn-large</code>, <code>.btn-small</code>, or <code>.btn-mini</code> for two additional sizes.{{/i}}</p>
       <p>
-        <a href="#" class="btn large primary">{{_i}}Primary action{{/i}}</a>
-        <a href="#" class="btn large">{{_i}}Action{{/i}}</a>
+        <button class="btn btn-large btn-primary">{{_i}}Primary action{{/i}}</button>
+        <button class="btn btn-large">{{_i}}Action{{/i}}</button>
       </p>
       <p>
-        <a href="#" class="btn small primary">{{_i}}Primary action{{/i}}</a>
-        <a href="#" class="btn small">{{_i}}Action{{/i}}</a>
+        <button class="btn btn-small btn-primary">{{_i}}Primary action{{/i}}</button>
+        <button class="btn btn-small">{{_i}}Action{{/i}}</button>
       </p>
-    </div>
-    <div class="span4">
+      <p>
+        <button class="btn btn-mini btn-primary">{{_i}}Primary action{{/i}}</button>
+        <button class="btn btn-mini">{{_i}}Action{{/i}}</button>
+      </p>
+      <br>
       <h3>{{_i}}Disabled state{{/i}}</h3>
-      <p>{{_i}}For disabled buttons, use <code>.disabled</code> for links and <code>:disabled</code> for <code>&lt;button&gt;</code> elements.{{/i}}</p>
+      <p>{{_i}}For disabled buttons, add the <code>.disabled</code> class to links and the <code>disabled</code> attribute for <code>&lt;button&gt;</code> elements.{{/i}}</p>
       <p>
-        <a href="#" class="btn large primary disabled">{{_i}}Primary action{{/i}}</a>
-        <a href="#" class="btn large disabled">{{_i}}Action{{/i}}</a>
+        <a href="#" class="btn btn-large btn-primary disabled">{{_i}}Primary link{{/i}}</a>
+        <a href="#" class="btn btn-large disabled">{{_i}}Link{{/i}}</a>
+      </p>
+      <p style="margin-bottom: 18px;">
+        <button class="btn btn-large btn-primary disabled" disabled="disabled">{{_i}}Primary button{{/i}}</button>
+        <button class="btn btn-large" disabled>{{_i}}Button{{/i}}</button>
       </p>
       <p>
-        <button class="btn large primary disabled" disabled="disabled">{{_i}}Primary action{{/i}}</button>
-        <button class="btn large" disabled>{{_i}}Action{{/i}}</button>
+        <span class="label label-info">{{_i}}Heads up!{{/i}}</span>
+        {{_i}}We use <code>.disabled</code> as a utility class here, similar to the common <code>.active</code> class, so no prefix is required.{{/i}}
       </p>
     </div>
     <div class="span4">
-      <h3>Cross browser compatibility</h3>
-      <p>In IE9, we drop the gradient on all buttons in favor of rounded corners as IE9 doesn't crop background gradients to the corners.</p>
-      <p>Related, IE9 jankifies disabled <code>button</code> elements, rendering text gray with a nasty text-shadow&mdash;unfortunately we can't fix this.</p>
+      <h3>{{_i}}One class, multiple tags{{/i}}</h3>
+      <p>{{_i}}Use the <code>.btn</code> class on an <code>&lt;a&gt;</code>, <code>&lt;button&gt;</code>, or <code>&lt;input&gt;</code> element.{{/i}}</p>
+<form>
+<a class="btn" href="">{{_i}}Link{{/i}}</a>
+<button class="btn" type="submit">{{_i}}Button{{/i}}</button>
+<input class="btn" type="button" value="{{_i}}Input{{/i}}">
+<input class="btn" type="submit" value="{{_i}}Submit{{/i}}">
+</form>
+<pre class="prettyprint linenums">
+&lt;a class="btn" href=""&gt;{{_i}}Link{{/i}}&lt;/a&gt;
+&lt;button class="btn" type="submit"&gt;
+  {{_i}}Button{{/i}}
+&lt;/button&gt;
+&lt;input class="btn" type="button"
+         value="{{_i}}Input{{/i}}"&gt;
+&lt;input class="btn" type="submit"
+         value="{{_i}}Submit{{/i}}"&gt;
+</pre>
+      <p>{{_i}}As a best practice, try to match the element for you context to ensure matching cross-browser rendering. If you have an <code>input</code>, use an <code>&lt;input type="submit"&gt;</code> for your button.{{/i}}</p>
     </div>
   </div>
-
-  <br>
-
 </section>
 
 
@@ -1248,118 +1300,144 @@
   </div>
   <div class="row">
     <div class="span3">
-      <div class="the-icons">
-        <i class="icon glass"></i>
-        <i class="icon music"></i>
-        <i class="icon search"></i>
-        <i class="icon envelope"></i>
-        <i class="icon heart"></i>
-        <i class="icon star"></i>
-        <i class="icon star-empty"></i>
-        <i class="icon user"></i>
-        <i class="icon film"></i>
-        <i class="icon th-large"></i>
-        <i class="icon th"></i>
-        <i class="icon th-list"></i>
-        <i class="icon ok"></i>
-        <i class="icon remove"></i>
-        <i class="icon zoom-in"></i>
-        <i class="icon zoom-out"></i>
-        <i class="icon off"></i>
-        <i class="icon signal"></i>
-        <i class="icon cog"></i>
-        <i class="icon trash"></i>
-
-        <i class="icon home"></i>
-        <i class="icon file"></i>
-        <i class="icon time"></i>
-      </div>
+      <ul class="the-icons">
+        <li><i class="icon-glass"></i> icon-glass</li>
+        <li><i class="icon-music"></i> icon-music</li>
+        <li><i class="icon-search"></i> icon-search</li>
+        <li><i class="icon-envelope"></i> icon-envelope</li>
+        <li><i class="icon-heart"></i> icon-heart</li>
+        <li><i class="icon-star"></i> icon-star</li>
+        <li><i class="icon-star-empty"></i> icon-star-empty</li>
+        <li><i class="icon-user"></i> icon-user</li>
+        <li><i class="icon-film"></i> icon-film</li>
+        <li><i class="icon-th-large"></i> icon-th-large</li>
+        <li><i class="icon-th"></i> icon-th</li>
+        <li><i class="icon-th-list"></i> icon-th-list</li>
+        <li><i class="icon-ok"></i> icon-ok</li>
+        <li><i class="icon-remove"></i> icon-remove</li>
+        <li><i class="icon-zoom-in"></i> icon-zoom-in</li>
+        <li><i class="icon-zoom-out"></i> icon-zoom-out</li>
+        <li><i class="icon-off"></i> icon-off</li>
+        <li><i class="icon-signal"></i> icon-signal</li>
+        <li><i class="icon-cog"></i> icon-cog</li>
+        <li><i class="icon-trash"></i> icon-trash</li>
+        <li><i class="icon-home"></i> icon-home</li>
+        <li><i class="icon-file"></i> icon-file</li>
+        <li><i class="icon-time"></i> icon-time</li>
+        <li><i class="icon-road"></i> icon-road</li>
+        <li><i class="icon-download-alt"></i> icon-download-alt</li>
+        <li><i class="icon-download"></i> icon-download</li>
+        <li><i class="icon-upload"></i> icon-upload</li>
+        <li><i class="icon-inbox"></i> icon-inbox</li>
+        <li><i class="icon-play-circle"></i> icon-play-circle</li>
+        <li><i class="icon-repeat"></i> icon-repeat</li>
+      </ul>
     </div>
     <div class="span3">
-      <div class="the-icons">
-        <i class="icon road"></i>
-        <i class="icon download-alt"></i>
-        <i class="icon download"></i>
-        <i class="icon upload"></i>
-        <i class="icon inbox"></i>
-        <i class="icon play-circle"></i>
-        <i class="icon repeat"></i>
-        <i class="icon refresh"></i>
-        <i class="icon calendar"></i>
-        <i class="icon lock"></i>
-        <i class="icon flag"></i>
-        <i class="icon headphones"></i>
-        <i class="icon volume-off"></i>
-        <i class="icon volume-down"></i>
-        <i class="icon volume-up"></i>
-        <i class="icon qrcode"></i>
-        <i class="icon barcode"></i>
-
-        <i class="icon tag"></i>
-        <i class="icon tags"></i>
-        <i class="icon book"></i>
-        <i class="icon bookmark"></i>
-        <i class="icon print"></i>
-        <i class="icon camera"></i>
-      </div>
+      <ul class="the-icons">
+        <li><i class="icon-refresh"></i> icon-refresh</li>
+        <li><i class="icon-list-alt"></i> icon-list-alt</li>
+        <li><i class="icon-lock"></i> icon-lock</li>
+        <li><i class="icon-flag"></i> icon-flag</li>
+        <li><i class="icon-headphones"></i> icon-headphones</li>
+        <li><i class="icon-volume-off"></i> icon-volume-off</li>
+        <li><i class="icon-volume-down"></i> icon-volume-down</li>
+        <li><i class="icon-volume-up"></i> icon-volume-up</li>
+        <li><i class="icon-qrcode"></i> icon-qrcode</li>
+        <li><i class="icon-barcode"></i> icon-barcode</li>
+        <li><i class="icon-tag"></i> icon-tag</li>
+        <li><i class="icon-tags"></i> icon-tags</li>
+        <li><i class="icon-book"></i> icon-book</li>
+        <li><i class="icon-bookmark"></i> icon-bookmark</li>
+        <li><i class="icon-print"></i> icon-print</li>
+        <li><i class="icon-camera"></i> icon-camera</li>
+        <li><i class="icon-font"></i> icon-font</li>
+        <li><i class="icon-bold"></i> icon-bold</li>
+        <li><i class="icon-italic"></i> icon-italic</li>
+        <li><i class="icon-text-height"></i> icon-text-height</li>
+        <li><i class="icon-text-width"></i> icon-text-width</li>
+        <li><i class="icon-align-left"></i> icon-align-left</li>
+        <li><i class="icon-align-center"></i> icon-align-center</li>
+        <li><i class="icon-align-right"></i> icon-align-right</li>
+        <li><i class="icon-align-justify"></i> icon-align-justify</li>
+        <li><i class="icon-list"></i> icon-list</li>
+        <li><i class="icon-indent-left"></i> icon-indent-left</li>
+        <li><i class="icon-indent-right"></i> icon-indent-right</li>
+        <li><i class="icon-facetime-video"></i> icon-facetime-video</li>
+        <li><i class="icon-picture"></i> icon-picture</li>
+      </ul>
     </div>
     <div class="span3">
-      <div class="the-icons">
-        <i class="icon font"></i>
-        <i class="icon bold"></i>
-        <i class="icon italic"></i>
-        <i class="icon text-height"></i>
-        <i class="icon text-width"></i>
-        <i class="icon align-left"></i>
-        <i class="icon align-center"></i>
-        <i class="icon align-right"></i>
-        <i class="icon align-justify"></i>
-        <i class="icon list"></i>
-        <i class="icon indent-left"></i>
-        <i class="icon indent-right"></i>
-        <i class="icon facetime-video"></i>
-        <i class="icon picture"></i>
-
-        <i class="icon pencil"></i>
-        <i class="icon map-marker"></i>
-        <i class="icon adjust"></i>
-        <i class="icon tint"></i>
-        <i class="icon edit"></i>
-        <i class="icon share"></i>
-        <i class="icon check"></i>
-        <i class="icon move"></i>
-        <i class="icon step-backward"></i>
-      </div>
+      <ul class="the-icons">
+        <li><i class="icon-pencil"></i> icon-pencil</li>
+        <li><i class="icon-map-marker"></i> icon-map-marker</li>
+        <li><i class="icon-adjust"></i> icon-adjust</li>
+        <li><i class="icon-tint"></i> icon-tint</li>
+        <li><i class="icon-edit"></i> icon-edit</li>
+        <li><i class="icon-share"></i> icon-share</li>
+        <li><i class="icon-check"></i> icon-check</li>
+        <li><i class="icon-move"></i> icon-move</li>
+        <li><i class="icon-step-backward"></i> icon-step-backward</li>
+        <li><i class="icon-fast-backward"></i> icon-fast-backward</li>
+        <li><i class="icon-backward"></i> icon-backward</li>
+        <li><i class="icon-play"></i> icon-play</li>
+        <li><i class="icon-pause"></i> icon-pause</li>
+        <li><i class="icon-stop"></i> icon-stop</li>
+        <li><i class="icon-forward"></i> icon-forward</li>
+        <li><i class="icon-fast-forward"></i> icon-fast-forward</li>
+        <li><i class="icon-step-forward"></i> icon-step-forward</li>
+        <li><i class="icon-eject"></i> icon-eject</li>
+        <li><i class="icon-chevron-left"></i> icon-chevron-left</li>
+        <li><i class="icon-chevron-right"></i> icon-chevron-right</li>
+        <li><i class="icon-plus-sign"></i> icon-plus-sign</li>
+        <li><i class="icon-minus-sign"></i> icon-minus-sign</li>
+        <li><i class="icon-remove-sign"></i> icon-remove-sign</li>
+        <li><i class="icon-ok-sign"></i> icon-ok-sign</li>
+        <li><i class="icon-question-sign"></i> icon-question-sign</li>
+        <li><i class="icon-info-sign"></i> icon-info-sign</li>
+        <li><i class="icon-screenshot"></i> icon-screenshot</li>
+        <li><i class="icon-remove-circle"></i> icon-remove-circle</li>
+        <li><i class="icon-ok-circle"></i> icon-ok-circle</li>
+        <li><i class="icon-ban-circle"></i> icon-ban-circle</li>
+      </ul>
     </div>
     <div class="span3">
-      <div class="the-icons">
-        <i class="icon fast-backward"></i>
-        <i class="icon backward"></i>
-        <i class="icon play"></i>
-        <i class="icon pause"></i>
-        <i class="icon stop"></i>
-        <i class="icon forward"></i>
-        <i class="icon fast-forward"></i>
-        <i class="icon step-forward"></i>
-        <i class="icon eject"></i>
-        <i class="icon chevron-left"></i>
-        <i class="icon chevron-right"></i>
-
-        <i class="icon arrow-left"></i>
-        <i class="icon arrow-right"></i>
-        <i class="icon arrow-up"></i>
-        <i class="icon arrow-down"></i>
-        <i class="icon share-alt"></i>
-        <i class="icon resize-full"></i>
-        <i class="icon resize-small"></i>
-        <i class="icon plus"></i>
-        <i class="icon minus"></i>
-        <i class="icon asterisk"></i>
-      </div>
+      <ul class="the-icons">
+        <li><i class="icon-arrow-left"></i> icon-arrow-left</li>
+        <li><i class="icon-arrow-right"></i> icon-arrow-right</li>
+        <li><i class="icon-arrow-up"></i> icon-arrow-up</li>
+        <li><i class="icon-arrow-down"></i> icon-arrow-down</li>
+        <li><i class="icon-share-alt"></i> icon-share-alt</li>
+        <li><i class="icon-resize-full"></i> icon-resize-full</li>
+        <li><i class="icon-resize-small"></i> icon-resize-small</li>
+        <li><i class="icon-plus"></i> icon-plus</li>
+        <li><i class="icon-minus"></i> icon-minus</li>
+        <li><i class="icon-asterisk"></i> icon-asterisk</li>
+        <li><i class="icon-exclamation-sign"></i> icon-exclamation-sign</li>
+        <li><i class="icon-gift"></i> icon-gift</li>
+        <li><i class="icon-leaf"></i> icon-leaf</li>
+        <li><i class="icon-fire"></i> icon-fire</li>
+        <li><i class="icon-eye-open"></i> icon-eye-open</li>
+        <li><i class="icon-eye-close"></i> icon-eye-close</li>
+        <li><i class="icon-warning-sign"></i> icon-warning-sign</li>
+        <li><i class="icon-plane"></i> icon-plane</li>
+        <li><i class="icon-calendar"></i> icon-calendar</li>
+        <li><i class="icon-random"></i> icon-random</li>
+        <li><i class="icon-comment"></i> icon-comment</li>
+        <li><i class="icon-magnet"></i> icon-magnet</li>
+        <li><i class="icon-chevron-up"></i> icon-chevron-up</li>
+        <li><i class="icon-chevron-down"></i> icon-chevron-down</li>
+        <li><i class="icon-retweet"></i> icon-retweet</li>
+        <li><i class="icon-shopping-cart"></i> icon-shopping-cart</li>
+        <li><i class="icon-folder-close"></i> icon-folder-close</li>
+        <li><i class="icon-folder-open"></i> icon-folder-open</li>
+        <li><i class="icon-resize-vertical"></i> icon-resize-vertical</li>
+        <li><i class="icon-resize-horizontal"></i> icon-resize-horizontal</li>
+      </ul>
     </div>
   </div>
   <div class="alert alert-info">
-    {{_i}}<strong>Heads up!</strong> On hover we show a light red background color to highlight the size of the icon. This won't appear in normal usage of icons.{{/i}}
+    {{_i}}<strong>Heads up!</strong> Icon classes are echoed via CSS <code>:after</code>. In the docs, we show a light red background color on hover to highlight the icon's size.{{/i}}
   </div>
 
   <br>
@@ -1368,22 +1446,27 @@
     <div class="span4">
       <h3>{{_i}}Built as a sprite{{/i}}</h3>
       <p>{{_i}}Instead of making every icon an extra request, we've compiled them into a sprite&mdash;a bunch of images in one file that uses CSS to position the images with <code>background-position</code>. This is the same method we use on Twitter.com and it has worked well for us.{{/i}}</p>
-      <p>{{_i}}<a href="http://glyphicons.com" target="_blank">Glyphicons</a> has granted us use of the Halflings set in our open-source toolkit so long as we provide a link and credit. Please consider doing the same in your projects.{{/i}}</p>
+      <p>{{_i}}All icons classes are prefixed with <code>.icon-</code> for proper namespacing and scoping, much like our other components. This will help avoid conflicts with other tools.{{/i}}</p>
+      <p>{{_i}}<a href="http://glyphicons.com" target="_blank">Glyphicons</a> has granted us use of the Halflings set in our open-source toolkit so long as we provide a link and credit here in the docs. Please consider doing the same in your projects.{{/i}}</p>
     </div>
     <div class="span4">
       <h3>{{_i}}How to use{{/i}}</h3>
-      <p>{{_i}}With v2.0.0, we have opted to use an <code>&lt;i&gt;</code> tag for all our icons with a base class of <code>.icon</code>. To use, place the following code just about anywhere:{{/i}}</p>
+      <p>{{_i}}With v2.0.1, we have opted to use an <code>&lt;i&gt;</code> tag for all our icons, but they have no case class&mdash;only a shared prefix. To use, place the following code just about anywhere:{{/i}}</p>
 <pre class="prettyprint linenums">
-&lt;i class="icon search"&gt;&lt;/i&gt;
+&lt;i class="icon-search"&gt;&lt;/i&gt;
 </pre>
-      <p>{{_i}}There are over 100 classes to choose from for your icons. Just add an <code>&lt;i&gt;</code> tag with the right classes and you're set. You can find the full list in <strong>sprites.less</strong> or right here in this document.{{/i}}</p>
+      <p>{{_i}}There are also styles available for inverted (white) icons, made ready with one extra class:{{/i}}</p>
+<pre class="prettyprint linenums">
+&lt;i class="icon-search icon-white"&gt;&lt;/i&gt;
+</pre>
+      <p>{{_i}}There are 120 classes to choose from for your icons. Just add an <code>&lt;i&gt;</code> tag with the right classes and you're set. You can find the full list in <strong>sprites.less</strong> or right here in this document.{{/i}}</p>
     </div>
     <div class="span4">
       <h3>{{_i}}Use cases{{/i}}</h3>
       <p>{{_i}}Icons are great, but where would one use them? Here are a few ideas:{{/i}}</p>
       <ul>
         <li>{{_i}}As visuals for your sidebar navigation{{/i}}</li>
-        <li>{{_i}}For a purely icon-driven nav{{/i}}</li>
+        <li>{{_i}}For a purely icon-driven navigation{{/i}}</li>
         <li>{{_i}}For buttons to help convey the meaning of an action{{/i}}</li>
         <li>{{_i}}With links to share context on a user's destination{{/i}}</li>
       </ul>
@@ -1392,36 +1475,61 @@
   </div>
 
   <h3>{{_i}}Examples{{/i}}</h3>
+  <p>{{_i}}Use them in buttons, button groups for a toolbar, navigation, or prepended form inputs.{{/i}}</p>
   <div class="row">
     <div class="span4">
-      <p>{{_i}}Use them in buttons, or in button groups for a toolbar style presentation.{{/i}}</p>
-      <p>
-        <a class="btn" href="#"><i class="icon refresh"></i> {{_i}}Refresh{{/i}}</a>
-        <a class="btn" href="#"><i class="icon cog"></i> {{_i}}Settings{{/i}}</a>
-      </p>
-      <div class="btn-toolbar">
+      <div class="btn-toolbar" style="margin-bottom: 9px">
         <div class="btn-group">
-          <a class="btn" href="#"><i class="icon font"></i></a>
-          <a class="btn" href="#"><i class="icon bold"></i></a>
-          <a class="btn" href="#"><i class="icon italic"></i></a>
+          <a class="btn" href="#"><i class="icon-align-left"></i></a>
+          <a class="btn" href="#"><i class="icon-align-center"></i></a>
+          <a class="btn" href="#"><i class="icon-align-right"></i></a>
+          <a class="btn" href="#"><i class="icon-align-justify"></i></a>
         </div>
         <div class="btn-group">
-          <a class="btn" href="#"><i class="icon align-left"></i></a>
-          <a class="btn" href="#"><i class="icon align-center"></i></a>
-          <a class="btn" href="#"><i class="icon align-right"></i></a>
-          <a class="btn" href="#"><i class="icon align-justify"></i></a>
+          <a class="btn btn-primary" href="#"><i class="icon-user icon-white"></i> {{_i}}User{{/i}}</a>
+          <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#"><i class="icon-pencil"></i> {{_i}}Edit{{/i}}</a></li>
+            <li><a href="#"><i class="icon-trash"></i> {{_i}}Delete{{/i}}</a></li>
+            <li><a href="#"><i class="icon-ban-circle"></i> {{_i}}Ban{{/i}}</a></li>
+            <li class="divider"></li>
+            <li><a href="#"><i class="i"></i> {{_i}}Make admin{{/i}}</a></li>
+          </ul>
         </div>
       </div>
+      <p>
+        <a class="btn" href="#"><i class="icon-refresh"></i> {{_i}}Refresh{{/i}}</a>
+        <a class="btn btn-success" href="#"><i class="icon-shopping-cart icon-white"></i> {{_i}}Checkout{{/i}}</a>
+        <a class="btn btn-danger" href="#"><i class="icon-trash icon-white"></i> {{_i}}Delete{{/i}}</a>
+      </p>
+      <p>
+        <a class="btn btn-large" href="#"><i class="icon-comment"></i> {{_i}}Comment{{/i}}</a>
+        <a class="btn btn-small" href="#"><i class="icon-cog"></i> {{_i}}Settings{{/i}}</a>
+        <a class="btn btn-small btn-info" href="#"><i class="icon-info-sign icon-white"></i> {{_i}}More Info{{/i}}</a>
+      </p>
     </div>
-    <div class="span3">
-      <p>{{_i}}Or, use them in navigation.{{/i}}</p>
+    <div class="span4">
       <div class="well" style="padding: 8px 0;">
-        <ul class="nav list">
-          <li class="active"><a href="#"><i class="icon home"></i> {{_i}}Home{{/i}}</a></li>
-          <li><a href="#"><i class="icon book"></i> {{_i}}Library{{/i}}</a></li>
-          <li><a href="#"><i class="icon pencil"></i> {{_i}}Applications{{/i}}</a></li>
+        <ul class="nav nav-list">
+          <li class="active"><a href="#"><i class="icon-home icon-white"></i> {{_i}}Home{{/i}}</a></li>
+          <li><a href="#"><i class="icon-book"></i> {{_i}}Library{{/i}}</a></li>
+          <li><a href="#"><i class="icon-pencil"></i> {{_i}}Applications{{/i}}</a></li>
+          <li><a href="#"><i class="i"></i> {{_i}}Misc{{/i}}</a></li>
         </ul>
       </div> <!-- /well -->
+    </div>
+    <div class="span4">
+      <form>
+        <div class="control-group">
+          <label class="control-label" for="inputIcon">{{_i}}Email address{{/i}}</label>
+          <div class="controls">
+            <div class="input-prepend">
+              <span class="add-on"><i class="icon-envelope"></i></span>
+              <input class="span2" id="inputIcon" type="text">
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
 </section>

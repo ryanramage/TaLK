@@ -47,8 +47,8 @@ $(function () {
         popover.popover('show')
 
         ok($('.popover').length, 'popover was inserted')
-        equals($('.popover .title').text(), '@fat', 'title correctly inserted')
-        equals($('.popover .content').text(), 'loves writing tests （╯°□°）╯︵ ┻━┻', 'content correctly inserted')
+        equals($('.popover .popover-title').text(), '@fat', 'title correctly inserted')
+        equals($('.popover .popover-content').text(), 'loves writing tests （╯°□°）╯︵ ┻━┻', 'content correctly inserted')
 
         popover.popover('hide')
         ok(!$('.popover').length, 'popover was removed')
@@ -63,8 +63,8 @@ $(function () {
           .popover('show')
 
         ok($('.popover').length, 'popover was inserted')
-        equals($('.popover .title').text(), '@mdo', 'title correctly inserted')
-        equals($('.popover .content').text(), "loves data attributes (づ｡◕‿‿◕｡)づ ︵ ┻━┻", 'content correctly inserted')
+        equals($('.popover .popover-title').text(), '@mdo', 'title correctly inserted')
+        equals($('.popover .popover-content').text(), "loves data attributes (づ｡◕‿‿◕｡)づ ︵ ┻━┻", 'content correctly inserted')
 
         popover.popover('hide')
         ok(!$('.popover').length, 'popover was removed')
@@ -82,7 +82,7 @@ $(function () {
           })
         
         popover.popover('show')
-        console.log(popover)
+
         ok($('.popover').length, 'popover was inserted')
         ok($('.popover').hasClass('foobar'), 'custom class is present')
 

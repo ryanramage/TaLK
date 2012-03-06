@@ -1,6 +1,6 @@
 {
     "name": "bootstrap",
-    "version": "2.0.0-kanso.1",
+    "version": "2.0.1-kanso.1",
     "categories": ["frontend"],
     "maintainers": [
         {
@@ -13,5 +13,5 @@
         "modules": ">=0.0.8",
         "attachments": null
     },
-    "description": "Kanso package to quickly start using Twitter Bootstrap and Less in your project, tracking the 2.0-wip branch."
+    "description": "Kanso package to quickly start using Twitter Bootstrap and Less in your project."
 }
