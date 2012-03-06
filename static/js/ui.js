@@ -959,7 +959,7 @@ function renderSpeaker(sessionEvent, startTime, settings) {
     if (settings.prepend) {
         $(settings.element).prepend(rendered);
     } else {
-        $(settings.element).apped(rendered);
+        $(settings.element).append(rendered);
     }
 }
 
