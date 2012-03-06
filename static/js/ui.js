@@ -740,16 +740,18 @@ var cached_session_assets;
 
 function session_play(eventId, sessionId, startRequest) {
     var start = start || 0;
+
+    $('.navbar')
+        .addClass('navbar-fixed-top');
+    $('.container[role="main"]').addClass('static-main');
+
     // check to see if we are already loaded
     if ($('#' + sessionId).length == 1) {
         var session_startTime = sessionStartTime(cached_session_assets);
         var startTime = calculateStartTimeSeconds(startRequest, cached_session_assets.events, session_startTime);
         console.log('loaded, start: ', startTime);
         $('.player').jPlayer('play', startTime);
-        $('.navbar')
-            .removeClass('navbar-static')
-            .addClass('navbar-fixed');
-        $('.container[role="main"]').addClass('static-main');
+
     } else {
         load_session_assets(eventId, sessionId, function(err, result) {
             if (err) return alert('error: ' + err);
@@ -772,10 +774,7 @@ function session_play(eventId, sessionId, startRequest) {
 
 
             $('.control .btn').button();
-            $('.navbar')
-                .removeClass('navbar-static')
-                .addClass('navbar-fixed');
-            $('.container[role="main"]').addClass('static-main');
+
 
             $player = $('.player');
             $player.jPlayer({
@@ -857,8 +856,7 @@ function updateSessionEvent (id, new_start_time, new_end_time, callback) {
 
 function session_play_leave() {
     $('.navbar')
-        .addClass('navbar-static')
-        .removeClass('navbar-fixed');
+        .removeClass('navbar-fixed-top');
     $('.container[role="main"]').removeClass('static-main');
 }
 
