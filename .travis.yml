@@ -10,3 +10,13 @@ before_script:
   - npm install kanso -g
 
 script: "kanso install; kanso push http://localhost:5984/myapp_test"
+
+after_script:
+  # deploy to a qa server
+  - kanso push http://travis:PW2DYUBHFR3XQ6V@water-nwt.iriscouch.com/talk
+
+notifications:
+  email:
+    recipients:
+      - mw@data.io
+      - ryan@eckoit.com
