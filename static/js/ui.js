@@ -674,6 +674,8 @@ function session_show(eventId, sessionId) {
 
                 var recordingComplete = {
                     doc_id : doc._id,
+                    event_id : eventId,
+                    session_id: sessionId,
                     recorded_date_formatted : moment(doc.recordingState.startComplete).format('MMM DD, YYYY, h:mm:ss a'),
                     length : convertTime((doc.recordingState.stopComplete - doc.recordingState.startComplete) / 1000)
                 }
