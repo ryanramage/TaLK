@@ -743,9 +743,6 @@ var cached_session_assets;
 function session_play(eventId, sessionId, startRequest) {
     var start = start || 0;
 
-    $('.navbar')
-        .addClass('navbar-fixed-top');
-    $('.container[role="main"]').addClass('static-main');
 
     // check to see if we are already loaded
     if ($('#' + sessionId).length == 1) {
@@ -759,6 +756,9 @@ function session_play(eventId, sessionId, startRequest) {
             if (err) return alert('error: ' + err);
             console.log(result);
             $('.main').html(handlebars.templates['session-play.html'](result, {}));
+            $('.header-controls').keepInView({
+                zindex: 100
+            });
             cached_session_assets = result;
             var session_startTime = sessionStartTime(result);
             var session_endTime = sessionEndTime(result);
@@ -868,9 +868,6 @@ function updateSessionEvent (id, new_start_time, new_end_time, callback) {
 
 
 function session_play_leave() {
-    $('.navbar')
-        .removeClass('navbar-fixed-top');
-    $('.container[role="main"]').removeClass('static-main');
 }
 
 function playDoc(player, doc, startTime) {
