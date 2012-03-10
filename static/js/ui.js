@@ -775,7 +775,6 @@ function session_play(eventId, sessionId, startRequest) {
             });
 
 
-            $('.control .btn').button();
 
 
             $player = $('.player');
@@ -813,12 +812,14 @@ function session_play(eventId, sessionId, startRequest) {
                     updateSessionEvent(id, new_start_time, new_end_time, function(err) {
                         if (err) return alert('could not update: ' + err);
                         $player.jPlayer('play', start);
+                        $('.control .btn').addClass('active');
                     });
                 }
             }).tooltip({placement: 'right', delay: { show: 500, hide: 100 } })
               .on('click', function() {
                     var id = $(this).data('id');
                     var route = 'events/' + eventId + '/session/' + sessionId + '/play/' + id;
+                    $('.control .btn').addClass('active');
                     if (window.location.hash == '#/' + route) {
                         // since we are on the url, we have to play direct
                         var left = $(this).css('left').replace('px', '');
@@ -828,6 +829,11 @@ function session_play(eventId, sessionId, startRequest) {
                         router.setRoute('events/' + eventId + '/session/' + sessionId + '/play/' + id);
                     }
               });
+
+            $('.control .btn').button().on('click', function(){
+                if ($(this).hasClass('active')) $player.jPlayer('pause');
+                else $player.jPlayer('play');
+            })
 
         });
     }
