@@ -793,7 +793,12 @@ function session_play(eventId, sessionId, startRequest) {
                 axis: "x",
                 containment: ".jp-progress-bar",
                 opacity: 0.7,
-                helper: "clone"
+                helper: "clone",
+                stop : function(event, ui) {
+                    var start = calculateSecondsFromPixals(ui.position.left, pps);
+                    $player.jPlayer('play', start);
+                    $('.control .btn').addClass('active');
+                }
             });
             $('.play .timebar .time').resizable({
                 maxHeight: 4,
