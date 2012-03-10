@@ -767,6 +767,8 @@ function session_play(eventId, sessionId, startRequest) {
             var timeline_width = parseInt( $('.jp-progress-bar').width() );
             var pps = calculatePixelsPerSecond(timeline_width, audio_duration / 1000, 1 );
 
+            createTimeBand($('#timebar'), audio_duration/1000, pps);
+
             session_show_transcripts(result.events, session_startTime, {
                 element : '.playlist',
                 prepend : false,
@@ -1237,3 +1239,30 @@ var timeFormat = {
          return ( strHour + timeFormat.sepHour ) + ((timeFormat.showMin) ? strMin + timeFormat.sepMin : "") + ((timeFormat.showSec) ? strSec + timeFormat.sepSec : "");
  };
 
+var createTimeBand = function(band, seconds, pps) {
+
+
+    band.addClass('timeband');
+
+	var width = parseInt(band.width());
+    var minutes = seconds / 60;
+    var pixalsPerMinute =   width / minutes;
+    var divsNeeded = Math.floor(minutes);
+    var shouldBe = pixalsPerMinute;
+    var last = 0;
+	for (var i =0; i < divsNeeded; i++) {
+        var thisWidth = Math.floor(shouldBe - last) - 1;
+        last += (thisWidth + 1);
+		var marker = $('<div class="marker" style="width: ' + thisWidth +'px;"></div>');
+		band.append(marker);
+        shouldBe += pixalsPerMinute;
+	}
+	band.find('.marker:nth-child(10n)').addClass('markerTenMinute').each(function(i){
+		var time = (i+1) * 10;
+		var label = $('<div class="timelabel">'+ time + 'm</div>');
+		$(this).append(label);
+
+
+	});
+	band.find('.marker:nth-child(60n)').addClass('markerHour');
+}
