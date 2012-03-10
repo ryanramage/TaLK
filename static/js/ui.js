@@ -113,7 +113,7 @@ function events_new() {
     $('.date').datepicker();
 
 
-    $('.primary').click(function() {
+    $('.btn-primary').click(function() {
         var event = $('form').formParams();
         event.type = 'event';
         event.date = new Date(event.date).getTime();
@@ -406,7 +406,7 @@ function session_new(eventId) {
                     })
 
 
-                    $('.primary').click(function() {
+                    $('.btn-primary').click(function() {
 
                         var participants = [];
                         $('table.attendees input:checked').each(function() {
@@ -1021,7 +1021,7 @@ function people_new(name) {
     $('form input[name="first_name"]').change(generateTag);
     $('form input[name="last_name"]').change(generateTag);
 
-    $('.primary').click(function() {
+    $('.btn-primary').click(function() {
         var person  = $('form').formParams();
         person.type = 'person';
         db.saveDoc(person, {
@@ -1077,7 +1077,7 @@ function topics_new() {
 
 
 
-    $('.primary').click(function() {
+    $('.btn-primary').click(function() {
         var topic  = $('form').formParams();
         topic.type = 'topic';
         topic.slug = createHash(topic.name);
@@ -1123,7 +1123,7 @@ function tags_new() {
         $('form input[name="hash"]').val(hash);
     })
 
-    $('.primary').click(function() {
+    $('.btn-primary').click(function() {
         var tag  = $('form').formParams();
         tag.type = 'tag';
         db.saveDoc(tag, {
