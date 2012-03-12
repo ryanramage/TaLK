@@ -789,7 +789,7 @@ function session_play(eventId, sessionId, startRequest) {
                    playDoc($player, result.recording.doc, startTime);
                }
             }).bind($.jPlayer.event.ended, function(event) {
-
+                    $('.control .btn').removeClass('active');
             });
             $('.play .jp-play-bar span').draggable({
                 axis: "x",
