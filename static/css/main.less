@@ -77,9 +77,14 @@ i.blue {
 
 
 .entry {
-    border-top: 1px solid #E8E8E8;
+
     padding: 10px 5px;
 }
+
+.transcript .entry {
+    border-top: 1px solid #E8E8E8;
+}
+
 
 .entry .time {
    float: right;
@@ -218,6 +223,7 @@ table.attendees tr:hover {
     position: relative;
     width: 880px;
     height: @timebar_height;
+    border-top: 1px solid #E8E8E8;
 }
 
 .play .timebar .time {
@@ -234,6 +240,14 @@ table.attendees tr:hover {
     background-color: @blue;
 }
 
+.play .timebar .playhead-mini {
+    position: absolute;
+    height: @timebar_height;
+    left: 100px;
+    width: 1px;
+    background-color: #FBB;
+    z-index:8;
+}
 
 .static-main {
     margin-top: 40px;

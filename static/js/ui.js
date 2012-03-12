@@ -790,7 +790,12 @@ function session_play(eventId, sessionId, startRequest) {
                }
             }).bind($.jPlayer.event.ended, function(event) {
                     $('.control .btn').removeClass('active');
-            });
+                    $('.play .timebar .playhead-mini').css('left', '0px');
+            }).bind($.jPlayer.event.timeupdate, function(event) {
+                    var left = calculateSecondsPixelSize(event.jPlayer.status.currentTime, pps);
+                    $('.play .timebar .playhead-mini').css('left', left + 'px');
+            })
+            ;
             $('.play .jp-play-bar span').draggable({
                 axis: "x",
                 containment: ".jp-progress-bar",
