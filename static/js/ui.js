@@ -2,7 +2,7 @@ var _ = require('underscore')._;
 var handlebars = require('handlebars');
 
 var async = require('async');
-
+var ddocName = 'TaLK';
 
 // unfortunate mix
 
@@ -21,7 +21,7 @@ var createPersonHash = function(fistName, lastName) {
 
 var queryTags = function(query, callback) {
     var tags = [];
-    db.view('geo-stories/all_tags', {
+    db.view(ddocName + '/all_tags', {
         reduce : false,
         startkey :  query ,
         endkey :  query + '\ufff0' ,
@@ -42,7 +42,7 @@ var queryTags = function(query, callback) {
 
 var queryPeople = function(query, callback) {
     var people = [];
-    db.view('geo-stories/all_people', {
+    db.view(ddocName  + '/all_people', {
         reduce: false,
         startkey :  query ,
         endkey :  query + '\ufff0' ,
@@ -62,7 +62,7 @@ var queryPeople = function(query, callback) {
 
 var queryTopics = function(query, callback) {
     var topics = [];
-    db.view('geo-stories/all_topics', {
+    db.view(ddocName + '/all_topics', {
         startkey :  query ,
         endkey :  query + '\ufff0' ,
         success : function(resp) {
@@ -99,7 +99,7 @@ function dbRoot(location) {
 
 function events_all () {
     activeNav('events-all');
-    db.view('geo-stories/by_event', {
+    db.view(ddocName + '/by_event', {
        success : function(resp) {
         $('.main').html(handlebars.templates['events-all.html'](resp, {}));
        }
@@ -136,7 +136,7 @@ function events_new() {
 }
 
 function load_event_sessions(eventId, callback) {
-    db.view('geo-stories/event_sessions', {
+    db.view(ddocName + '/event_sessions', {
         startkey : [eventId],
         endkey : [eventId, {}],
         success : function(resp) {
@@ -146,7 +146,7 @@ function load_event_sessions(eventId, callback) {
 }
 
 function load_event_agendas(eventId, callback) {
-    db.view('geo-stories/event_agendas', {
+    db.view(ddocName + '/event_agendas', {
         key : eventId,
         include_docs : true,
         success : function(resp) {
@@ -156,7 +156,7 @@ function load_event_agendas(eventId, callback) {
 }
 
 function load_event_attendees(event, callback) {
-    db.view('geo-stories/all_people', {
+    db.view(ddocName + '/all_people', {
         keys: event.attendees,
         include_docs : true,
         success : function(resp) {
@@ -236,7 +236,7 @@ function createPersonAutoComplete($elem, callback) {
 
 
 function updateEventAttendees(eventID, personHash, action, callback) {
-    $.post('./_db/_design/geo-stories/_update/updateAttendees/' + eventID + '?personHash=' + personHash + '&action=' + action, function(result) {
+    $.post('./_db/_design/' + ddocName + '/_update/updateAttendees/' + eventID + '?personHash=' + personHash + '&action=' + action, function(result) {
         callback(null, result);
     });
 }
@@ -368,20 +368,20 @@ function addAgendaItemToUI(agenda, id, type, text, colour) {
 
 
 function addAgendaItem(agenda_id, id, type, text, colour, callback  ) {
-    $.post('./_db/_design/geo-stories/_update/updateAgenda/' + agenda_id + '?action=add&id=' + id + '&type=' + type +'&text=' + text + '&colour=' + colour, function(result) {
+    $.post('./_db/_design/'+ddocName+'/_update/updateAgenda/' + agenda_id + '?action=add&id=' + id + '&type=' + type +'&text=' + text + '&colour=' + colour, function(result) {
         callback(null, result);
     });
 }
 
 function removeAgendaItem(agenda_id, id,  callback  ) {
-    $.post('./_db/_design/geo-stories/_update/updateAgenda/' + agenda_id + '?action=delete&id=' + id , function(result) {
+    $.post('./_db/_design/'+ddocName+'/_update/updateAgenda/' + agenda_id + '?action=delete&id=' + id , function(result) {
         callback(null, result);
     });
 }
 
 function updateAgendaItemColour(agenda_id, id, colour, callback  ) {
 
-    $.post('./_db/_design/geo-stories/_update/updateAgenda/' + agenda_id + '?action=update&id=' + id + '&colour=' + colour, function(result) {
+    $.post('./_db/_design/'+ddocName+'/_update/updateAgenda/' + agenda_id + '?action=update&id=' + id + '&colour=' + colour, function(result) {
         callback(null, result);
     });
 }
@@ -512,7 +512,7 @@ function saveSessionMark() {
 
 
 function endSpeaker(sessionSpeakerId) {
-    $.post('./_db/_design/geo-stories/_update/endSessionSpeaker/' + sessionSpeakerId , function(result) {
+    $.post('./_db/_design/'+ddocName+'/_update/endSessionSpeaker/' + sessionSpeakerId , function(result) {
         //callback(null, result);
     });
 }
@@ -533,7 +533,7 @@ function startSpeaker(sessionId, personHash, callback){
 
 function findHighestSessionEventNumber(sessionId, callback) {
     var highest = 0;
-    db.view('geo-stories/session_highest_session_number', {
+    db.view(ddocName + '/session_highest_session_number', {
         key:sessionId,
         reduce: true ,
         success : function(resp) {
@@ -549,7 +549,7 @@ function load_session_assets(eventId, sessionId, callback) {
     async.parallel({
         assets : function(callback) {
             // get all the session assets
-            db.view('geo-stories/session_assets', {
+            db.view(ddocName + '/session_assets', {
                 include_docs: true,
                 startkey:[sessionId],
                 endkey:[sessionId, {}, {}] ,
@@ -598,7 +598,7 @@ function session_show(eventId, sessionId) {
         $('.help').tooltip({placement: 'bottom'});
         var recorder = $('.recorder').couchaudiorecorder({
                   db : db,
-                  designDoc : 'geo-stories'
+                  designDoc : ddocName
         });
         var session_startTime = sessionStartTime(result);
         session_show_transcripts(result.events, session_startTime);
@@ -614,7 +614,7 @@ function session_show(eventId, sessionId) {
         }
         recorder.bind("recorderAsked", function(event, doc) {
             // update the view
-            db.view('geo-stories/session_assets', {
+            db.view(ddocName + '/session_assets', {
                 stale : 'update_after',
                 startkey:[sessionId],
                 endkey:[sessionId, {}],
@@ -821,10 +821,13 @@ function session_play(eventId, sessionId, startRequest) {
                     var start = calculateSecondsFromPixals(left, pps);
                     var new_start_time = (start * 1000)  + session_startTime
                     var new_end_time = (calculateSecondsFromPixals(width, pps) * 1000) + new_start_time;
-                    updateSessionEvent(id, new_start_time, new_end_time, function(err) {
+                    updateSessionEvent(id, new_start_time, new_end_time, function(err, updated) {
                         if (err) return alert('could not update: ' + err);
-                        $player.jPlayer('play', start);
-                        $('.control .btn').addClass('active');
+                        // only reset the playhead if the start changed
+                        if (updated.indexOf('start') > 0 ) {
+                            $player.jPlayer('play', start);
+                            $('.control .btn').addClass('active');
+                        }
                     });
                 }
             }).tooltip({placement: 'right', delay: { show: 500, hide: 100 } })
@@ -854,9 +857,9 @@ function session_play(eventId, sessionId, startRequest) {
 }
 
 function updateSessionEvent (id, new_start_time, new_end_time, callback) {
-    $.post('./_db/_design/geo-stories/_update/updateSessionEvent/' + id + '?start_time=' + new_start_time + '&end_time=' + new_end_time , function(result) {
-        console.log(result);
-        if (result == 'update complete') {
+    $.post('./_db/_design/TaLK/_update/updateSessionEvent/' + id + '?start_time=' + new_start_time + '&end_time=' + new_end_time , function(result) {
+        console.log('result: ' + result);
+        if (result.indexOf('update complete') >= 0) {
             console.log('assets');
             if (cached_session_assets) {
                 // update any cache
@@ -867,7 +870,7 @@ function updateSessionEvent (id, new_start_time, new_end_time, callback) {
                     }
                 });
             }
-            return callback(null);
+            return callback(null, result);
         }
         return callback(result);
     });
@@ -903,7 +906,7 @@ function endsWith(str, suffix) {
 
 
 function sessionListener(sessionId, $trascriptDiv, startTime) {
-    var $changes = db.changes(null, {filter :  "geo-stories/sessionEvents", include_docs: true, sessionId : sessionId});
+    var $changes = db.changes(null, {filter :  ddocName + "/sessionEvents", include_docs: true, sessionId : sessionId});
     $changes.onChange(function (change) {
         _.each(change.results, function(result){
             session_show_transcripts([result], startTime);
@@ -1001,7 +1004,7 @@ function renderSpeaker(sessionEvent, startTime, settings) {
 
 function people_all() {
     activeNav('people-all');
-    db.view('geo-stories/all_people', {
+    db.view(ddocName + '/all_people', {
         include_docs : true,
         success : function(resp) {
             $('.main').html(handlebars.templates['people-all.html'](resp, {}));
@@ -1065,7 +1068,7 @@ function legal_show(legalId) {
 
 function topics_all() {
     activeNav('topics-all');
-    db.view('geo-stories/all_topics', {
+    db.view(ddocName + '/all_topics', {
         include_docs : true,
         success : function(resp) {
             $('.main').html(handlebars.templates['topics-all.html'](resp, {}));
@@ -1106,7 +1109,7 @@ function topics_show(legalId) {
 
 function tags_all() {
     activeNav('tags-all');
-    db.view('geo-stories/all_tags', {
+    db.view(ddocName + '/all_tags', {
         reduce : true,
         group : true,
         group_level : 1,
