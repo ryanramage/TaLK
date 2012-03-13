@@ -241,7 +241,7 @@ function updateEventAttendees(eventID, personHash, action, callback) {
     });
 }
 
-function events_show(eventId) {
+function events_show(eventId, tab) {
     activeNav('events-all');
     db.openDoc(eventId, {
         success : function(resp) {
@@ -296,6 +296,10 @@ function events_show(eventId) {
                     }
                 })
             });
+            if (!tab) tab = 'attendees';
+            if (tab === 'attendees') $('.nav-tabs a[href="#attendeesTab"]').tab('show');
+            if (tab === 'agenda') $('.nav-tabs a[href="#agendaTab"]').tab('show');
+            if (tab === 'sessions') $('.nav-tabs a[href="#sessionsTab"]').tab('show');
         }
     })
 }
@@ -1168,6 +1172,15 @@ var routes = {
   '/events/:eventId/session/:sessionId' : {
       on : session_show,
       after : remove_changes_listeners
+  },
+  '/events/:eventId/session' : function(eventId) {
+      events_show(eventId, 'sessions');
+  },
+  '/events/:eventId/agenda' : function(eventId) {
+            events_show(eventId, 'agenda');
+  },
+  '/events/:eventId/attendees' : function(eventId) {
+            events_show(eventId, 'attendees');
   },
   '/people' : people_all,
   '/people/new' : people_new,
