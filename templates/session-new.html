@@ -5,7 +5,7 @@
     <a href="#/events">Events</a> <span class="divider">/</span>
   </li>
   <li>
-    <a href="#/events/{{_id}}">{{name}}</a> <span class="divider">/</span>
+    <a href="#/events/{{_id}}/session">{{name}}</a> <span class="divider">/</span>
   </li>
   <li class="active">
     <a href="#/events/id/session/new">New Session</a>
@@ -16,8 +16,8 @@
 
     <h2>New Session</h2>
 
-    <h4>Select Participants</h4>
-    <table class="table table-bordered table-condensed attendees">
+    <h4>Confirm Participants</h4>
+    <table class="table striped-table table-condensed attendees">
         <thead>
             <tr>
                 <th></th><th>First</th><th>Last</th><th>Community</th><th>Org</th>
@@ -26,7 +26,7 @@
         <tbody>
         {{#each attendees_full}}
             <tr>
-                <td><input type="checkbox" name="{{doc.tag}}"  /></td>
+                <td><input type="checkbox" name="{{doc.tag}}" checked="checked" /></td>
                 <td>{{doc.first_name}}</td>
                 <td>{{doc.last_name}}</td>
                 <td>{{doc.city}}</td>

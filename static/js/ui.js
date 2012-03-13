@@ -103,7 +103,6 @@ function events_all () {
        success : function(resp) {
 
         resp.rows = _.map(resp.rows, function(row) {
-            console.log(row);
              row.date_formated = moment(row.key[0]).format('MMMM D, YYYY');
              row.name = row.key[1];
             return row;
@@ -260,7 +259,6 @@ function events_show(eventId, tab) {
             load_event_sessions(eventId, function(err, data) {
                var d = {};
                d.sessions = _.map(data, function(row) {
-                   console.log(row);
                    return {
                        id : row.id,
                        eventId : eventId,
@@ -414,9 +412,13 @@ function session_new(eventId) {
                     $('.main').html(handlebars.templates['session-new.html'](event, {}));
 
 
-                    $('table.attendees tr').click(function() {
+                    $('input[name="agenda"]:first').prop('checked', 'checked');
+
+                    $('table.attendees tr').click(function(event) {
+                        if (event.target.type === 'checkbox') return;
                         var $checkbox = $(this).find(':checkbox');
                         $checkbox.prop('checked', !$checkbox[0].checked);
+
                     })
 
 
