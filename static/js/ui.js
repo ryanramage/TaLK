@@ -252,10 +252,12 @@ function events_show(eventId) {
             load_event_sessions(eventId, function(err, data) {
                var d = {};
                d.sessions = _.map(data, function(row) {
+                   console.log(row);
                    return {
                        id : row.id,
                        eventId : eventId,
                        date : row.key[1],
+                       endTime : row.key[2],
                        date_formatted : moment(row.key[1]).format('h:mm:ss a')
                    }
                });
