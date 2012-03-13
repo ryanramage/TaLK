@@ -727,13 +727,13 @@ function calculateStartTimeSeconds(startRequest, sessionEvents, event_start) {
         return fromTimeString(startRequest);
     }
     // it is an event id
-    console.log('event id');
+
     var session_event = _.find(sessionEvents, function(event) {
-        console.log(event, startRequest);
+
         if (startRequest === event.id)  return true;
     })
     if (session_event) {
-        console.log(session_event, event_start);
+
         return (session_event.doc.startTime - event_start  ) / 1000;
     }
 }
@@ -748,13 +748,13 @@ function session_play(eventId, sessionId, startRequest) {
     if ($('#' + sessionId).length == 1) {
         var session_startTime = sessionStartTime(cached_session_assets);
         var startTime = calculateStartTimeSeconds(startRequest, cached_session_assets.events, session_startTime);
-        console.log('loaded, start: ', startTime);
+
         $('.player').jPlayer('play', startTime);
 
     } else {
         load_session_assets(eventId, sessionId, function(err, result) {
             if (err) return alert('error: ' + err);
-            console.log(result);
+
             $('.main').html(handlebars.templates['session-play.html'](result, {}));
             $('.header-controls').keepInView({
                 zindex: 100
@@ -819,8 +819,8 @@ function session_play(eventId, sessionId, startRequest) {
                     var left = $me.css('left').replace('px', '');
                     var width = $me.css('width').replace('px', '');
                     var start = calculateSecondsFromPixals(left, pps);
-                    var new_start_time = (start * 1000)  + session_startTime
-                    var new_end_time = (calculateSecondsFromPixals(width, pps) * 1000) + new_start_time;
+                    var new_start_time = Math.round( (start * 1000)  + session_startTime );
+                    var new_end_time = Math.round( (calculateSecondsFromPixals(width, pps) * 1000) + new_start_time );
                     updateSessionEvent(id, new_start_time, new_end_time, function(err, updated) {
                         if (err) return alert('could not update: ' + err);
                         // only reset the playhead if the start changed
@@ -858,9 +858,9 @@ function session_play(eventId, sessionId, startRequest) {
 
 function updateSessionEvent (id, new_start_time, new_end_time, callback) {
     $.post('./_db/_design/TaLK/_update/updateSessionEvent/' + id + '?start_time=' + new_start_time + '&end_time=' + new_end_time , function(result) {
-        console.log('result: ' + result);
+
         if (result.indexOf('update complete') >= 0) {
-            console.log('assets');
+
             if (cached_session_assets) {
                 // update any cache
                 _.each(cached_session_assets.events, function(event) {
@@ -881,7 +881,7 @@ function session_play_leave() {
 }
 
 function playDoc(player, doc, startTime) {
-    console.log('play doc: ', startTime);
+
     var attachment = findMp3AttachmentName(doc);
     var url = 'audio/' + doc._id + '/' + attachment;
     player.jPlayer("setMedia", {
@@ -939,7 +939,7 @@ function session_show_transcripts(transcript_events, startTime, options) {
 
     if (!options) options = {};
     _.each(transcript_events, function(sessionEvent) {
-        console.log(sessionEvent);
+
         if (sessionEvent.doc.sessionType == 'speaker') {
             renderSpeaker(sessionEvent.doc, startTime, options);
         }

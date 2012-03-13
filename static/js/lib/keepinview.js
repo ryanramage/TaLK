@@ -35,11 +35,9 @@
     }(function ($) {
     
         $.fn.keepInView = function(settings) {
-            console.log('keep');
             return this.each(function() {
             
                 var $elem = $(this);
-                console.log($elem);
                 var defaults = {
                 
                     // Position will be fixed regardless of scroll position when set to true 
