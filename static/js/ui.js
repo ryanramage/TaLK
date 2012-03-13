@@ -479,6 +479,7 @@ function startNewMark(sessionId, startTime, thing_id, colour, text) {
 
     ugly_current_session_mark = sessionMark;
 
+    $('textarea').focus(); 
 
     findHighestSessionEventNumber(sessionId, function(err, highest) {
         highest += 1;
