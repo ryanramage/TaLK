@@ -1,5 +1,8 @@
 <div class="entry">
     {{{include "session-show-transcript-timebar.html"}}}
+    {{#if important}}
+        <i class="important icon-star" rel="tooltip" title="Important" ></i>
+    {{/if}}
      <label class="time">{{startTime_formated}} {{offset_formated}} </label>
      <label><i class="icon-tag" style="background-color: #{{colour}}"></i> #{{sessionEventCount}}</label>
      <div class="text">
