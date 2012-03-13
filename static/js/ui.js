@@ -950,7 +950,7 @@ function session_show_transcripts(transcript_events, startTime, options) {
 }
 
 function addTimeFormatting(sessionThing, startTime) {
-    sessionThing.startTime_formated = moment(sessionThing.startTime).format('h:mm:ssa');
+    sessionThing.startTime_formated = moment(parseInt (sessionThing.startTime)).format('h:mm:ssa');
     sessionThing.offset             = (sessionThing.startTime - startTime) / 1000;
     sessionThing.offset_end         = (sessionThing.endTime - startTime) / 1000;
     sessionThing.offset_formated = convertTime(sessionThing.offset);
