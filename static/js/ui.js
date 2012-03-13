@@ -479,7 +479,7 @@ function startNewMark(sessionId, startTime, thing_id, colour, text) {
 
     ugly_current_session_mark = sessionMark;
 
-    $('textarea').focus(); 
+    $('textarea').focus();
 
     findHighestSessionEventNumber(sessionId, function(err, highest) {
         highest += 1;
@@ -668,7 +668,8 @@ function session_show(eventId, sessionId) {
 
 
         }).bind("recordingComplete", function(event, doc) {
-
+            // add some state to the main doc
+            $.post('./_db/_design/'+ddocName+'/_update/endSession/' + sessionId , function(result) {
                 $('.topics, .participants li')
                     .addClass('disabled')
                     .removeClass('enabled');
@@ -683,7 +684,7 @@ function session_show(eventId, sessionId) {
 
 
                 $('.recordingComplete').html(handlebars.templates['session-show-recordingComplete.html'](recordingComplete, {}));
-
+            });
         });
 
 
