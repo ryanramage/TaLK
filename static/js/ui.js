@@ -101,6 +101,14 @@ function events_all () {
     activeNav('events-all');
     db.view(ddocName + '/by_event', {
        success : function(resp) {
+
+        resp.rows = _.map(resp.rows, function(row) {
+            console.log(row);
+             row.date_formated = moment(row.key[0]).format('MMMM D, YYYY');
+             row.name = row.key[1];
+            return row;
+        });
+
         $('.main').html(handlebars.templates['events-all.html'](resp, {}));
        }
     })

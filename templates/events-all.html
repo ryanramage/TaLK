@@ -1,11 +1,29 @@
-All Events
+<ul class="breadcrumb">
+  <li>
+    <a href="#/events">Events</a>
+  </li>
 
-
-<ul>
-{{#each rows}}
-<li><a href="#/events/{{id}}">{{key}}</a></li>
-
-{{/each}}
 </ul>
 
 <a class="btn" href="#/events/new">New Event</a>
+
+<table class="table striped-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Date</th>
+
+    </tr>
+  </thead>
+  <tbody>
+{{#each rows}}
+    <tr>
+      <td><a href="#/events/{{id}}">{{name}}</a></td>
+      <td><a href="#/events/{{id}}">{{date_formated}}</a></td>
+
+    </tr>
+{{/each}}
+  </tbody>
+</table>
+<ul>
+
