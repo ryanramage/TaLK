@@ -491,7 +491,7 @@ function startNewMark(sessionId, startTime, thing_id, colour, text) {
     $('form.tag-text  label.time span.date-formatted').text(startTime_formated);
     $('form.tag-text label.time span.time-formatted').text('[' + offset_formated + ']');
 
-    $('form.tag-text i.icon.tag').css('background-color', '#' + colour);
+    $('form.tag-text i.icon-tag').css('background-color', '#' + colour);
 
     ugly_current_session_mark = sessionMark;
 

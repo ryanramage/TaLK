@@ -32,18 +32,18 @@
 
         <div class="topics disabled">
             {{#each session.doc.agenda.items}}
-                <div class="topic" data-id="{{id}}" data-colour="{{colour}}"><i class="icon tag" style="background-color: #{{colour}}}"></i><span>{{text}}</span></div>
+                <div class="topic" data-id="{{id}}" data-colour="{{colour}}"><i class="icon-tag" style="background-color: #{{colour}}}"></i><span>{{text}}</span></div>
             {{/each}}
         </div>
 
         <form class="tag-text well" style="display: none;">
             <label class="time"><span class="date-formatted"></span> <span class="time-formatted"></span></label>
-            <label><i class="icon tag"></i> #<span class="sessionEventCount"></span> </label>
+            <label><i class="icon-tag"></i> #<span class="sessionEventCount"></span> </label>
             
             <textarea class="input-xlarge" name="textarea" id="textarea" rows="3"></textarea>
 
             <button class="btn btn-primary save-mark">Save</button>
-            <a class="btn help mark-important" href="#" title="Mark as important"><i class="icon flag" ></i></a>
+            <a class="btn help mark-important" href="#" title="Mark as important"><i class="icon-star" ></i></a>
             
         </form>
 
