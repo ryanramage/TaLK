@@ -959,7 +959,12 @@ function session_show_transcripts(transcript_events, startTime, options) {
     _.each(transcript_events, function(sessionEvent) {
 
         if (sessionEvent.doc.sessionType == 'speaker') {
-            renderSpeaker(sessionEvent.doc, startTime, options);
+            if (options.show_timebar) {
+
+            } else {
+                renderSpeaker(sessionEvent.doc, startTime, options);
+            }
+
         }
         if (sessionEvent.doc.sessionType == 'mark') {
             renderMark(sessionEvent.doc, startTime, options);
