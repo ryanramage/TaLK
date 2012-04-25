@@ -1,10 +1,10 @@
 {
     "name": "TaLK",
     "version": "0.0.1",
-    "description": "Record stories of people, while sittling around a map",
-    "long_description": "GeoStories is used to collect traditional knowledge from people. It is usually done around a map.",
-    "url": "https://github.com/datalaundry/geo-stories",
-    "categories": ["audio"],
+    "description": "Record and tag audio in meetings.",
+    "long_description": "TaLK is used to gather and record knowledge from people. Setup a meeting agenda, attendees, and then have an easy way to record and tag audio while in a meeting. ",
+    "url": "https://github.com/datalaundry/TaLK",
+    "categories": ["audio", "meetings"],
     "attachments": ["static", "index.html"],
     "legacy_mode" : true,
     "icons": {
@@ -49,7 +49,6 @@
         "couch-audio-recorder" : null,
         "session" : null,
         "users" : null,
-        "garden-app-support" : null,
         "git-info" : null,
         "jsonp" : null
 
