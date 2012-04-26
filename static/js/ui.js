@@ -357,7 +357,10 @@ function addAgendaItemToUI(agenda, id, type, text, colour) {
         colour: colour,
         text: text
     }
-    $('.agendas tbody').append(handlebars.templates['events-agenda-row.html'](item, {}));
+
+    $('#' + agenda._id +  ' table').show();
+
+    $('#' + agenda._id +  ' tbody').append(handlebars.templates['events-agenda-row.html'](item, {}));
     $('#' + id +  ' .simple_color').bind('change', function(){
         var colour = $(this).val();
         if (colour) colour = '' + colour.substring(1, colour.length); // remove the #

@@ -1,21 +1,6 @@
 <div id="{{_id}}" data-id="{{_id}}" class="agenda-listing">
 
     <h2>{{name}}</h2>
-    <table class="table striped-table">
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Colour</th>
-          <th>Text</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-    {{#each items}}
-        {{{include "events-agenda-row.html"}}}
-    {{/each}}
-      </tbody>
-    </table>
 
     <div class="row">
         <div class="span3">
@@ -39,5 +24,21 @@
 
     </div>
 
+
+    <table class="table striped-table " {{#unless items}}style="display: none;"{{/unless}}>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Colour</th>
+          <th>Text</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+    {{#each items}}
+        {{{include "events-agenda-row.html"}}}
+    {{/each}}
+      </tbody>
+    </table>
 
 </div>
