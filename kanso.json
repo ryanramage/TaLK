@@ -1,12 +1,13 @@
 {
     "name": "TaLK",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Record and tag audio in meetings.",
     "long_description": "TaLK is used to gather and record knowledge from people. Setup a meeting agenda, attendees, and then have an easy way to record and tag audio while in a meeting. ",
     "url": "https://github.com/datalaundry/TaLK",
     "categories": ["audio", "meetings"],
     "attachments": ["static", "index.html"],
     "legacy_mode" : true,
+    "install_with_no_reader" : true,
     "icons": {
         "16": "static/icons/wiki_icon_16.png",
         "48": "static/icons/wiki_icon_48.png",
