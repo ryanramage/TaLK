@@ -3,7 +3,8 @@ node_js:
    - 0.6
 
 
-env: DB=couchdb
+services:
+  - couchdb
 
 before_script:
   - curl -X PUT localhost:5984/myapp_test
