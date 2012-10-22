@@ -1,31 +1,37 @@
 define('js/app',[
     'jquery',
     'underscore',
-    'handlebars',
     'couchr',
-    'garden-app-support'
+    'director',
+    'events',
+    'js/events'
 ],
-function($, _, handlebars, couchr, garden, greeting_t, list_t){
+function($, _,  couchr, director, events, events_module){
     var exports = {};
-
+    var emitter = new events.EventEmitter();
+    var routes = _.extend({}, events_module.routes());
     /**
      * This is where you will put things you can do before the dom is loaded.
      */
     exports.init = function() {
+        _.invoke([events_module], 'init', {
+            selector : '.main',
+            emitter : emitter
+        });
     }
+
+
+    emitter.on("section", function(name){
+        $('.sidebar-nav li').removeClass('active');
+        $('.sidebar-nav').find('.' + name).addClass('active');
+    });
 
     /**
      * This that occur after the dom has loaded.
      */
     exports.on_dom_ready = function(){
-        garden.get_garden_ctx(function(err, garden_ctx){
-
-        })
-
-        couchr.get('_db/_all_docs', function (err, resp) {
-
-        });
-
+        router = director.Router(routes);
+        router.init('/events');
     }
 
 

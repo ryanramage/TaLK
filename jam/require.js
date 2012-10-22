@@ -2052,6 +2052,11 @@ var jam = {
             "main": "couchr-browser.js"
         },
         {
+            "name": "director",
+            "location": "jam/director",
+            "main": "director.js"
+        },
+        {
             "name": "domReady",
             "location": "jam/domReady",
             "main": "domReady.js"
@@ -2082,6 +2087,16 @@ var jam = {
             "main": "jquery.js"
         },
         {
+            "name": "jquerypp",
+            "location": "jam/jquerypp",
+            "main": "index.js"
+        },
+        {
+            "name": "moment",
+            "location": "jam/moment",
+            "main": "moment.js"
+        },
+        {
             "name": "text",
             "location": "jam/text",
             "main": "text.js"
@@ -2093,7 +2108,16 @@ var jam = {
         }
     ],
     "version": "0.2.6",
-    "shim": {}
+    "shim": {
+        "director": {
+            "exports": "Router"
+        },
+        "jquerypp": {
+            "deps": [
+                "jquery"
+            ]
+        }
+    }
 };
 
 if (typeof require !== "undefined" && require.config) {
