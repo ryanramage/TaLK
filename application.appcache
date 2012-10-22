@@ -4,7 +4,7 @@ CACHE:
 
 jam/bootstrap/css/bootstrap.css
 jam/bootstrap/css/bootstrap-responsive.css
-css/app.css
+css/main.css
 /dashboard/_design/dashboard/_rewrite/_topbar.css
 jam/require.js
 /dashboard/_design/dashboard/_rewrite/static/js/topbar.js

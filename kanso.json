@@ -3,55 +3,52 @@
     "version": "0.0.2",
     "description": "Record and tag audio in meetings.",
     "long_description": "TaLK is used to gather and record knowledge from people. Setup a meeting agenda, attendees, and then have an easy way to record and tag audio while in a meeting. ",
-    "url": "https://github.com/datalaundry/TaLK",
+    "url": "https://github.com/ryanramage/TaLK",
     "categories": ["audio", "meetings"],
-    "attachments": ["static", "index.html"],
+    "attachments": ["css", "img", "jam", "js",  "index.html", "application.appcache", "templates", "static"],
     "legacy_mode" : true,
     "install_with_no_reader" : true,
     "icons": {
-        "16": "static/icons/wiki_icon_16.png",
-        "48": "static/icons/wiki_icon_48.png",
-        "96": "static/icons/wiki_icon_96.png",
-        "128": "static/icons/wiki_icon_128.png"
+        "16": "img/promo/icon_16.png",
+        "48": "img/promo/icon_48.png",
+        "96": "img/promo/icon_96.png",
+        "128": "img/promo/icon_128.png"
     },
     "promo_images": {
-        "small": "static/images/promo_small.png"
+        "small": "img/promo/promo_small.png"
     },
     "screenshots": [
-        "static/images/screenshot1.png",
-        "static/images/screenshot2.png",
-        "static/images/screenshot3.png"
+        "img/promo/screenshot1.png",
+        "img/promo/screenshot2.png",
+        "img/promo/screenshot3.png"
     ],
 
     "modules": "lib",
     "load": "lib/app",
     "less": {
         "compress": true,
-        "compile": ["static/css/main.less"],
+        "compile": ["css/main.less"],
         "remove_from_attachments": true
     },
+    "cache_manifests": [
+             "application.appcache"
+         ],
     "handlebars": {
         "all_partials": true,
         "templates": "templates"
     },
+    "jam" : {
+        "include" : ["js/app", "domReady"]
+    },
     "dependencies": {
-        "attachments": null,
         "modules": null,
-        "less-precompiler": null,
-        "bootstrap": null,
+        "attachments": null,
         "properties": null,
         "underscore": null,
-        "sanitize": null,
-        "datelib": "0.0.1",
-        "base64": null,
-        "async": null,
-        "handlebars": null,
-        "handlebars-helpers": "0.0.2",
-        "couch-audio-recorder" : null,
-        "session" : null,
-        "users" : null,
+        "less-precompiler": "1.3.0-kanso.7",
+        "cache-manifest-timestamp": null,
         "git-info" : null,
-        "jsonp" : null
-
+        "kanso-jam" : null,
+        "couch-audio-recorder" : null
     }
 }

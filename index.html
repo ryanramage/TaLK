@@ -1,13 +1,16 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE html>
+<html lang="en" manifest="application.appcache">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link rel="stylesheet" type="text/css" href="static/css/main.css" />
-    <link rel="stylesheet" type="text/css" href="static/css/jquery-ui-1.8.16.custom.css" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.8.16.custom.css" />
     <link rel="stylesheet" type="text/css" href="couchaudiorecorder/skin/couchaudiorecorder.default.css" />
-    <link rel="stylesheet" type="text/css" href="static/css/jquery.mentionsInput.css" />
+    <link rel="stylesheet" type="text/css" href="css/jquery.mentionsInput.css" />
 
-    <link rel="shortcut icon" href="static/img/kanso_icon_20.png" />
+    <link rel="shortcut icon" href="img/favicon.ico">
     <title>TaLK - Traditional and Local Knowledge</title>
   </head>
   <body>
@@ -48,6 +51,20 @@
     		<p><a href="https://github.com/datalaundry/geo-stories">TaLK</a>. Version <span class="version"></span></p>
     	</div>
     </footer>
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="jam/require.js"></script>
+    <script>
+      require(['js/app', 'domReady', 'jquery'], function (app, domReady) {
+        // the topbar needed jquery to be loaded.
+        require(['/dashboard/_design/dashboard/_rewrite/static/js/topbar.js'], function(){});
+        app.init();
+        domReady(app.on_dom_ready);
+
+      });
+    </script>
+    <!--
     <script type="text/javascript" src="static/js/lib/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="static/js/lib/jquery-ui-1.8.16.custom.min.js"></script>
     <script type="text/javascript" src="/dashboard/_design/dashboard/_rewrite/static/js/topbar.js"></script>
@@ -79,6 +96,7 @@
     <script type="text/javascript" src="static/js/lib/jquery.mentionsInput.js"></script>
     <script type="text/javascript" src="static/js/lib/jquery.elastic.js"></script>
     <script type="text/javascript" src="static/js/lib/jquery.simple-color.js"></script>
+    -->
   </body>
 </html>
  

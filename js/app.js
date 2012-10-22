@@ -3,9 +3,7 @@ define('js/app',[
     'underscore',
     'handlebars',
     'couchr',
-    'garden-app-support',
-    'hbt!templates/test',
-    'hbt!templates/all_doc',
+    'garden-app-support'
 ],
 function($, _, handlebars, couchr, garden, greeting_t, list_t){
     var exports = {};
@@ -21,11 +19,11 @@ function($, _, handlebars, couchr, garden, greeting_t, list_t){
      */
     exports.on_dom_ready = function(){
         garden.get_garden_ctx(function(err, garden_ctx){
-            $('.main').append(greeting_t(garden_ctx));
+
         })
 
         couchr.get('_db/_all_docs', function (err, resp) {
-            $('.main').append(list_t(resp));
+
         });
 
     }
