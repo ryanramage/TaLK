@@ -57,10 +57,71 @@ define('js/events', [
         });
     }
 
+    exports.events_show = function (eventId, tab) {
+        db.openDoc(eventId, {
+            success : function(resp) {
+
+                resp.date_formated = moment(resp.date).format('MMMM D, YYYY');
+                $('.main').html(handlebars.templates['events-show.html'](resp, {}));
+
+                load_event_sessions(eventId, function(err, data) {
+                   var d = {};
+                   d.sessions = _.map(data, function(row) {
+                       return {
+                           id : row.id,
+                           eventId : eventId,
+                           date : row.key[1],
+                           endTime : row.key[2],
+                           date_formatted : moment(row.key[1]).format('h:mm:ss a')
+                       }
+                   });
+                   $('.sessions').html(handlebars.templates['events-session-list.html'](d, {}));
+                });
+                if (!resp.attendees) {
+                    resp.attendees = [];
+                } else {
+                    load_event_attendees(resp, function(err, data){
+                       $('.attendees').html(handlebars.templates['people-table.html'](data, {}));
+                   });
+                }
+                createPersonAutoComplete($('.personAutoComplete'), function(id, personHash) {
+                    updateEventAttendees(eventId, personHash, 'add', function(result) {
+                        window.location.reload();
+                    });
+                });
+
+                load_event_agendas(eventId, function(err, agendas) {
+                    _.each(agendas, function(agenda_row) {
+                        appendAgenda(agenda_row.doc);
+                    })
+                });
+                $('.add-agenda').click(function(){
+                    var name = $('input[name="agendaName"]').val();
+                    var agenda = {
+                        name : name,
+                        event : eventId,
+                        type : "sessionAgenda",
+                        items : []
+                    }
+                    db.saveDoc(agenda, {
+                        success : function(data) {
+
+                            appendAgenda(agenda);
+                        }
+                    })
+                });
+                if (!tab) tab = 'attendees';
+                if (tab === 'attendees') $('.nav-tabs a[href="#attendeesTab"]').tab('show');
+                if (tab === 'agenda') $('.nav-tabs a[href="#agendaTab"]').tab('show');
+                if (tab === 'sessions') $('.nav-tabs a[href="#sessionsTab"]').tab('show');
+            }
+        })
+    }
     exports.routes = function() {
        return  {
            '/events' : exports.events_all,
            '/events/new' : exports.events_new
+           '/events/:eventId' : exports.events_show
         }
     }
 
