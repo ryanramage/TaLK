@@ -5,6 +5,7 @@ CACHE:
 jam/bootstrap/css/bootstrap.css
 jam/bootstrap/css/bootstrap-responsive.css
 css/main.css
+couchaudiorecorder/skin/couchaudiorecorder.default.css
 /dashboard/_design/dashboard/_rewrite/_topbar.css
 jam/require.js
 /dashboard/_design/dashboard/_rewrite/static/js/topbar.js

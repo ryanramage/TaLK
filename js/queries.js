@@ -63,27 +63,21 @@ define('js/queries', [
        couchr.get('_ddoc/_view/event_sessions', {
            startkey : [eventId],
            endkey : [eventId, {}]
-       }, function(err, resp) {
-           callback(null, resp.rows);
-       });
+       }, callback);
    }
 
    exports.load_event_agendas = function (eventId, callback) {
-       couchr.get('_ddoc/_view/event_agendas', {
+           couchr.get('_ddoc/_view/event_agendas', {
            key : eventId,
            include_docs : true
-       }, function(err, resp) {
-          callback(null, resp.rows);
-       });
+       }, callback);
    }
 
    exports.load_event_attendees = function (event, callback) {
        couchr.get('_ddoc/_view/all_people', {
            keys: event.attendees,
            include_docs : true
-       }, function(err, resp) {
-          callback(null, resp.rows);
-       });
+       }, callback);
    }
 
 

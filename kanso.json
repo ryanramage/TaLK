@@ -38,7 +38,14 @@
         "templates": "templates"
     },
     "jam" : {
-        "include" : ["js/app", "domReady"]
+        "include" : [
+            "js/app",
+            "domReady",
+            "jam/bootstrap/js/bootstrap-tooltip.js",
+            "jam/bootstrap/js/bootstrap-button.js",
+            "jam/bootstrap/js/bootstrap-tab.js",
+            "jam/bootstrap/js/bootstrap-popover.js"
+        ]
     },
     "dependencies": {
         "modules": null,

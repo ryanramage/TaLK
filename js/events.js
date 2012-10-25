@@ -8,9 +8,14 @@ define('js/events', [
     'couchr',
     'moment',
     'jam/jquerypp/form_params',
+    'js/queries',
     'hbt!templates/events-all',
     'hbt!templates/events-new',
-], function (_, couchr, moment, form_params, all_t, new_t) {
+    'hbt!templates/events-show',
+    'hbt!templates/events-session-list',
+    'hbt!templates/people-table',
+    'hbt!templates/events-agenda',
+], function (_, couchr, moment, form_params, queries, all_t, new_t, show_t, session_list_t, people_table_t, events_agenda_t) {
     var exports = {};
     var selector = '.main'
     var options;
@@ -58,15 +63,14 @@ define('js/events', [
     }
 
     exports.events_show = function (eventId, tab) {
-        db.openDoc(eventId, {
-            success : function(resp) {
-
+        console.log('event show');
+        couchr.get('_db/' + eventId, function(err, resp) {
                 resp.date_formated = moment(resp.date).format('MMMM D, YYYY');
-                $('.main').html(handlebars.templates['events-show.html'](resp, {}));
+                $(selector).html(show_t(resp));
 
-                load_event_sessions(eventId, function(err, data) {
+            queries.load_event_sessions(eventId, function(err, data) {
                    var d = {};
-                   d.sessions = _.map(data, function(row) {
+                   d.sessions = _.map(data.rows, function(row) {
                        return {
                            id : row.id,
                            eventId : eventId,
@@ -75,23 +79,23 @@ define('js/events', [
                            date_formatted : moment(row.key[1]).format('h:mm:ss a')
                        }
                    });
-                   $('.sessions').html(handlebars.templates['events-session-list.html'](d, {}));
+                   $('.sessions').html(session_list_t(d));
                 });
                 if (!resp.attendees) {
                     resp.attendees = [];
                 } else {
-                    load_event_attendees(resp, function(err, data){
-                       $('.attendees').html(handlebars.templates['people-table.html'](data, {}));
+                    queries.load_event_attendees(resp, function(err, data){
+                       $('.attendees').html(people_table_t(data));
                    });
                 }
-                createPersonAutoComplete($('.personAutoComplete'), function(id, personHash) {
-                    updateEventAttendees(eventId, personHash, 'add', function(result) {
-                        window.location.reload();
-                    });
-                });
+//                createPersonAutoComplete($('.personAutoComplete'), function(id, personHash) {
+//                    updateEventAttendees(eventId, personHash, 'add', function(result) {
+//                        window.location.reload();
+//                    });
+//                });
 
-                load_event_agendas(eventId, function(err, agendas) {
-                    _.each(agendas, function(agenda_row) {
+                queries.load_event_agendas('"' + eventId + '"', function(err, agendas) {
+                    _.each(agendas.rows, function(agenda_row) {
                         appendAgenda(agenda_row.doc);
                     })
                 });
@@ -103,24 +107,75 @@ define('js/events', [
                         type : "sessionAgenda",
                         items : []
                     }
-                    db.saveDoc(agenda, {
-                        success : function(data) {
-
+                    couchr.post('_db/', agenda, function(err, data) {
                             appendAgenda(agenda);
-                        }
                     })
                 });
-                if (!tab) tab = 'attendees';
-                if (tab === 'attendees') $('.nav-tabs a[href="#attendeesTab"]').tab('show');
-                if (tab === 'agenda') $('.nav-tabs a[href="#agendaTab"]').tab('show');
-                if (tab === 'sessions') $('.nav-tabs a[href="#sessionsTab"]').tab('show');
-            }
+//                if (!tab) tab = 'attendees';
+//                if (tab === 'attendees') $('.nav-tabs a[href="#attendeesTab"]').tab('show');
+//                if (tab === 'agenda') $('.nav-tabs a[href="#agendaTab"]').tab('show');
+//                if (tab === 'sessions') $('.nav-tabs a[href="#sessionsTab"]').tab('show');
+
         })
     }
+
+    function appendAgenda (agenda) {
+        $('.agendas').append(events_agenda_t(agenda));
+
+        $('#' + agenda._id +  ' .simple_color').bind('change', function() {
+            var colour = $(this).val();
+            if (colour) colour = ''+ colour.substring(1, colour.length); // remove the #
+            var id = $(this).data('id');
+            updateAgendaItemColour(agenda._id, id, colour, function(err, result) {
+
+            });
+        }).simpleColor();
+
+        $('#' + agenda._id +  ' button.delete').bind('click', function() {
+            var $me = $(this);
+            var id = $me.data('id');
+            removeAgendaItem(agenda._id, id,  function(err, result) {
+                $me.closest('tr').remove();
+            });
+        })
+
+        var initalColour = "000000";
+
+//        createPersonAutoComplete($('#' + agenda._id +  '.agenda-listing .personAutoComplete'), function(id, personHash) {
+//            addAgendaItem(agenda._id, id, 'person', personHash, initalColour, function(err, result) {
+//                addAgendaItemToUI(agenda, id, 'person', personHash, initalColour);
+//            });
+//        });
+//        createTagAutoComplete($('#' + agenda._id +  '.agenda-listing .tagAutoComplete'), function(id, tagHash) {
+//            addAgendaItem(agenda._id, id, 'tag', tagHash, initalColour, function(err, result) {
+//                addAgendaItemToUI(agenda, id, 'tag', tagHash, initalColour);
+//            });
+//        });
+//        createTopicAutoComplete($('#' + agenda._id +  '.agenda-listing .topicAutoComplete'), function(id, name) {
+//            addAgendaItem(agenda._id, id, 'topic', name, initalColour, function(err, result) {
+//                addAgendaItemToUI(agenda, id, 'topic', name, initalColour);
+//            });
+//        });
+    }
+
+
+    function addAgendaItem(agenda_id, id, type, text, colour, callback  ) {
+        couchr.post('_ddoc/_update/updateAgenda/' + agenda_id + '?action=add&id=' + id + '&type=' + type +'&text=' + text + '&colour=' + colour, callback);
+    }
+
+    function removeAgendaItem(agenda_id, id,  callback  ) {
+        couchr.post('_ddoc/_update/updateAgenda/' + agenda_id + '?action=delete&id=' + id , callback);
+    }
+
+    function updateAgendaItemColour(agenda_id, id, colour, callback  ) {
+
+        couchr.post('_ddoc/_update/updateAgenda/' + agenda_id + '?action=update&id=' + id + '&colour=' + colour, callback);
+    }
+
     exports.routes = function() {
        return  {
            '/events' : exports.events_all,
-           '/events/new' : exports.events_new
+           '/events/new' : exports.events_new,
            '/events/:eventId' : exports.events_show
         }
     }

@@ -54,6 +54,18 @@
         // the topbar needed jquery to be loaded.
         require(['/dashboard/_design/dashboard/_rewrite/static/js/topbar.js'], function(){});
         app.init();
+
+        // the bootstrap jquery
+        require([
+            'jam/bootstrap/js/bootstrap-tooltip.js',
+            'jam/bootstrap/js/bootstrap-button.js',
+            'jam/bootstrap/js/bootstrap-tab.js',
+
+        ], function(){
+           require(['jam/bootstrap/js/bootstrap-popover.js'], function(){
+               domReady(app.on_dom_ready);
+           })
+        });
         domReady(app.on_dom_ready);
 
       });
