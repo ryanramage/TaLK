@@ -55,6 +55,11 @@ var jam = {
             "main": "moment.js"
         },
         {
+            "name": "select2",
+            "location": "jam/select2",
+            "main": "select2.js"
+        },
+        {
             "name": "text",
             "location": "jam/text",
             "main": "text.js"

@@ -15,6 +15,7 @@ define('js/events', [
     'hbt!templates/events-session-list',
     'hbt!templates/people-table',
     'hbt!templates/events-agenda',
+    'select2'
 ], function (_, couchr, moment, form_params, queries, all_t, new_t, show_t, session_list_t, people_table_t, events_agenda_t) {
     var exports = {};
     var selector = '.main'
@@ -63,12 +64,12 @@ define('js/events', [
     }
 
     exports.events_show = function (eventId, tab) {
-        console.log('event show');
         couchr.get('_db/' + eventId, function(err, resp) {
                 resp.date_formated = moment(resp.date).format('MMMM D, YYYY');
                 $(selector).html(show_t(resp));
 
             queries.load_event_sessions(eventId, function(err, data) {
+                console.log('load event sessions');
                    var d = {};
                    d.sessions = _.map(data.rows, function(row) {
                        return {
@@ -122,14 +123,18 @@ define('js/events', [
     function appendAgenda (agenda) {
         $('.agendas').append(events_agenda_t(agenda));
 
-        $('#' + agenda._id +  ' .simple_color').bind('change', function() {
-            var colour = $(this).val();
-            if (colour) colour = ''+ colour.substring(1, colour.length); // remove the #
-            var id = $(this).data('id');
-            updateAgendaItemColour(agenda._id, id, colour, function(err, result) {
+        require(['js/jquery.simple-color.js'], function(){
+            $('#' + agenda._id +  ' .simple_color').bind('change', function() {
+                var colour = $(this).val();
+                if (colour) colour = ''+ colour.substring(1, colour.length); // remove the #
+                var id = $(this).data('id');
+                updateAgendaItemColour(agenda._id, id, colour, function(err, result) {
 
-            });
-        }).simpleColor();
+                });
+            }).simpleColor();
+        });
+
+
 
         $('#' + agenda._id +  ' button.delete').bind('click', function() {
             var $me = $(this);
@@ -141,11 +146,11 @@ define('js/events', [
 
         var initalColour = "000000";
 
-//        createPersonAutoComplete($('#' + agenda._id +  '.agenda-listing .personAutoComplete'), function(id, personHash) {
-//            addAgendaItem(agenda._id, id, 'person', personHash, initalColour, function(err, result) {
-//                addAgendaItemToUI(agenda, id, 'person', personHash, initalColour);
-//            });
-//        });
+        createPersonAutoComplete($('#' + agenda._id +  '.agenda-listing .personAutoComplete'), function(id, personHash) {
+            addAgendaItem(agenda._id, id, 'person', personHash, initalColour, function(err, result) {
+                addAgendaItemToUI(agenda, id, 'person', personHash, initalColour);
+            });
+        });
 //        createTagAutoComplete($('#' + agenda._id +  '.agenda-listing .tagAutoComplete'), function(id, tagHash) {
 //            addAgendaItem(agenda._id, id, 'tag', tagHash, initalColour, function(err, result) {
 //                addAgendaItemToUI(agenda, id, 'tag', tagHash, initalColour);
@@ -156,6 +161,24 @@ define('js/events', [
 //                addAgendaItemToUI(agenda, id, 'topic', name, initalColour);
 //            });
 //        });
+    }
+
+    function createPersonAutoComplete($elem, callback) {
+        var $input = $elem.find('input');
+        var $btn   = $elem.find('button');
+        $input.select2({
+            query: function (query) {
+                var data = {results: []}, i, j, s;
+                for (i = 1; i < 5; i++) {
+                    s = "";
+                    for (j = 0; j < i; j++) {s = s + query.term;}
+                    data.results.push({id: query.term + i, text: s});
+                }
+                query.callback(data);
+            }
+
+
+        });
     }
 
 

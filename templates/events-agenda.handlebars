@@ -36,7 +36,12 @@
       </thead>
       <tbody>
     {{#each items}}
-        {{{include "events-agenda-row.html"}}}
+    <tr data-id="{{id}}" id="{{id}}">
+      <td>{{type}}</td>
+      <td><input class="simple_color" value="#{{colour}}" data-id={{id}} /> </td>
+      <td>{{text}}</td>
+      <td><button class="btn delete"  data-id={{id}} >x</button></td>
+    </tr>
     {{/each}}
       </tbody>
     </table>

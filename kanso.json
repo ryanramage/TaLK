@@ -44,7 +44,8 @@
             "jam/bootstrap/js/bootstrap-tooltip.js",
             "jam/bootstrap/js/bootstrap-button.js",
             "jam/bootstrap/js/bootstrap-tab.js",
-            "jam/bootstrap/js/bootstrap-popover.js"
+            "jam/bootstrap/js/bootstrap-popover.js",
+            "js/jquery.simple-color.js"
         ]
     },
     "dependencies": {
