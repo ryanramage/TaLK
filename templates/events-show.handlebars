@@ -1,13 +1,6 @@
 
 
-<ul class="breadcrumb">
-  <li>
-    <a href="#/events">Events</a> <span class="divider">/</span>
-  </li>
-  <li class="active">
-    <a href="#/events/{{_id}}">{{name}}</a>
-  </li>
-</ul>
+
 
 <h2>{{name}}</h2>
 <h5>{{date_formated}}</h5>
@@ -22,17 +15,17 @@
 <div class="tab-content">
     <div class="tab-pane active" id="attendeesTab">
         <div class="attendees"></div>
-        <div class="form well personAutoComplete">
-            <label>Add Attendee</label>
-            <input type="text" name="name" placeholder="Person search"/>
+        <div class="personAutoComplete">
+
+            <input type="hidden" name="name" placeholder="Person search"/>
         </div>
     </div>
     <div class="tab-pane" id="agendaTab">
         <div class="agendas">
 
         </div>
-        <div class="form well">
-            <input type="text" name="agendaName" placeholder="Agenda Name"/>
+        <div class="form ">
+            <select type="text" name="agendaName" placeholder="Agenda Name"/>
             <button class="btn add-agenda">Create Agenda</button>
         </div>
 

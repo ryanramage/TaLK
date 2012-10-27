@@ -89,11 +89,11 @@ define('js/events', [
                        $('.attendees').html(people_table_t(data));
                    });
                 }
-//                createPersonAutoComplete($('.personAutoComplete'), function(id, personHash) {
-//                    updateEventAttendees(eventId, personHash, 'add', function(result) {
-//                        window.location.reload();
-//                    });
-//                });
+                createPersonAutoComplete($('.personAutoComplete'), function(id, personHash) {
+                    updateEventAttendees(eventId, personHash, 'add', function(result) {
+                        window.location.reload();
+                    });
+                });
 
                 queries.load_event_agendas('"' + eventId + '"', function(err, agendas) {
                     _.each(agendas.rows, function(agenda_row) {
@@ -167,17 +167,20 @@ define('js/events', [
         var $input = $elem.find('input');
         var $btn   = $elem.find('button');
         $input.select2({
+            minimumInputLength: 1,
             query: function (query) {
-                var data = {results: []}, i, j, s;
-                for (i = 1; i < 5; i++) {
-                    s = "";
-                    for (j = 0; j < i; j++) {s = s + query.term;}
-                    data.results.push({id: query.term + i, text: s});
-                }
-                query.callback(data);
+                queries.queryPeople(query.term, function(data) {
+                    var results = _.map(data, function(item){
+                        return {
+                            text: item.name,
+                            value: item.name,
+                            id : item.id
+                        }
+                    });
+                    query.callback({results:results});
+
+                });
             }
-
-
         });
     }
 

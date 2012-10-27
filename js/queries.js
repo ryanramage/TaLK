@@ -26,8 +26,8 @@ define('js/queries', [
     exports.queryPeople = function(query, callback) {
         couchr.get('_ddoc/_view/all_people', {
             reduce: false,
-            startkey :  query ,
-            endkey :  query + '\ufff0' ,
+            startkey :  '"' + query + '"' ,
+            endkey :  '"' + query + '\ufff0' + '"' ,
             include_docs : false
         }, function(err, resp) {
             if (err) return callback(err);
