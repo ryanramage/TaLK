@@ -167,7 +167,6 @@ define('js/events', [
         var $input = $elem.find('input');
         var $btn   = $elem.find('button');
         $input.select2({
-            minimumInputLength: 1,
             query: function (query) {
                 queries.queryPeople(query.term, function(data) {
                     var results = _.map(data, function(item){
@@ -201,6 +200,10 @@ define('js/events', [
     exports.routes = function() {
        return  {
            '/events' : exports.events_all,
+           '/events/attendees' : exports.events_attendees,
+           '/events/agendas' : exports.events_agendas,
+           '/events/sessions' : exports.events_sessions,
+           '/events/session/:sessionId' : exports.events_session,
            '/events/new' : exports.events_new,
            '/events/:eventId' : exports.events_show
         }
