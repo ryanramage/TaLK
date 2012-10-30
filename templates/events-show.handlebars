@@ -1,39 +1,43 @@
 
-
-
-
 <h2>{{name}}</h2>
 <h5>{{date_formated}}</h5>
 
 
 <ul class="nav nav-tabs">
-  <li class="active"><a href="#attendeesTab" data-toggle="tab">Attendees</a></li>
-  <li><a href="#agendaTab" data-toggle="tab">Agendas</a></li>
-  <li><a href="#sessionsTab" data-toggle="tab">Sessions</a></li>
+  <li {{#if attendees_tab}}class="active"{{/if}}> <a href="#/events/{{_id}}/attendees" >Attendees</a></li>
+  <li {{#if agendas_tab}}  class="active"{{/if}}> <a href="#/events/{{_id}}/agendas" >Agendas</a></li>
+  <li {{#if sessions_tab}} class="active"{{/if}}> <a href="#/events/{{_id}}/sessions">Sessions</a></li>
 </ul>
 
-<div class="tab-content">
-    <div class="tab-pane active" id="attendeesTab">
-        <div class="attendees"></div>
-        <div class="personAutoComplete">
+{{#if attendees_tab}}
+<div  id="attendeesTab">
+    <div class="attendees"></div>
+    <div class="personAutoComplete">
 
-            <input type="hidden" name="name" placeholder="Person search"/>
-        </div>
-    </div>
-    <div class="tab-pane" id="agendaTab">
-        <div class="agendas">
-
-        </div>
-        <div class="form ">
-            <select type="text" name="agendaName" placeholder="Agenda Name"/>
-            <button class="btn add-agenda">Create Agenda</button>
-        </div>
-
-    </div>
-    <div class="tab-pane" id="sessionsTab">
-        <div class="sessions">
-
-        </div>
-        <a href="#/events/{{_id}}/session/new" class="btn add-session">Create Session</a>
+        <input type="hidden" name="name" placeholder="Person search"/>
     </div>
 </div>
+{{/if}}
+
+{{#if agendas_tab}}
+<div id="agendaTab">
+    <div class="agendas">
+
+    </div>
+    <div class="form ">
+        <select type="text" name="agendaName" placeholder="Agenda Name"/>
+        <button class="btn add-agenda">Create Agenda</button>
+    </div>
+
+</div>
+{{/if}}
+
+{{#if sessions_tab}}
+<div  id="sessionsTab">
+    <div class="sessions">
+
+    </div>
+    <a href="#/events/{{_id}}/session/new" class="btn add-session">Create Session</a>
+</div>
+{{/if}}
+

@@ -63,11 +63,52 @@ define('js/events', [
         });
     }
 
-    exports.events_show = function (eventId, tab) {
-        couchr.get('_db/' + eventId, function(err, resp) {
-                resp.date_formated = moment(resp.date).format('MMMM D, YYYY');
-                $(selector).html(show_t(resp));
+    exports.event_show = function(eventId) {
+        // just redirect to the attendees
+        options.router.setRoute('/events/' + eventId + '/attendees');
+    }
 
+    exports.event_attendees = function(eventId) {
+        events_show_base(eventId, 'attendees_tab', function(resp){
+            if (!resp.attendees) {
+                resp.attendees = [];
+            } else {
+                queries.load_event_attendees(resp, function(err, data){
+                   $('.attendees').html(people_table_t(data));
+               });
+            }
+            createPersonAutoComplete($('.personAutoComplete'), function(id, personHash) {
+                updateEventAttendees(eventId, personHash, 'add', function(result) {
+                    window.location.reload();
+                });
+            });
+        });
+    }
+
+    exports.event_agendas = function(eventId) {
+        events_show_base(eventId, 'agendas_tab', function(resp){
+            queries.load_event_agendas('"' + eventId + '"', function(err, agendas) {
+                _.each(agendas.rows, function(agenda_row) {
+                    appendAgenda(agenda_row.doc);
+                })
+            });
+            $('.add-agenda').click(function(){
+                var name = $('input[name="agendaName"]').val();
+                var agenda = {
+                    name : name,
+                    event : eventId,
+                    type : "sessionAgenda",
+                    items : []
+                }
+                couchr.post('_db/', agenda, function(err, data) {
+                        appendAgenda(agenda);
+                })
+            });
+        });
+    }
+
+    exports.event_sessions = function(eventId) {
+        events_show_base(eventId, 'sessions_tab', function(resp){
             queries.load_event_sessions(eventId, function(err, data) {
                 console.log('load event sessions');
                    var d = {};
@@ -81,42 +122,17 @@ define('js/events', [
                        }
                    });
                    $('.sessions').html(session_list_t(d));
-                });
-                if (!resp.attendees) {
-                    resp.attendees = [];
-                } else {
-                    queries.load_event_attendees(resp, function(err, data){
-                       $('.attendees').html(people_table_t(data));
-                   });
-                }
-                createPersonAutoComplete($('.personAutoComplete'), function(id, personHash) {
-                    updateEventAttendees(eventId, personHash, 'add', function(result) {
-                        window.location.reload();
-                    });
-                });
+            });
+        });
+    }
 
-                queries.load_event_agendas('"' + eventId + '"', function(err, agendas) {
-                    _.each(agendas.rows, function(agenda_row) {
-                        appendAgenda(agenda_row.doc);
-                    })
-                });
-                $('.add-agenda').click(function(){
-                    var name = $('input[name="agendaName"]').val();
-                    var agenda = {
-                        name : name,
-                        event : eventId,
-                        type : "sessionAgenda",
-                        items : []
-                    }
-                    couchr.post('_db/', agenda, function(err, data) {
-                            appendAgenda(agenda);
-                    })
-                });
-//                if (!tab) tab = 'attendees';
-//                if (tab === 'attendees') $('.nav-tabs a[href="#attendeesTab"]').tab('show');
-//                if (tab === 'agenda') $('.nav-tabs a[href="#agendaTab"]').tab('show');
-//                if (tab === 'sessions') $('.nav-tabs a[href="#sessionsTab"]').tab('show');
 
+    function events_show_base(eventId, tab, callback) {
+        couchr.get('_db/' + eventId, function(err, resp) {
+            resp.date_formated = moment(resp.date).format('MMMM D, YYYY');
+            resp[tab] = true;
+            $(selector).html(show_t(resp));
+            callback(resp);
         })
     }
 
@@ -200,12 +216,12 @@ define('js/events', [
     exports.routes = function() {
        return  {
            '/events' : exports.events_all,
-           '/events/attendees' : exports.events_attendees,
-           '/events/agendas' : exports.events_agendas,
-           '/events/sessions' : exports.events_sessions,
-           '/events/session/:sessionId' : exports.events_session,
+           '/events/:eventId/attendees' : exports.event_attendees,
+           '/events/:eventId/agendas' : exports.event_agendas,
+           '/events/:eventId/sessions' : exports.event_sessions,
+           '/events/session/:sessionId' : exports.event_session,
            '/events/new' : exports.events_new,
-           '/events/:eventId' : exports.events_show
+           '/events/:eventId' : exports.event_show
         }
     }
 

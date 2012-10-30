@@ -10,13 +10,15 @@ function($, _,  couchr, director, events, events_module){
     var exports = {};
     var emitter = new events.EventEmitter();
     var routes = _.extend({}, events_module.routes());
+    var router = director.Router(routes);
     /**
      * This is where you will put things you can do before the dom is loaded.
      */
     exports.init = function() {
         _.invoke([events_module], 'init', {
             selector : '.main',
-            emitter : emitter
+            emitter : emitter,
+            router : router
         });
     }
 
@@ -30,7 +32,7 @@ function($, _,  couchr, director, events, events_module){
      * This that occur after the dom has loaded.
      */
     exports.on_dom_ready = function(){
-        router = director.Router(routes);
+
         router.init('/events');
     }
 
