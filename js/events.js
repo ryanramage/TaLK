@@ -58,7 +58,7 @@ define('js/events', [
             // should validate
 
             couchr.post('_db', event, function(err, response){
-                router.setRoute('/events/' + response.id);
+                options.router.setRoute('/event/' + response.id);
             })
             return false;
         });
@@ -85,10 +85,10 @@ define('js/events', [
                });
             }
             if (resp.userCtx && resp.userCtx.name) {
-                createPersonAutoComplete($('.personAutoComplete'), function(id, personHash) {
+                var $input = createPersonAutoComplete($('.personAutoComplete'), function(id, personHash) {
+                    if (!id || !personHash) return;
                     if (id === 'new') {
                         // create a new person
-
                         return options.router.setRoute('/people/new/' + encodeURI(personHash) + '/attendee/' + eventId);
                     } else {
                         queries.updateEventAttendees(eventId, personHash, 'add', function(err, result) {
@@ -96,6 +96,7 @@ define('js/events', [
                             couchr.get('_db/' + id, function(err, person){
                                 current_attendees.rows.push({doc : person});
                                 $('.attendees').html(people_table_t(current_attendees));
+                                $input.select2("val","");
                             });
                         });
                     }
@@ -225,12 +226,20 @@ define('js/events', [
                 if ($(data).filter(function() { return this.text.localeCompare(term)===0; }).length===0) {
                     return {id:'new' + ':' + term, text:term};
                 }
+            },
+            initSelection : function (element, callback) {
+                var data = [];
+                $(element.val().split(",")).each(function () {
+                    data.push({id: this, text: this});
+                });
+                callback(data);
             }
         });
         $input.on('change', function(){
             var val = $input.val().split(':');
             callback(val[0], val[1]);
         })
+        return $input;
     }
 
 
