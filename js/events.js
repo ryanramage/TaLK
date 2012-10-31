@@ -89,14 +89,12 @@ define('js/events', [
                     if (id === 'new') {
                         // create a new person
 
-                        return options.router.setRoute('/people/new/' + encodeURI(personHash));
+                        return options.router.setRoute('/people/new/' + encodeURI(personHash) + '/attendee/' + eventId);
                     } else {
-                        updateEventAttendees(eventId, personHash, 'add', function(err, result) {
+                        queries.updateEventAttendees(eventId, personHash, 'add', function(err, result) {
                             if (err) return alert('Could not add.');
                             couchr.get('_db/' + id, function(err, person){
-                                console.log(person);
                                 current_attendees.rows.push({doc : person});
-                                console.log(current_attendees);
                                 $('.attendees').html(people_table_t(current_attendees));
                             });
                         });
@@ -249,13 +247,6 @@ define('js/events', [
         couchr.post('_ddoc/_update/updateAgenda/' + agenda_id + '?action=update&id=' + id + '&colour=' + colour, callback);
     }
 
-    function updateEventAttendees(eventID, personHash, action, callback) {
-        $.post('_ddoc/_update/updateAttendees/' + eventID + '?personHash=' + personHash + '&action=' + action, function(result) {
-            var err = null;
-            if (result !== 'update complete') err = 'Not added';
-            callback(null, result);
-        });
-    }
 
     exports.routes = function() {
        return  {

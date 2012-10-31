@@ -79,7 +79,13 @@ define('js/queries', [
            include_docs : true
        }, callback);
    }
-
+   exports.updateEventAttendees = function(eventID, personHash, action, callback) {
+        couchr.post('_ddoc/_update/updateAttendees/' + eventID + '?personHash=' + personHash + '&action=' + action, function(result) {
+            var err = null;
+            if (result !== 'update complete') err = 'Not added';
+            callback(null, result);
+        });
+    }
 
     return exports;
 });

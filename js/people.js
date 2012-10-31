@@ -5,10 +5,11 @@
  */
 define('js/people', [
     'couchr',
+    'js/queries',
     'garden-app-support',
     'hbt!templates/people-all',
     'hbt!templates/people-new'
-], function (couchr, garden, all_t, new_t) {
+], function (couchr, queries, garden, all_t, new_t) {
     var exports = {};
     var selector = '.main'
     var options;
@@ -28,21 +29,86 @@ define('js/people', [
             });
         });
     }
+    function trim(str) {
+        if (!str) return "";
+        return str.replace(/^\s+|\s+$/g, "");
+    }
+    exports.cleanUpFullName = function(fullName) {
+        var name = {
+            first : null,
+            last : null
+        }
+        // Lastname, firstname
+        if (fullName.indexOf(',')) {
+            var pieces = fullName.split(",", 2);
+            fullName = trim(pieces[1]) + " " + trim(pieces[0]);
 
-    var createPersonHash = function(fistName, lastName) {
+        }
+        // email addresses
+        if (fullName.indexOf('@')) {
+            fullName = fullName.split("@", 1)[0];
+        }
+
+        // split, capitialize
+        var names = fullName.split(/[\W_]/);
+        var newNames = [];
+        _.each(names, function(name) {
+           if (!name || name == '') return;
+           name = trim(name);
+           var newName = name[0].toUpperCase() + name.substr(1);
+           newNames.push(newName);
+
+        });
+
+        name.first = newNames[0];
+        name.last = newNames[1];
+        return name;
+    }
+
+
+    exports.createPersonHash = function(fistName, lastName) {
         var full = fistName;
         if (lastName) full += '.' + lastName;
         return full.toLowerCase().replace(/\W/g, '.');
     }
-    exports.people_new = function(name) {
-        console.log(name);
+
+    function delayed_focus(elem) {
+
+        setTimeout(function(){
+            console.log('delay!!!');
+            console.log($(elem));
+            $(elem).focus();
+        }, 300);
+    }
+
+    exports.people_new = function(name, event) {
+
+        var data = {};
+        if (name) {
+            name = decodeURI(name);
+            data = exports.cleanUpFullName(name);
+            data.tag = exports.createPersonHash(data.first, data.last);
+        }
+
+
         options.showNav('people-all');
-        $('.main').html(new_t({}));
+        $('.main').html(new_t(data));
+        // what to focus on
+        if (data.first && data.last && data.tag) {
+            delayed_focus('input[name="email"]');
+        } else if (data.first && data.last) {
+            delayed_focus('input[name="tag"]');
+        }
+        else if (data.first) {
+            delayed_focus('input[name="last_name"]');
+        } else {
+            delayed_focus('input[name="first_name"]');
+        }
 
         var generateTag = function() {
             var first = $('form input[name="first_name"]').val();
             var last  = $('form input[name="last_name"]').val();
-            var hash = createPersonHash(first,last);
+            var hash = exports.createPersonHash(first,last);
             $('form input[name="tag"]').val(hash);
         }
 
@@ -53,15 +119,24 @@ define('js/people', [
         $('.btn-primary').click(function() {
             var person  = $('form').formParams();
             person.type = 'person';
-            db.saveDoc(person, {
-                success : function() {
-                    router.setRoute('/people');
-                }
+            couchr.post('_db', person, function(err, result){
+                if (event) {
+                    queries.updateEventAttendees(event, person.tag, 'add', function(err, result) {
+                        if (err) return alert('Could not add.');
+                        options.router.setRoute('/event/' + event + '/attendees');
+                    });
+
+                } else return options.router.setRoute('/people');
             });
             return false;
         });
 
         $('.cancel').click(function() {
+            if (event) {
+                options.router.setRoute('/event/' + event + '/attendees');
+            } else {
+                options.router.setRoute('/people');
+            }
             return false;
         })
     }
@@ -70,7 +145,8 @@ define('js/people', [
        return  {
            '/people' : exports.people_all,
            '/people/new' : exports.people_new,
-           '/people/new/*' : exports.people_new
+           '/people/new/*' : exports.people_new,
+           '/people/new/*/attendee/*' : exports.people_new
         }
     }
     return exports;

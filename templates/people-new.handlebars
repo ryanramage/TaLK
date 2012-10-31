@@ -4,10 +4,10 @@
     <legend>Create Person</legend>
 
     <label>First Name</label>
-    <input type="text" name="first_name" />
+    <input type="text" name="first_name" value="{{first}}"/>
 
     <label>Last Name</label>
-    <input type="text" name="last_name" />
+    <input type="text" name="last_name" value="{{last}}"/>
 
 
     <fieldset class="control-group">
@@ -15,7 +15,7 @@
           <div class="controls">
             <div class="input-prepend">
               <span class="add-on">@</span>
-              <input class="span3" id="tag" name="tag" size="16" type="text">
+              <input class="span3" id="tag" name="tag" size="16" type="text" value="{{tag}}">
             </div>
             <p class="help-block">When entering text, use this to reference this person</p>
           </div>
