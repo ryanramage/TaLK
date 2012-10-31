@@ -4,9 +4,9 @@
 
 
 <ul class="nav nav-tabs">
-  <li {{#if attendees_tab}}class="active"{{/if}}> <a href="#/events/{{_id}}/attendees" >Attendees</a></li>
-  <li {{#if agendas_tab}}  class="active"{{/if}}> <a href="#/events/{{_id}}/agendas" >Agendas</a></li>
-  <li {{#if sessions_tab}} class="active"{{/if}}> <a href="#/events/{{_id}}/sessions">Sessions</a></li>
+  <li {{#if attendees_tab}}class="active"{{/if}}> <a href="#/event/{{_id}}/attendees" >Attendees</a></li>
+  <li {{#if agendas_tab}}  class="active"{{/if}}> <a href="#/event/{{_id}}/agendas" >Agendas</a></li>
+  <li {{#if sessions_tab}} class="active"{{/if}}> <a href="#/event/{{_id}}/sessions">Sessions</a></li>
 </ul>
 
 {{#if attendees_tab}}
@@ -14,7 +14,7 @@
     <div class="attendees"></div>
     <div class="personAutoComplete">
 
-        <input type="hidden" name="name" placeholder="Person search"/>
+        <input type="hidden" name="name" placeholder="Add Person..."/>
     </div>
 </div>
 {{/if}}
@@ -37,7 +37,7 @@
     <div class="sessions">
 
     </div>
-    <a href="#/events/{{_id}}/session/new" class="btn add-session">Create Session</a>
+    <a href="#/event/{{_id}}/session/new" class="btn add-session">Create Session</a>
 </div>
 {{/if}}
 

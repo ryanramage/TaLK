@@ -65,7 +65,7 @@ define('js/events', [
 
     exports.event_show = function(eventId) {
         // just redirect to the attendees
-        options.router.setRoute('/events/' + eventId + '/attendees');
+        options.router.setRoute('/event/' + eventId + '/attendees');
     }
 
     exports.event_attendees = function(eventId) {
@@ -78,6 +78,9 @@ define('js/events', [
                });
             }
             createPersonAutoComplete($('.personAutoComplete'), function(id, personHash) {
+                console.log(id, personHash);
+
+
                 updateEventAttendees(eventId, personHash, 'add', function(result) {
                     window.location.reload();
                 });
@@ -189,7 +192,7 @@ define('js/events', [
                         return {
                             text: item.name,
                             value: item.name,
-                            id : item.id
+                            id : item.id + ':' + item.name
                         }
                     });
                     query.callback({results:results});
@@ -197,6 +200,10 @@ define('js/events', [
                 });
             }
         });
+        $input.on('change', function(){
+            var val = $input.val().split(':');
+            callback(val[0], val[1]);
+        })
     }
 
 
@@ -213,15 +220,21 @@ define('js/events', [
         couchr.post('_ddoc/_update/updateAgenda/' + agenda_id + '?action=update&id=' + id + '&colour=' + colour, callback);
     }
 
+    function updateEventAttendees(eventID, personHash, action, callback) {
+        $.post('_ddoc/_update/updateAttendees/' + eventID + '?personHash=' + personHash + '&action=' + action, function(result) {
+            callback(null, result);
+        });
+    }
+
     exports.routes = function() {
        return  {
            '/events' : exports.events_all,
-           '/events/:eventId/attendees' : exports.event_attendees,
-           '/events/:eventId/agendas' : exports.event_agendas,
-           '/events/:eventId/sessions' : exports.event_sessions,
-           '/events/session/:sessionId' : exports.event_session,
+           '/event/:eventId/attendees' : exports.event_attendees,
+           '/event/:eventId/agendas' : exports.event_agendas,
+           '/event/:eventId/sessions' : exports.event_sessions,
+           '/event/session/:sessionId' : exports.event_session,
+           '/event/:eventId' : exports.event_show,
            '/events/new' : exports.events_new,
-           '/events/:eventId' : exports.event_show
         }
     }
 
