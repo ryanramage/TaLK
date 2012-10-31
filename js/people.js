@@ -8,7 +8,8 @@ define('js/people', [
     'js/queries',
     'garden-app-support',
     'hbt!templates/people-all',
-    'hbt!templates/people-new'
+    'hbt!templates/people-new',
+    'select2'
 ], function (couchr, queries, garden, all_t, new_t) {
     var exports = {};
     var selector = '.main'
@@ -115,6 +116,59 @@ define('js/people', [
 
         $('form input[name="first_name"]').change(generateTag);
         $('form input[name="last_name"]').change(generateTag);
+
+
+
+        $('form input[name="city"]').select2({
+            allowClear : true,
+            placeholder: 'Enter City',
+            query: function (query) {
+                couchr.get('_ddoc/_view/people_cities', {
+                    group : true,
+                    startkey : '"' + query.term + '"',
+                    endkey : '"' + query.term + '\ufff0' + '"'
+                }, function(err, data) {
+                    var results = _.map(data.rows, function(item){
+                        return {
+                            text: item.key + ' (' + item.value + ')',
+                            id : item.key
+                        }
+                    });
+                    query.callback({results:results});
+                });
+            },
+            createSearchChoice:function(term, data) {
+                if ($(data).filter(function() { return this.text.localeCompare(term)===0; }).length===0) {
+                    return {id: term, text:term};
+                }
+            }
+        });
+
+        $('form input[name="org"]').select2({
+            allowClear : true,
+            placeholder: 'Enter Org',
+            query: function (query) {
+                couchr.get('_ddoc/_view/people_orgs', {
+                    group : true,
+                    startkey : '"' + query.term + '"',
+                    endkey : '"' + query.term + '\ufff0' + '"'
+                }, function(err, data) {
+                    var results = _.map(data.rows, function(item){
+                        return {
+                            text: item.key + ' (' + item.value + ')',
+                            id : item.key
+                        }
+                    });
+                    query.callback({results:results});
+                });
+            },
+            createSearchChoice:function(term, data) {
+                if ($(data).filter(function() { return this.text.localeCompare(term)===0; }).length===0) {
+                    return {id: term, text:term};
+                }
+            }
+        });
+
 
         $('.btn-primary').click(function() {
             var person  = $('form').formParams();
