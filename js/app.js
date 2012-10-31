@@ -4,28 +4,35 @@ define('js/app',[
     'couchr',
     'director',
     'events',
-    'js/events'
+    'js/events',
+    'js/people'
 ],
-function($, _,  couchr, director, events, events_module){
+function($, _,  couchr, director, events, events_module, people_module){
     var exports = {};
     var emitter = new events.EventEmitter();
-    var routes = _.extend({}, events_module.routes());
+    var routes = _.extend({}, events_module.routes(), people_module.routes());
     var router = director.Router(routes);
+
+
     /**
      * This is where you will put things you can do before the dom is loaded.
      */
     exports.init = function() {
-        _.invoke([events_module], 'init', {
+        var opts = {
             selector : '.main',
             emitter : emitter,
             router : router
-        });
+        };
+        opts.showNav = function (active) {
+            emitter.emit('section', active);
+        }
+        _.invoke([events_module,people_module], 'init', opts);
     }
 
 
     emitter.on("section", function(name){
-        $('.sidebar-nav li').removeClass('active');
-        $('.sidebar-nav').find('.' + name).addClass('active');
+        $('.main-menu li').removeClass('active');
+        $('.main-menu').find('.' + name).addClass('active');
     });
 
     /**

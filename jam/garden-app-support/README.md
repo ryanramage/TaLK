@@ -1,6 +1,6 @@
 # Garden App Support
 
-This is a module that will be useful for apps that want to be used in the garden eco-system.
+This is a module that will be useful for apps that want to be used in the [garden20](http://garden20.com) eco-system.
 
 It provides:
 

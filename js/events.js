@@ -7,6 +7,7 @@ define('js/events', [
     'underscore',
     'couchr',
     'moment',
+    'garden-app-support',
     'jam/jquerypp/form_params',
     'js/queries',
     'hbt!templates/events-all',
@@ -16,7 +17,7 @@ define('js/events', [
     'hbt!templates/people-table',
     'hbt!templates/events-agenda',
     'select2'
-], function (_, couchr, moment, form_params, queries, all_t, new_t, show_t, session_list_t, people_table_t, events_agenda_t) {
+], function (_, couchr, moment, garden, form_params, queries, all_t, new_t, show_t, session_list_t, people_table_t, events_agenda_t) {
     var exports = {};
     var selector = '.main'
     var options;
@@ -27,18 +28,22 @@ define('js/events', [
     }
 
     exports.events_all = function () {
+        options.showNav('events-all');
         couchr.get('_ddoc/_view/by_event', function(err, resp){
             resp.rows = _.map(resp.rows, function(row) {
                  row.date_formated = moment(row.key[0]).format('MMMM D, YYYY');
                  row.name = row.key[1];
                 return row;
             });
-
-            $(selector).html(all_t(resp, {}));
+            garden.get_garden_ctx(function(err, garden_ctx) {
+                resp.userCtx = garden_ctx.userCtx;
+                $(selector).html(all_t(resp, garden_ctx));
+            })
         });
     }
 
     exports.events_new = function() {
+        options.showNav('events-all');
         $(selector).html(new_t({}));
         require(['static/js/lib/jquery-ui-1.8.16.custom.min.js'], function(){
             $('.date').datepicker();
@@ -69,22 +74,35 @@ define('js/events', [
     }
 
     exports.event_attendees = function(eventId) {
+        var current_attendees = { rows : [] };
         events_show_base(eventId, 'attendees_tab', function(resp){
             if (!resp.attendees) {
                 resp.attendees = [];
             } else {
                 queries.load_event_attendees(resp, function(err, data){
-                   $('.attendees').html(people_table_t(data));
+                    current_attendees = data;
+                    $('.attendees').html(people_table_t(current_attendees));
                });
             }
-            createPersonAutoComplete($('.personAutoComplete'), function(id, personHash) {
-                console.log(id, personHash);
+            if (resp.userCtx && resp.userCtx.name) {
+                createPersonAutoComplete($('.personAutoComplete'), function(id, personHash) {
+                    if (id === 'new') {
+                        // create a new person
 
-
-                updateEventAttendees(eventId, personHash, 'add', function(result) {
-                    window.location.reload();
+                        return options.router.setRoute('/people/new/' + encodeURI(personHash));
+                    } else {
+                        updateEventAttendees(eventId, personHash, 'add', function(err, result) {
+                            if (err) return alert('Could not add.');
+                            couchr.get('_db/' + id, function(err, person){
+                                console.log(person);
+                                current_attendees.rows.push({doc : person});
+                                console.log(current_attendees);
+                                $('.attendees').html(people_table_t(current_attendees));
+                            });
+                        });
+                    }
                 });
-            });
+            }
         });
     }
 
@@ -131,11 +149,15 @@ define('js/events', [
 
 
     function events_show_base(eventId, tab, callback) {
+        options.showNav('events-all');
         couchr.get('_db/' + eventId, function(err, resp) {
             resp.date_formated = moment(resp.date).format('MMMM D, YYYY');
             resp[tab] = true;
             $(selector).html(show_t(resp));
-            callback(resp);
+            garden.get_garden_ctx(function(err, garden_ctx) {
+                resp.userCtx = garden_ctx.userCtx;
+                callback(resp);
+            })
         })
     }
 
@@ -186,6 +208,8 @@ define('js/events', [
         var $input = $elem.find('input');
         var $btn   = $elem.find('button');
         $input.select2({
+            allowClear : true,
+            placeholder: 'Add Person',
             query: function (query) {
                 queries.queryPeople(query.term, function(data) {
                     var results = _.map(data, function(item){
@@ -198,6 +222,11 @@ define('js/events', [
                     query.callback({results:results});
 
                 });
+            },
+            createSearchChoice:function(term, data) {
+                if ($(data).filter(function() { return this.text.localeCompare(term)===0; }).length===0) {
+                    return {id:'new' + ':' + term, text:term};
+                }
             }
         });
         $input.on('change', function(){
@@ -222,6 +251,8 @@ define('js/events', [
 
     function updateEventAttendees(eventID, personHash, action, callback) {
         $.post('_ddoc/_update/updateAttendees/' + eventID + '?personHash=' + personHash + '&action=' + action, function(result) {
+            var err = null;
+            if (result !== 'update complete') err = 'Not added';
             callback(null, result);
         });
     }
