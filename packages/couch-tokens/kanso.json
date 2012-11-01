@@ -1,0 +1,10 @@
+{
+    "name": "couch-tokens",
+    "version": "0.0.1",
+    "categories": ["text"],
+    "description": "A tokenizer and stemmer for a low cost text search.",
+    "modules": ["views"],
+    "dependencies": {
+        "modules": null
+    }
+}

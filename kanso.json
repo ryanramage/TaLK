@@ -57,6 +57,7 @@
         "cache-manifest-timestamp": null,
         "git-info" : null,
         "kanso-jam" : null,
-        "couch-audio-recorder" : null
+        "couch-audio-recorder" : null,
+        "couch-tokens" : null
     }
 }
