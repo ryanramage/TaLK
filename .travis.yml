@@ -9,7 +9,7 @@ services:
 before_script:
   - curl -X PUT localhost:5984/myapp_test
   - npm install kanso -g
-  - npm install jam -g
+  - npm install jamjs -g
 
 script: "kanso install; kanso push http://localhost:5984/myapp_test"
 
