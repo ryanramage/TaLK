@@ -4,6 +4,7 @@
  * Time: 10:53 AM
  */
 define('js/events', [
+    'jquery',
     'underscore',
     'couchr',
     'moment',
@@ -17,7 +18,7 @@ define('js/events', [
     'hbt!templates/people-table',
     'hbt!templates/events-agenda',
     'select2'
-], function (_, couchr, moment, garden, form_params, queries, all_t, new_t, show_t, session_list_t, people_table_t, events_agenda_t) {
+], function ($,_, couchr, moment, garden, form_params, queries, all_t, new_t, show_t, session_list_t, people_table_t, events_agenda_t) {
     var exports = {};
     var selector = '.main'
     var options;
@@ -82,6 +83,15 @@ define('js/events', [
                 queries.load_event_attendees(resp, function(err, data){
                     current_attendees = data;
                     $('.attendees').html(people_table_t(current_attendees));
+                    if (resp.userCtx && resp.userCtx.name) {
+                        $('.delete').removeClass('hide').on('click', function(){
+                            var personHash = $(this).data('tag');
+                            queries.updateEventAttendees(eventId, personHash, 'remove', function(err, result) {
+                                if (err) return alert('Could not add.');
+                                $('.' + personHash).remove();
+                            });
+                        });
+                    }
                });
             }
             if (resp.userCtx && resp.userCtx.name) {

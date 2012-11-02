@@ -10,11 +10,16 @@
   </thead>
   <tbody>
 {{#each rows}}
-    <tr>
+    <tr class="{{doc.tag}}">
       <td>{{doc.first_name}}</td>
       <td>{{doc.last_name}}</td>
       <td>{{doc.city}}</td>
       <td>{{doc.org}}</td>
+      <td>
+
+        <button class="btn delete hide"  data-tag={{doc.tag}} >x</button>
+
+      </td>
     </tr>
 {{/each}}
   </tbody>
