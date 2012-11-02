@@ -14,7 +14,7 @@ before_script:
 script: "kanso install; kanso push http://localhost:5984/myapp_test"
 
 after_script:
-  - "kanso push http://travis:Yhu2Dpg5fEezAvdu_j@nwt.iriscouch.com/talk_test --minify"
+  - "kanso push http://travis:Yhu2Dpg5fEezAvdu_j@nwt.ic.ht/talk_test --minify"
 
 notifications:
   email:
