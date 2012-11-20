@@ -76,8 +76,6 @@ define('js/people', [
     function delayed_focus(elem) {
 
         setTimeout(function(){
-            console.log('delay!!!');
-            console.log($(elem));
             $(elem).focus();
         }, 300);
     }

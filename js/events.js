@@ -19,9 +19,10 @@ define('js/events', [
     'hbt!templates/events-agenda',
     'select2'
 ], function ($,_, couchr, moment, garden, form_params, queries, all_t, new_t, show_t, session_list_t, people_table_t, events_agenda_t) {
-    var exports = {};
-    var selector = '.main'
-    var options;
+    var exports = {},
+        selector = '.main',
+        options,
+        current_tab;
 
     exports.init = function (opts) {
         options = opts;
@@ -87,7 +88,7 @@ define('js/events', [
                         $('.delete').removeClass('hide').on('click', function(){
                             var personHash = $(this).data('tag');
                             queries.updateEventAttendees(eventId, personHash, 'remove', function(err, result) {
-                                if (err) return alert('Could not add.');
+                                if (err) return alert('Could not remove.');
                                 $('.' + personHash).remove();
                             });
                         });
@@ -118,9 +119,17 @@ define('js/events', [
     exports.event_agendas = function(eventId) {
         events_show_base(eventId, 'agendas_tab', function(resp){
             queries.load_event_agendas('"' + eventId + '"', function(err, agendas) {
-                _.each(agendas.rows, function(agenda_row) {
-                    appendAgenda(agenda_row.doc);
-                })
+
+                if (agendas.rows.length > 0) {
+                    _.each(agendas.rows, function(agenda_row) {
+                        appendAgenda(agenda_row.doc);
+                    })
+                } else {
+                    // show a default agenda
+                    appendAgenda({});
+                }
+
+
             });
             $('.add-agenda').click(function(){
                 var name = $('input[name="agendaName"]').val();
@@ -173,6 +182,7 @@ define('js/events', [
     function appendAgenda (agenda) {
         $('.agendas').append(events_agenda_t(agenda));
 
+
         require(['js/jquery.simple-color.js'], function(){
             $('#' + agenda._id +  ' .simple_color').bind('change', function() {
                 var colour = $(this).val();
@@ -206,6 +216,11 @@ define('js/events', [
 //                addAgendaItemToUI(agenda, id, 'tag', tagHash, initalColour);
 //            });
 //        });
+        createTopicAutoComplete($('#' + agenda._id +  '.agenda-listing .topicAutoComplete'), function(id, personHash) {
+            addAgendaItem(agenda._id, id, 'person', personHash, initalColour, function(err, result) {
+                addAgendaItemToUI(agenda, id, 'person', personHash, initalColour);
+            });
+        });
 //        createTopicAutoComplete($('#' + agenda._id +  '.agenda-listing .topicAutoComplete'), function(id, name) {
 //            addAgendaItem(agenda._id, id, 'topic', name, initalColour, function(err, result) {
 //                addAgendaItemToUI(agenda, id, 'topic', name, initalColour);
@@ -251,7 +266,44 @@ define('js/events', [
         })
         return $input;
     }
+    function createTopicAutoComplete($elem, callback) {
+        var $input = $elem.find('input');
+        var $btn   = $elem.find('button');
+        $input.select2({
+            allowClear : true,
+            placeholder: 'Add Topic',
+            query: function (query) {
+                queries.queryTopics(query.term, function(data) {
+                    var results = _.map(data, function(item){
+                        return {
+                            text: item.name,
+                            value: item.name,
+                            id : item.id + ':' + item.name
+                        }
+                    });
+                    query.callback({results:results});
 
+                });
+            },
+            createSearchChoice:function(term, data) {
+                if ($(data).filter(function() { return this.text.localeCompare(term)===0; }).length===0) {
+                    return {id:'new' + ':' + term, text:term};
+                }
+            },
+            initSelection : function (element, callback) {
+                var data = [];
+                $(element.val().split(",")).each(function () {
+                    data.push({id: this, text: this});
+                });
+                callback(data);
+            }
+        });
+        $input.on('change', function(){
+            var val = $input.val().split(':');
+            callback(val[0], val[1]);
+        })
+        return $input;
+    }
 
     function addAgendaItem(agenda_id, id, type, text, colour, callback  ) {
         couchr.post('_ddoc/_update/updateAgenda/' + agenda_id + '?action=add&id=' + id + '&type=' + type +'&text=' + text + '&colour=' + colour, callback);
@@ -275,7 +327,7 @@ define('js/events', [
            '/event/:eventId/sessions' : exports.event_sessions,
            '/event/session/:sessionId' : exports.event_session,
            '/event/:eventId' : exports.event_show,
-           '/events/new' : exports.events_new,
+           '/events/new' : exports.events_new
         }
     }
 

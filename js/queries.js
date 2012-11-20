@@ -44,8 +44,8 @@ define('js/queries', [
 
     exports.queryTopics = function(query, callback) {
         couchr.get('_ddoc/_view/all_topics', {
-            startkey :  query ,
-            endkey :  query + '\ufff0'
+            startkey :  '"' + query + '"' ,
+            endkey :  '"' + query + '\ufff0' + '"' ,
         }, function(err, resp) {
             if (err) return callback(err);
             var topics = _.map(resp.rows, function(row) {
@@ -74,6 +74,9 @@ define('js/queries', [
    }
 
    exports.load_event_attendees = function (event, callback) {
+
+       if (!event.attendees || event.attendees.length === 0) return callback(null, {rows: []});
+
        couchr.get('_ddoc/_view/all_people', {
            keys: event.attendees,
            include_docs : true

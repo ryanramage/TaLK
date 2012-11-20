@@ -2,27 +2,7 @@
 
     <h2>{{name}}</h2>
 
-    <div class="row">
-        <div class="span3">
-            <div class="form well topicAutoComplete">
-                <label>Add Topic</label>
-                <input type="text" name="tag" placeholder="Topic search" class="span2"/>
-            </div>
-        </div>
-        <div class="span3">
-            <div class="form well tagAutoComplete">
-                <label>Add Tag</label>
-                <input type="text" name="tag" placeholder="Tag search" class="span2"/>
-            </div>
-        </div>
-        <div class="span3">
-            <div class="form well personAutoComplete" >
-                <label>Add Person</label>
-                <input type="text" name="name" placeholder="Person search" class="span2"/>
-            </div>
-        </div>
 
-    </div>
 
 
     <table class="table striped-table " {{#unless items}}style="display: none;"{{/unless}}>
@@ -45,5 +25,15 @@
     {{/each}}
       </tbody>
     </table>
+
+    <div class="row">
+        <div class="span3">
+            <div class="topicAutoComplete">
+                <input type="hidden" name="name" placeholder="Add Topic..." class="input-xxlarge"/>
+            </div>
+        </div>
+    </div>
+
+
 
 </div>
