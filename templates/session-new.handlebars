@@ -5,10 +5,10 @@
     <a href="#/events">Events</a> <span class="divider">/</span>
   </li>
   <li>
-    <a href="#/events/{{_id}}/session">{{name}}</a> <span class="divider">/</span>
+    <a href="#/event/{{_id}}/sessions">{{name}}</a> <span class="divider">/</span>
   </li>
   <li class="active">
-    <a href="#/events/id/session/new">New Session</a>
+    New Session
   </li>
 </ul>
 
@@ -38,7 +38,7 @@
 
     <h4>Select Agenda</h4>
     {{#each agendas_full}}
-        <input type="radio" name="agenda" value="{{id}}" /> {{doc.name}} </br>
+        <input type="radio" name="agenda" value="{{id}}" {{#if selected}}checked="checked"{{/if}}/> {{doc.name}} </br>
     {{/each}}
 <form>
     <fieldset class="form-actions">

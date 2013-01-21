@@ -60,6 +60,11 @@ var jam = {
             "main": "select2.js"
         },
         {
+            "name": "slang",
+            "location": "jam/slang",
+            "main": "slang.js"
+        },
+        {
             "name": "text",
             "location": "jam/text",
             "main": "text.js"
@@ -70,7 +75,7 @@ var jam = {
             "main": "underscore.js"
         }
     ],
-    "version": "0.2.6",
+    "version": "0.2.11",
     "shim": {
         "director": {
             "exports": "Router"

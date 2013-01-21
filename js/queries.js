@@ -90,5 +90,11 @@ define('js/queries', [
         });
     }
 
+    exports.addAgendaTopicItem = function(agenda_id, topic_id, text, callback  ) {
+      $.post('_ddoc/_update/updateAgenda/' + agenda_id + '?action=add&id=' + topic_id + '&type=topic'  +'&text=' + text + '&colour=900' , function(result) {
+          callback(null, result);
+      });
+    }
+
     return exports;
 });

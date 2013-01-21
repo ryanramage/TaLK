@@ -1,0 +1,113 @@
+/**
+ * User: ryan
+ * Date: 12-11-20
+ * Time: 3:38 PM
+ */
+define([
+    'underscore',
+    'couchr',
+    'slang',
+    'js/queries',
+    'hbt!templates/topics-new'
+], function (_, couchr, slang, queries, new_t) {
+    var exports = {};
+    var selector = '.main';
+    var options;
+
+    exports.init = function (opts) {
+        options = opts;
+        selector = opts.selector;
+    };
+
+    function topics_all() {
+
+    }
+
+    function topic_details(topicId) {
+
+    }
+
+    function topics_new(name, agendaId) {
+        console.log('show topic!!');
+        var data = {};
+        if (name) {
+            data.name = decodeURI(name);
+            data.slug = exports.createTopicHash(data.name);
+        }
+
+
+        options.showNav('topics-all');
+        $('.main').html(new_t(data));
+
+
+        var generateTag = function() {
+            var name = $('form input[name="name"]').val();
+            var hash = exports.createTopicHash(name);
+            $('form input[name="slug"]').val(hash);
+        };
+        $('form input[name="name"]').change(generateTag);
+
+        // what to focus on
+        if (data.name && data.slug) {
+            delayed_focus('input[name="description"]');
+        } else if (data.name ) {
+            delayed_focus('input[name="slug"]');
+        } else {
+            delayed_focus('input[name="name"]');
+        }
+
+
+        $('.btn-primary').click(function() {
+            var topic  = $('form').formParams();
+            topic.type = 'topic';
+            couchr.post('_db', topic, function(err, result){
+                if (agendaId) {
+
+                    queries.addAgendaTopicItem(agendaId, result.id, topic.slug, function(err, result) {
+                        if (err) return alert('Could not add.');
+                        couchr.get('_db/' + agendaId, function(err, agenda) {
+                            options.router.setRoute('/event/' + agenda.event + '/agendas');
+                        });
+                    });
+
+                } else return options.router.setRoute('/topics');
+            });
+            return false;
+        });
+
+        $('.cancel').click(function() {
+            if (event) {
+                options.router.setRoute('/event/' + event + '/attendees');
+            } else {
+                options.router.setRoute('/people');
+            }
+            return false;
+        });
+
+    }
+
+    function delayed_focus(elem) {
+
+        setTimeout(function(){
+            $(elem).focus();
+        }, 300);
+    }
+
+    exports.createTopicHash = function(name) {
+        return slang.dasherize(name);
+    };
+
+
+
+    exports.routes = function() {
+        console.log('me routes');
+       return  {
+           '/topics' : topics_all,
+           '/topics/view/:topicId' : topic_details,
+           '/topics/new' : topics_new,
+           '/topics/new/*' : topics_new,
+           '/topics/new/*/agendas/*' : topics_new
+        };
+    };
+    return exports;
+});

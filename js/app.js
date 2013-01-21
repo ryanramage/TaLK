@@ -5,12 +5,13 @@ define('js/app',[
     'director',
     'events',
     'js/events',
-    'js/people'
+    'js/people',
+    'js/topics'
 ],
-function($, _,  couchr, director, events, events_module, people_module){
+function($, _,  couchr, director, events, events_module, people_module, topics_module){
     var exports = {};
     var emitter = new events.EventEmitter();
-    var routes = _.extend({}, events_module.routes(), people_module.routes());
+    var routes = _.extend({}, events_module.routes(), people_module.routes(), topics_module.routes());
     var router = director.Router(routes);
 
 
@@ -26,7 +27,7 @@ function($, _,  couchr, director, events, events_module, people_module){
         opts.showNav = function (active) {
             emitter.emit('section', active);
         }
-        _.invoke([events_module,people_module], 'init', opts);
+        _.invoke([events_module,people_module, topics_module], 'init', opts);
     }
 
 
