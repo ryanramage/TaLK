@@ -43,8 +43,9 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="jam/require.js"></script>
     <script>
-      require(['js/app', 'domReady', 'jquery'], function (app, domReady) {
+      require(['js/app', 'domReady', 'jquery'], function (app, domReady, $) {
         // the topbar needed jquery to be loaded.
+        window.$ = $;
         require(['/dashboard/_design/dashboard/_rewrite/static/js/topbar.js'], function(){});
         app.init();
 
@@ -53,6 +54,9 @@
             'jam/bootstrap/js/bootstrap-tooltip.js',
             'jam/bootstrap/js/bootstrap-button.js',
             'jam/bootstrap/js/bootstrap-tab.js',
+            'couchaudiorecorder/js/jquery.couch.js',
+            'couchaudiorecorder/js/jquery.couchaudiorecorder.js',
+            'static/js/lib/keepinview.js'
 
         ], function(){
            require(['jam/bootstrap/js/bootstrap-popover.js'], function(){
@@ -80,7 +84,7 @@
     <script type="text/javascript" src="static/js/lib/bootstrap-button.js"></script>
     <script type="text/javascript" src="static/js/lib/moment.min.js"></script>
     <script type="text/javascript" src="static/js/lib/jquery.dom.form_params.js"></script>
-    
+
     <script type="text/javascript" src="static/js/lib/jquery.tablesorter.js"></script>
     <script type="text/javascript" src="static/js/lib/System.js"></script>
     <script type="text/javascript" src="static/js/lib/keepinview.js"></script>
@@ -98,4 +102,3 @@
     -->
   </body>
 </html>
- 

@@ -3,9 +3,9 @@
 <ul>
 {{#each sessions}}
     {{#if endTime}}
-        <li><a href="#/events/{{eventId}}/session/{{id}}/play/start" >{{date_formatted}}</a></li>
+        <li><a href="#/event/{{eventId}}/session/{{id}}/play/start" >{{date_formatted}}</a></li>
     {{else}}
-        <li><a href="#/events/{{eventId}}/session/{{id}}" >{{date_formatted}}</a></li>
+        <li><a href="#/event/{{eventId}}/session/{{id}}" >{{date_formatted}}</a></li>
     {{/if}}
 {{/each}}
 </ul>

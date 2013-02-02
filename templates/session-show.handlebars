@@ -5,10 +5,10 @@
     <a href="#/events">Events</a> <span class="divider">/</span>
   </li>
   <li>
-    <a href="#/events/{{event._id}}/session">{{event.name}}</a> <span class="divider">/</span>
+    <a href="#/event/{{event._id}}/sessions">{{event.name}}</a> <span class="divider">/</span>
   </li>
   <li class="active">
-    <a href="#/events/{{event._id}}/session/{{session.doc._id}}">{{startTime_formated}}</a>
+    <a href="#/event/{{event._id}}/session/{{session.doc._id}}">{{startTime_formated}}</a>
   </li>
 </ul>
 
@@ -39,12 +39,12 @@
         <form class="tag-text well" style="display: none;">
             <label class="time"><span class="date-formatted"></span> <span class="time-formatted"></span></label>
             <label><i class="icon-tag"></i> #<span class="sessionEventCount"></span> </label>
-            
+
             <textarea class="input-xlarge" name="textarea" id="textarea" rows="3"></textarea>
 
             <button class="btn btn-primary save-mark">Save</button>
             <a class="btn help mark-important" href="#" title="Mark as important"><i class="icon-star" ></i></a>
-            
+
         </form>
 
         <div class="transcript" >

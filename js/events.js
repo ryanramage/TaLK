@@ -11,6 +11,7 @@ define('js/events', [
     'garden-app-support',
     'jam/jquerypp/form_params',
     'js/queries',
+    'js/time',
     'hbt!templates/events-all',
     'hbt!templates/events-new',
     'hbt!templates/events-show',
@@ -18,8 +19,13 @@ define('js/events', [
     'hbt!templates/people-table',
     'hbt!templates/events-agenda',
     'hbt!templates/session-new',
+    'hbt!templates/session-show',
+    'hbt!templates/session-show-recordingComplete',
+    'hbt!templates/session-play',
     'select2'
-], function ($,_, couchr, moment, garden, form_params, queries, all_t, new_t, show_t, session_list_t, people_table_t, events_agenda_t, session_new_t) {
+], function ($,_, couchr, moment, garden, form_params, queries, time, all_t,
+            new_t, show_t, session_list_t, people_table_t, events_agenda_t, session_new_t,
+            session_show_t, recording_complete_t, session_play_t) {
     var exports = {},
         selector = '.main',
         options,
@@ -222,10 +228,144 @@ define('js/events', [
     };
 
     exports.session_show = function(eventId, sessionId) {
+        options.showNav('events-all');
         queries.load_session_assets(eventId, sessionId, function(err, result) {
             if (err) return alert('error: ' + err);
+            $('.main').html(session_show_t(result));
+
+
+            // FIXME - need to make couchaudio recorder a jam thing.
+            $.couch.urlPrefix = '_db';
+            var ddocName = 'TaLK';
+            var db = $.couch.db('');
+            var recorder = $('.recorder').couchaudiorecorder({
+                db : db,
+                designDoc : ddocName
+            });
+            if (result.recording) {
+                recorder.couchaudiorecorder("loadRecording", result.recording.doc._id);
+            } else {
+                recorder.couchaudiorecorder("newRecording", {
+                  additionalProperties : {
+                      sessionId : sessionId
+                  }
+                });
+            }
+            recorder.bind("recorderAsked", function(event, doc) {
+                // update the view
+                db.view(ddocName + '/session_assets', {
+                    stale : 'update_after',
+                    startkey:[sessionId],
+                    endkey:[sessionId, {}],
+                    success: function() { }
+                });
+
+            }).bind("startComplete", function(event, doc) {
+                $('.topics, .participants li')
+                    .removeClass('disabled')
+                    .addClass('enabled');
+
+
+                $('.topics .topic').click(function() {
+                    var me = $(this);
+                    var thing_id = me.data('id');
+                    var colour   = me.data('colour');
+                    var text     = me.find('span').text();
+                    startNewMark(sessionId, doc.recordingState.startComplete, thing_id, colour, text);
+                });
+                $('.participants li').click(function() {
+                    var me = $(this);
+                    var personHash = me.data('topicid');
+                    var currentlyTalking = me.hasClass('talking');
+                    me.toggleClass('talking');
+                    if (currentlyTalking) {
+                        var sessionSpeakerId = me.data('sessionSpeakerId');
+                        endSpeaker(sessionSpeakerId);
+                    } else {
+                        startSpeaker(sessionId, personHash, function(doc) {
+                            me.data('sessionSpeakerId', doc.id);
+                        });
+                    }
+                });
+                $('.mark-important').button().click(function() {
+                    $(this).button('toggle');
+                    setSessionMarkAsImportant();
+                });
+                $('.save-mark').click(function(){
+                    $('.mark-important').button('reset').removeClass('active');
+                    saveSessionMark();
+                    return false;
+                });
+
+
+                $('.transcript').show();
+                sessionListener(sessionId, $('.transcript'), doc.recordingState.startComplete);
+
+
+
+
+
+            }).bind("recordingComplete", function(event, doc) {
+                // add some state to the main doc
+                $.post('./_db/_design/'+ddocName+'/_update/endSession/' + sessionId , function(result) {
+                    $('.topics, .participants li')
+                        .addClass('disabled')
+                        .removeClass('enabled');
+
+                    var recordingComplete = {
+                        doc_id : doc._id,
+                        event_id : eventId,
+                        session_id: sessionId,
+                        recorded_date_formatted : moment(doc.recordingState.startComplete).format('MMM DD, YYYY, h:mm:ss a'),
+                        length : time.convertTime((doc.recordingState.stopComplete - doc.recordingState.startComplete) / 1000)
+                    };
+                    $('.recordingComplete').html(recording_complete_t(recordingComplete));
+                });
+            });
+
+        $('.topic').click(function(){
+           $(this).toggleClass('highlight');
+        });
+
+        $('.help').tooltip({placement: 'bottom'});
 
         });
+    };
+
+    var cached_session_assets;
+
+    exports.session_play = function(eventId, sessionId, startRequest) {
+        var start = start || 0;
+
+
+        // check to see if we are already loaded
+        if ($('#' + sessionId).length == 1) {
+            var session_startTime = sessionStartTime(cached_session_assets);
+            var startTime = calculateStartTimeSeconds(startRequest, cached_session_assets.events, session_startTime);
+
+            $('.player').jPlayer('play', startTime);
+
+        } else {
+            queries.load_session_assets(eventId, sessionId, function(err, result) {
+                if (err) return alert('error: ' + err);
+
+                $('.main').html(session_play_t(result));
+                $('.header-controls').keepInView({
+                    zindex: 100
+                });
+                cached_session_assets = result;
+                var session_startTime = sessionStartTime(result);
+                var session_endTime = sessionEndTime(result);
+                var audio_duration = session_endTime - session_startTime;
+
+                var timeline_width = parseInt( $('.jp-progress-bar').width() );
+                var pps = time.calculatePixelsPerSecond(timeline_width, audio_duration / 1000, 1 );
+
+                createTimeBand($('#timebar'), audio_duration/1000, pps);
+
+
+            });
+        }
     };
 
 
@@ -385,19 +525,120 @@ define('js/events', [
     }
 
 
-    function session_play(eventId, sessionId, startRequest) {
-    }
     function session_play_leave() {
     }
     function remove_changes_listeners() {
     }
+
+    function sessionStartTime(sessionDetails) {
+        if (sessionDetails.recording && sessionDetails.recording.doc.recordingState && sessionDetails.recording.doc.recordingState.startComplete) {
+            return sessionDetails.recording.doc.recordingState.startComplete;
+        }
+        return sessionDetails.session.doc.created;
+    }
+
+
+    function sessionEndTime(sessionDetails) {
+        if (sessionDetails.recording && sessionDetails.recording.doc.recordingState && sessionDetails.recording.doc.recordingState.stopComplete) {
+            return sessionDetails.recording.doc.recordingState.stopComplete;
+        }
+        return sessionDetails.session.doc.created;
+    }
+
+
+    function session_show_transcripts(transcript_events, startTime, options) {
+
+        if (!options) options = {};
+        _.each(transcript_events, function(sessionEvent) {
+
+            if (sessionEvent.doc.sessionType == 'speaker') {
+                if (options.show_timebar) {
+
+                } else {
+                    renderSpeaker(sessionEvent.doc, startTime, options);
+                }
+
+            }
+            if (sessionEvent.doc.sessionType == 'mark') {
+                renderMark(sessionEvent.doc, startTime, options);
+            }
+        } );
+    }
+
+    function addTimeFormatting(sessionThing, startTime) {
+        sessionThing.startTime_formated = moment(parseInt (sessionThing.startTime)).format('h:mm:ssa');
+        sessionThing.offset             = (sessionThing.startTime - startTime) / 1000;
+        sessionThing.offset_end         = (sessionThing.endTime - startTime) / 1000;
+        sessionThing.offset_formated = convertTime(sessionThing.offset);
+    }
+
+    function renderMark(sessionMark, startTime, settings) {
+        var defaults = {
+            element : '.transcript',
+            prepend : true,
+            show_timebar : false
+        };
+        settings = _.defaults(settings, defaults);
+        addTimeFormatting(sessionMark, startTime);
+        sessionMark.show_timebar = settings.show_timebar;
+        if (sessionMark.show_timebar) {
+            sessionMark.timebar_left = settings.pps * sessionMark.offset;
+            sessionMark.timebar_width = settings.pps * (sessionMark.offset_end - sessionMark.offset);
+        }
+
+
+        var rendered = handlebars.templates['session-show-transcript-mark.html'](sessionMark, {});
+        if (settings.prepend) {
+            $(settings.element).prepend(rendered);
+        } else {
+            $(settings.element).append(rendered);
+        }
+
+    }
+
+    function sessionListener(sessionId, $trascriptDiv, startTime) {
+        // var $changes = db.changes(null, {filter :  ddocName + "/sessionEvents", include_docs: true, sessionId : sessionId});
+        // $changes.onChange(function (change) {
+        //     _.each(change.results, function(result){
+        //         session_show_transcripts([result], startTime);
+        //     });
+        // });
+    }
+
+    var createTimeBand = function(band, seconds, pps) {
+
+
+        band.addClass('timeband');
+
+        var width = parseInt(band.width());
+        var minutes = seconds / 60;
+        var pixalsPerMinute =   width / minutes;
+        var divsNeeded = Math.floor(minutes);
+        var shouldBe = pixalsPerMinute;
+        var last = 0;
+        for (var i =0; i < divsNeeded; i++) {
+            var thisWidth = Math.floor(shouldBe - last) - 1;
+            last += (thisWidth + 1);
+            var marker = $('<div class="marker" style="width: ' + thisWidth +'px;"></div>');
+            band.append(marker);
+            shouldBe += pixalsPerMinute;
+        }
+        band.find('.marker:nth-child(10n)').addClass('markerTenMinute').each(function(i){
+            var time = (i+1) * 10;
+            var label = $('<div class="timelabel">'+ time + 'm</div>');
+            $(this).append(label);
+
+
+        });
+        band.find('.marker:nth-child(60n)').addClass('markerHour');
+    };
 
     exports.routes = function() {
        return  {
            '/events' : exports.events_all,
            '/event/:eventId/session/new' : exports.session_new,
            '/event/:eventId/session/:sessionId/play/:start' : {
-              on : session_play,
+              on : exports.session_play,
               after : session_play_leave
            },
            '/event/:eventId/session/:sessionId' : {
