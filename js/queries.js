@@ -1,7 +1,9 @@
-define('js/queries', [
+define([
     'underscore',
-    'couchr'
-], function (_, couchr) {
+    'couchr',
+    'async',
+    'underscore'
+], function (_, couchr, async, _) {
     var exports = {};
 
     exports.queryTags = function(query, callback) {
@@ -82,6 +84,53 @@ define('js/queries', [
            include_docs : true
        }, callback);
    }
+
+   exports.load_session_assets = function(eventId, sessionId, callback) {
+      async.parallel({
+          assets : function(callback) {
+              // get all the session assets
+              db.view(ddocName + '/session_assets', {
+                  include_docs: true,
+                  startkey:[sessionId],
+                  endkey:[sessionId, {}, {}] ,
+                  success : function(resp) {
+                      callback(null, resp.rows);
+                  }
+              });
+          },
+          event : function(callback) {
+              db.openDoc(eventId, {
+                  success : function(event) {
+                      load_event_attendees(event, function(err, attendees_full){
+                           event.attendees_full = attendees_full.rows;
+                           callback(null, event);
+                      });
+                  }
+              });
+          }
+      },
+      function(err, result) {
+          if (err) callback(err);
+          result.session = _.find(result.assets, function(asset){  if(asset.doc.type === 'session') return true;  } )
+          result.recording = _.find(result.assets, function(asset){  if(asset.doc.type !== 'session') return true;  } )
+          result.events = _.filter(result.assets, function(asset){ if(asset.doc.type === 'sessionEvent') return true;   });
+          result.events = _.sortBy(result.events, function(event){ return event.doc.sessionEventCount });
+
+
+          result.session.doc.participants_full = _.map(result.session.doc.participants, function(participant){
+              return _.find(result.event.attendees_full, function(attendee){return attendee.key === participant});
+          });
+
+          var session_startTime = sessionStartTime(result);
+
+          result.startTime_formated = moment(session_startTime).format('MMM DD, YYYY, h:mm:ss a');
+          callback(null, result);
+      });
+
+  }
+
+
+
    exports.updateEventAttendees = function(eventID, personHash, action, callback) {
         couchr.post('_ddoc/_update/updateAttendees/' + eventID + '?personHash=' + personHash + '&action=' + action, function(result) {
             var err = null;

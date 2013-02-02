@@ -89,7 +89,7 @@ var show = function(what, context) {
     if (!context) context = {};
     activeNav(what);
     $('.main').html(handlebars.templates[what + '.html'](context, {}));
-} 
+}
 
 
 function dbRoot(location) {
@@ -1071,11 +1071,11 @@ function people_new(name) {
     })
 
 
-    
+
 }
 
 function person_show(personId) {
-    
+
 }
 
 
@@ -1089,7 +1089,7 @@ function legal_new() {
 }
 
 function legal_show(legalId) {
-    
+
 }
 
 function topics_all() {

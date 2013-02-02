@@ -7,9 +7,11 @@ define([
     'underscore',
     'couchr',
     'slang',
+    'garden-app-support',
     'js/queries',
-    'hbt!templates/topics-new'
-], function (_, couchr, slang, queries, new_t) {
+    'hbt!templates/topics-new',
+    'hbt!templates/topics-all'
+], function (_, couchr, slang, garden, queries, new_t, all_t) {
     var exports = {};
     var selector = '.main';
     var options;
@@ -20,7 +22,13 @@ define([
     };
 
     function topics_all() {
-
+        options.showNav('topics-all');
+        couchr.get('_ddoc/_view/all_topics', {include_docs : true}, function(err, resp) {
+            garden.get_garden_ctx(function(err, garden_ctx) {
+                resp.userCtx = garden_ctx.userCtx;
+                $('.main').html(all_t(resp));
+            });
+        });
     }
 
     function topic_details(topicId) {

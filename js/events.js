@@ -28,7 +28,7 @@ define('js/events', [
     exports.init = function (opts) {
         options = opts;
         selector = opts.selector;
-    }
+    };
 
     exports.events_all = function () {
         options.showNav('events-all');
@@ -41,9 +41,9 @@ define('js/events', [
             garden.get_garden_ctx(function(err, garden_ctx) {
                 resp.userCtx = garden_ctx.userCtx;
                 $(selector).html(all_t(resp, garden_ctx));
-            })
+            });
         });
-    }
+    };
 
     exports.events_new = function() {
         options.showNav('events-all');
@@ -62,19 +62,19 @@ define('js/events', [
 
             couchr.post('_db', event, function(err, response){
                 options.router.setRoute('/event/' + response.id);
-            })
+            });
             return false;
         });
         $('.cancel').click(function() {
            history.back();
            return false;
         });
-    }
+    };
 
     exports.event_show = function(eventId) {
         // just redirect to the attendees
         options.router.setRoute('/event/' + eventId + '/attendees');
-    }
+    };
 
     exports.event_attendees = function(eventId) {
         var current_attendees = { rows : [] };
@@ -115,7 +115,7 @@ define('js/events', [
                 });
             }
         });
-    }
+    };
 
     exports.event_agendas = function(eventId) {
         events_show_base(eventId, 'agendas_tab', function(resp){
@@ -124,7 +124,7 @@ define('js/events', [
                 if (agendas.rows.length > 0) {
                     _.each(agendas.rows, function(agenda_row) {
                         appendAgenda(agenda_row.doc, resp.userCtx, eventId);
-                    })
+                    });
                 }
 
 
@@ -136,13 +136,13 @@ define('js/events', [
                     event : eventId,
                     type : "sessionAgenda",
                     items : []
-                }
+                };
                 couchr.post('_db/', agenda, function(err, data) {
                         appendAgenda(agenda, resp.userCtx, eventId);
-                })
+                });
             });
         });
-    }
+    };
 
     exports.event_sessions = function(eventId) {
         events_show_base(eventId, 'sessions_tab', function(resp){
@@ -156,12 +156,12 @@ define('js/events', [
                            date : row.key[1],
                            endTime : row.key[2],
                            date_formatted : moment(row.key[1]).format('h:mm:ss a')
-                       }
+                       };
                    });
                    $('.sessions').html(session_list_t(d));
             });
         });
-    }
+    };
 
 
     exports.session_new = function(eventId) {
@@ -206,6 +206,10 @@ define('js/events', [
                         // should validate
                         console.log(event_session);
 
+                        couchr.post('_db/', event_session, function(err, data) {
+                            options.router.setRoute('/event/' + eventId + '/session/' + data.id);
+                        });
+
                         return false;
                     });
                     $('.cancel').click(function() {
@@ -214,6 +218,13 @@ define('js/events', [
                     });
                 });
             });
+        });
+    };
+
+    exports.session_show = function(eventId, sessionId) {
+        queries.load_session_assets(eventId, sessionId, function(err, result) {
+            if (err) return alert('error: ' + err);
+
         });
     };
 
@@ -229,7 +240,7 @@ define('js/events', [
                 callback(resp);
             });
         });
-    };
+    }
 
     function appendAgenda (agenda, userCtx, eventId) {
         $('.agendas').append(events_agenda_t(agenda));
@@ -254,7 +265,7 @@ define('js/events', [
             removeAgendaItem(agenda._id, id,  function(err, result) {
                 $me.closest('tr').remove();
             });
-        })
+        });
 
         var initalColour = "000000";
 
@@ -296,7 +307,7 @@ define('js/events', [
                             text: item.name,
                             value: item.name,
                             id : item.id + ':' + item.name
-                        }
+                        };
                     });
                     query.callback({results:results});
 
@@ -318,7 +329,7 @@ define('js/events', [
         $input.on('change', function(){
             var val = $input.val().split(':');
             callback(val[0], val[1]);
-        })
+        });
         return $input;
     }
     function createTopicAutoComplete($elem, callback) {
@@ -334,7 +345,7 @@ define('js/events', [
                             text: item.name,
                             value: item.name,
                             id : item.id + ':' + item.name
-                        }
+                        };
                     });
                     query.callback({results:results});
 
@@ -374,10 +385,25 @@ define('js/events', [
     }
 
 
+    function session_play(eventId, sessionId, startRequest) {
+    }
+    function session_play_leave() {
+    }
+    function remove_changes_listeners() {
+    }
+
     exports.routes = function() {
        return  {
            '/events' : exports.events_all,
            '/event/:eventId/session/new' : exports.session_new,
+           '/event/:eventId/session/:sessionId/play/:start' : {
+              on : session_play,
+              after : session_play_leave
+           },
+           '/event/:eventId/session/:sessionId' : {
+              on : exports.session_show,
+              after : remove_changes_listeners
+           },
            '/event/:eventId/attendees' : exports.event_attendees,
            '/event/:eventId/agendas' : exports.event_agendas,
            '/event/:eventId/sessions' : exports.event_sessions,
