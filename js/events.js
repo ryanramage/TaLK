@@ -9,6 +9,7 @@ define('js/events', [
     'couchr',
     'moment',
     'jplayer',
+    'mousetrap',
     'garden-app-support',
     'jam/jquerypp/form_params',
     'js/queries',
@@ -24,7 +25,7 @@ define('js/events', [
     'hbt!templates/session-show-recordingComplete',
     'hbt!templates/session-play',
     'select2'
-], function ($,_, couchr, moment, jplayer, garden, form_params, queries, time, all_t,
+], function ($,_, couchr, moment, jplayer, Mousetrap, garden, form_params, queries, time, all_t,
             new_t, show_t, session_list_t, people_table_t, events_agenda_t, session_new_t,
             session_show_t, recording_complete_t, session_play_t) {
     var exports = {},
@@ -297,21 +298,6 @@ define('js/events', [
                             me.data('sessionSpeakerId', doc.id);
                         });
                     }
-                });
-                $('.save-mark').click(function(){
-                    $('.mark-important').button('reset').removeClass('active');
-                    try{
-                        saveSessionMark();
-                    } catch (e) {
-                        console.log(e);
-                    }
-
-                    return false;
-                });
-
-                $('.mark-important').button().click(function() {
-                    $('.mark-important').button('toggle');
-                    setSessionMarkAsImportant();
                 });
 
                 $('.transcript').show();

@@ -14,9 +14,6 @@
 
 
 
-<h2>Session</h2>
-
-
 <div class="row">
 
     <div class="span2">
@@ -29,23 +26,38 @@
     <div class="span7">
 
 
-
+        <h4>Topics</h4>
         <div class="topics disabled">
             {{#each session.doc.agenda.items}}
                 <div class="topic" data-id="{{id}}" data-colour="{{colour}}"><i class="icon-tag" style="background-color: #{{colour}}}"></i><span>{{text}}</span></div>
             {{/each}}
         </div>
 
-        <form class="tag-text well" style="display: none;">
-            <label class="time"><span class="date-formatted"></span> <span class="time-formatted"></span></label>
-            <label><i class="icon-tag"></i> #<span class="sessionEventCount"></span> </label>
 
-            <textarea class="input-xlarge" name="textarea" id="textarea" rows="3"></textarea>
+        <div class="well">
+            <h4>Quick Actions</h4>
+            <div class="btn-toolbar">
+                <div class="btn-group">
+                  <button class="btn" title="Information"><i class="icon-comment"></i></button>
+                  <button class="btn" title="Important Point"><i class="icon-star"></i></button>
+                  <button class="btn" title="Action Item"><i class="icon-edit"></i></button>
+                </div>
+                <div class="btn-group">
+                  <button class="btn" title="Topic Vote"><i class="icon-question-sign"></i></button>
+                  <!--<button class="btn" title="Topic Split"><i class="icon-resize-full"></i></button>-->
 
-            <button class="btn btn-primary save-mark">Save</button>
-            <a class="btn help mark-important" href="#" title="Mark as important"><i class="icon-star" ></i></a>
+                  <button class="btn" title="Topic Ended Resolved"><i class="icon-ok-sign"></i></button>
+                  <button class="btn" title="Topic Ended Unresolved"><i class="icon-remove-sign"></i></button>
+                </div>
+            </div>
+            <form class="tag-text" style="display: none;">
+                <label class="time"><span class="date-formatted"></span> <span class="time-formatted"></span></label>
+                <textarea class="input-xlarge" name="textarea" id="textarea" rows="3"></textarea>
 
-        </form>
+                <button class="btn mark-save">Save</button>
+                <button class="btn mark-cancel">Cancel</button>
+            </form>
+        </div>
 
         <div class="transcript" >
 

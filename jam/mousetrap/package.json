@@ -1,0 +1,7 @@
+{
+    "name": "mousetrap",
+    "version": "1.1.0-jam.1",
+    "description": "A simple library for handling keyboard shortcuts in Javascript.",
+    "homepage": "http://craig.is/killing/mice",
+    "main": "mousetrap.js"
+}

@@ -2107,6 +2107,11 @@ var jam = {
             "main": "moment.js"
         },
         {
+            "name": "mousetrap",
+            "location": "jam/mousetrap",
+            "main": "mousetrap.js"
+        },
+        {
             "name": "select2",
             "location": "jam/select2",
             "main": "select2.js"
