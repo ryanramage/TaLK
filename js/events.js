@@ -283,21 +283,26 @@ define('js/events', [
                         var sessionSpeakerId = me.data('sessionSpeakerId');
                         endSpeaker(sessionSpeakerId);
                     } else {
-                        startSpeaker(sessionId, personHash, function(doc) {
+                        startSpeaker(sessionId, personHash, function(err, doc) {
                             me.data('sessionSpeakerId', doc.id);
                         });
                     }
                 });
-                $('.mark-important').button().click(function() {
-                    $(this).button('toggle');
-                    setSessionMarkAsImportant();
-                });
                 $('.save-mark').click(function(){
                     $('.mark-important').button('reset').removeClass('active');
-                    saveSessionMark();
+                    try{
+                        saveSessionMark();
+                    } catch (e) {
+                        console.log(e);
+                    }
+
                     return false;
                 });
 
+                $('.mark-important').button().click(function() {
+                    $('.mark-important').button('toggle');
+                    setSessionMarkAsImportant();
+                });
 
                 $('.transcript').show();
                 sessionListener(sessionId, $('.transcript'), doc.recordingState.startComplete);
@@ -323,6 +328,17 @@ define('js/events', [
                     $('.recordingComplete').html(recording_complete_t(recordingComplete));
                 });
             });
+        $('.tag-text textarea').mentionsInput({
+            triggerChar : ['#', '@'],
+            onDataRequest : function(mode, query, callback, triggerChar) {
+                if (triggerChar === '#') {
+                    queries.queryTags.call(this, query, callback);
+                }
+                if (triggerChar === '@') {
+                    queries.queryPeople.call(this, query, callback);
+                }
+            }
+        });
 
         $('.topic').click(function(){
            $(this).toggleClass('highlight');
@@ -739,6 +755,94 @@ define('js/events', [
         });
         band.find('.marker:nth-child(60n)').addClass('markerHour');
     };
+
+    var ugly_current_session_mark;
+
+    function startNewMark(sessionId, startTime, thing_id, colour, text) {
+        $('.tag-text').show();
+        var timestamp = new Date().getTime();
+        var sessionMark = {
+            type : 'sessionEvent',
+            sessionId : sessionId,
+            sessionType: 'mark',
+            startTime : timestamp,
+            thing_id : thing_id,
+            colour : colour,
+            text : text,
+            sessionEventCount : 1
+        };
+        var startTime_formated = moment(sessionMark.startTime).format('h:mm:ss a');
+        var offset = (sessionMark.startTime - startTime) / 1000;
+        var offset_formated = time.convertTime(offset);
+
+        $('form.tag-text  label.time span.date-formatted').text(startTime_formated);
+        $('form.tag-text label.time span.time-formatted').text('[' + offset_formated + ']');
+
+        $('form.tag-text i.icon-tag').css('background-color', '#' + colour);
+
+        ugly_current_session_mark = sessionMark;
+
+        $('textarea').focus();
+
+        findHighestSessionEventNumber(sessionId, function(err, highest) {
+            highest += 1;
+
+            $('form.tag-text span.sessionEventCount').text(highest + '');
+            ugly_current_session_mark.sessionEventCount = highest;
+        });
+    }
+
+    function setSessionMarkAsImportant () {
+        ugly_current_session_mark.important = true;
+    }
+
+    function saveSessionMark() {
+        $('.tag-text textarea').mentionsInput('val', function(text) {
+            ugly_current_session_mark.text = text;
+            $('.tag-text textarea').mentionsInput('getMentions', function(tags) {
+                ugly_current_session_mark.tags = tags;
+                ugly_current_session_mark.endTime = new Date().getTime();
+                couchr.post('_db', ugly_current_session_mark, function(err) {
+                    $('.tag-text textarea').mentionsInput('reset');
+                    $('.tag-text').hide(100);
+                });
+            });
+        });
+    }
+
+
+    function endSpeaker(sessionSpeakerId) {
+        couchr.post('_ddoc/_update/endSessionSpeaker/' + sessionSpeakerId, function(result){
+                //huh?
+        });
+    }
+
+    function startSpeaker(sessionId, personHash, callback){
+        var timestamp = new Date().getTime();
+        var sessionSpeaker = {
+            type : 'sessionEvent',
+            sessionId : sessionId,
+            sessionType: 'speaker',
+            startTime : timestamp,
+            person: personHash
+        };
+        couchr.post('_db', sessionSpeaker, callback);
+    }
+
+    function findHighestSessionEventNumber(sessionId, callback) {
+        var highest = 0;
+        couchr.get('_ddoc/_view/session_highest_session_number', {
+            key: '"' + sessionId + '"',
+            reduce: true
+        }, function(err, resp) {
+            if (err) return callback(err);
+            if (resp.rows && resp.rows.length && resp.rows.length == 1 && resp.rows[0].value) {
+                highest = resp.rows[0].value.max;
+            }
+            callback(null, highest);
+        });
+    }
+
 
     exports.routes = function() {
        return  {

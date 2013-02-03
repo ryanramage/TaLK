@@ -7,6 +7,8 @@ jam/bootstrap/css/bootstrap-responsive.css
 css/main.css
 couchaudiorecorder/skin/couchaudiorecorder.default.css
 /dashboard/_design/dashboard/_rewrite/_topbar.css
+static/js/lib/jquery.mentionsInput.js
+static/js/lib/jquery.elastic.js
 jam/require.js
 /dashboard/_design/dashboard/_rewrite/static/js/topbar.js
 /dashboard/_design/dashboard/_rewrite/_img/dashboard_grey.png
