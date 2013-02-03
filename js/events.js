@@ -272,7 +272,17 @@ define('js/events', [
                     var thing_id = me.data('id');
                     var colour   = me.data('colour');
                     var text     = me.find('span').text();
-                    startNewMark(sessionId, doc.recordingState.startComplete, thing_id, colour, text);
+                    var currentlyActive = me.hasClass('talking');
+                    me.toggleClass('talking');
+                    if (currentlyActive) {
+                        var sessionTopicId = me.data('sessionTopicId');
+                        endTopic(sessionTopicId);
+                    } else {
+                        startTopic(sessionId, thing_id, colour, text, function(err, doc) {
+                            me.data('sessionTopicId', doc.id);
+                        });
+                    }
+
                 });
                 $('.participants li').click(function() {
                     var me = $(this);
@@ -810,6 +820,32 @@ define('js/events', [
         });
     }
 
+
+    function startTopic(sessionId, topicId, colour, text, callback) {
+        var timestamp = new Date().getTime();
+        var sessionMark = {
+            type : 'sessionEvent',
+            sessionId : sessionId,
+            sessionType: 'mark',
+            startTime : timestamp,
+            thing_id : topicId,
+            text: text,
+            colour : colour,
+            sessionEventCount : 1
+        };
+        findHighestSessionEventNumber(sessionId, function(err, highest) {
+            if (err) return callback(err);
+            highest += 1;
+            sessionMark.sessionEventCount = highest;
+            couchr.post('_db', sessionMark, callback);
+        });
+    }
+
+    function endTopic(sessionTopicId) {
+        couchr.post('_ddoc/_update/endSessionTopic/' + sessionTopicId, function(result){
+                //huh?
+        });
+    }
 
     function endSpeaker(sessionSpeakerId) {
         couchr.post('_ddoc/_update/endSessionSpeaker/' + sessionSpeakerId, function(result){
