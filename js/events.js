@@ -8,6 +8,7 @@ define('js/events', [
     'underscore',
     'couchr',
     'moment',
+    'jplayer',
     'garden-app-support',
     'jam/jquerypp/form_params',
     'js/queries',
@@ -23,7 +24,7 @@ define('js/events', [
     'hbt!templates/session-show-recordingComplete',
     'hbt!templates/session-play',
     'select2'
-], function ($,_, couchr, moment, garden, form_params, queries, time, all_t,
+], function ($,_, couchr, moment, jplayer, garden, form_params, queries, time, all_t,
             new_t, show_t, session_list_t, people_table_t, events_agenda_t, session_new_t,
             session_show_t, recording_complete_t, session_play_t) {
     var exports = {},
@@ -333,7 +334,44 @@ define('js/events', [
     };
 
     var cached_session_assets;
+    function calculateStartTimeSeconds(startRequest, sessionEvents, event_start) {
+        if (startRequest === 'start') return 0;
+        if (startRequest.indexOf(':') > 0 ) {
+            return fromTimeString(startRequest);
+        }
+        // it is an event id
 
+        var session_event = _.find(sessionEvents, function(event) {
+            if (startRequest === event.id)  return true;
+        });
+        if (session_event) {
+            return (session_event.doc.startTime - event_start  ) / 1000;
+        }
+    }
+
+    function playDoc(player, doc, startTime) {
+
+        var attachment = findMp3AttachmentName(doc);
+        var url = 'audio/' + doc._id + '/' + attachment;
+        player.jPlayer("setMedia", {
+            mp3: url
+        }).jPlayer("play", startTime);
+        //uiPlaying(doc);
+    }
+
+    function findMp3AttachmentName(doc) {
+      var attachment;
+      for (attachment in doc._attachments) {
+          if (attachment.match(/mp3$/)) {
+              return attachment;
+          }
+      }
+      return null;
+    }
+
+    function endsWith(str, suffix) {
+       return (str[str.length - 1] == suffix);
+    }
     exports.session_play = function(eventId, sessionId, startRequest) {
         var start = start || 0;
 
@@ -362,7 +400,76 @@ define('js/events', [
                 var pps = time.calculatePixelsPerSecond(timeline_width, audio_duration / 1000, 1 );
 
                 createTimeBand($('#timebar'), audio_duration/1000, pps);
+                $player = $('.player');
+                $player.jPlayer({
+                   swfPath: "/couchaudiorecorder/js/jPlayer",
+                   cssSelectorAncestor: "#" + result.session.id,
+                   ready : function() {
+                       var session_startTime = sessionStartTime(cached_session_assets);
+                       var startTime = calculateStartTimeSeconds(startRequest, cached_session_assets.events, session_startTime);
+                       playDoc($player, result.recording.doc, startTime);
+                   }
+                }).bind($.jPlayer.event.ended, function(event) {
+                        $('.control .btn').removeClass('active');
+                        $('.play .timebar .playhead-mini').css('left', '0px');
+                }).bind($.jPlayer.event.timeupdate, function(event) {
+                        var left = time.calculateSecondsPixelSize(event.jPlayer.status.currentTime, pps);
+                        $('.play .timebar .playhead-mini').css('left', left + 'px');
+                })
+                ;
+                $('.play .jp-play-bar span').draggable({
+                    axis: "x",
+                    containment: ".jp-progress-bar",
+                    opacity: 0.7,
+                    helper: "clone",
+                    stop : function(event, ui) {
+                        var start = time.calculateSecondsFromPixals(ui.position.left, pps);
+                        $player.jPlayer('play', start);
+                        $('.control .btn').addClass('active');
+                    }
+                });
+                $('.play .timebar .time').resizable({
+                    maxHeight: 4,
+                    minHeight: 4,
+                    minWidth: 2,
+                    containment: "parent",
+                    handles: 'e, w',
+                    stop: function(event, ui) {
+                        var $me = $(this);
+                        var id = $me.data('id');
+                        var left = $me.css('left').replace('px', '');
+                        var width = $me.css('width').replace('px', '');
+                        var start = time.calculateSecondsFromPixals(left, pps);
+                        var new_start_time = Math.round( (start * 1000)  + session_startTime );
+                        var new_end_time = Math.round( (time.calculateSecondsFromPixals(width, pps) * 1000) + new_start_time );
+                        updateSessionEvent(id, new_start_time, new_end_time, function(err, updated) {
+                            if (err) return alert('could not update: ' + err);
+                            // only reset the playhead if the start changed
+                            if (updated.indexOf('start') > 0 ) {
+                                $player.jPlayer('play', start);
+                                $('.control .btn').addClass('active');
+                            }
+                        });
+                    }
+                }).tooltip({placement: 'right', delay: { show: 500, hide: 100 } })
+                  .on('click', function() {
+                        var id = $(this).data('id');
+                        var route = 'events/' + eventId + '/session/' + sessionId + '/play/' + id;
+                        $('.control .btn').addClass('active');
+                        if (window.location.hash == '#/' + route) {
+                            // since we are on the url, we have to play direct
+                            var left = $(this).css('left').replace('px', '');
+                            var start = time.calculateSecondsFromPixals(left, pps);
+                            $player.jPlayer('play', start);
+                        } else {
+                            router.setRoute('events/' + eventId + '/session/' + sessionId + '/play/' + id);
+                        }
+                  });
 
+                $('.control .btn').button().on('click', function(){
+                    if ($(this).hasClass('active')) $player.jPlayer('pause');
+                    else $player.jPlayer('play');
+                });
 
             });
         }

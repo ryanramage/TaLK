@@ -810,11 +810,11 @@ function session_play(eventId, sessionId, startRequest) {
                    playDoc($player, result.recording.doc, startTime);
                }
             }).bind($.jPlayer.event.ended, function(event) {
-                    $('.control .btn').removeClass('active');
-                    $('.play .timebar .playhead-mini').css('left', '0px');
+                $('.control .btn').removeClass('active');
+                $('.play .timebar .playhead-mini').css('left', '0px');
             }).bind($.jPlayer.event.timeupdate, function(event) {
-                    var left = calculateSecondsPixelSize(event.jPlayer.status.currentTime, pps);
-                    $('.play .timebar .playhead-mini').css('left', left + 'px');
+                var left = calculateSecondsPixelSize(event.jPlayer.status.currentTime, pps);
+                $('.play .timebar .playhead-mini').css('left', left + 'px');
             })
             ;
             $('.play .jp-play-bar span').draggable({

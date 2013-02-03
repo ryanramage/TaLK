@@ -45,6 +45,11 @@ var jam = {
             "main": "hbt.js"
         },
         {
+            "name": "jplayer",
+            "location": "jam/jplayer",
+            "main": "jquery.jplayer/jquery.jplayer.js"
+        },
+        {
             "name": "jquery",
             "location": "jam/jquery",
             "main": "jquery.js"
