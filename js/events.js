@@ -229,6 +229,27 @@ define('js/events', [
         });
     };
 
+    var last_topic_selected;
+    var quick_start_time;
+
+    function setStartTime() {
+        if (quick_start_time) return;
+        quick_start_time = new Date().getTime();
+        var startTime_formated = moment(quick_start_time).format('h:mm:ss a');
+        $('.quick-entry   label.time span.date-formatted').text(startTime_formated);
+        $('.mark-save,.mark-cancel').removeClass('disabled').removeAttr('disabled');
+    }
+
+    function resetStartTime() {
+        quick_start_time = null;
+        $('.quick-entry   label.time span.date-formatted').text('');
+        $('.mark-save,.mark-cancel').addClass('disabled').attr('disabled', 'disabled');
+        $('.toggled .btn').removeClass('active');
+        $('.quick-entry .pane').hide();
+        $('.quick-entry textarea').mentionsInput('reset');
+    }
+
+
     exports.session_show = function(eventId, sessionId) {
         options.showNav('events-all');
         queries.load_session_assets(eventId, sessionId, function(err, result) {
@@ -268,6 +289,23 @@ define('js/events', [
                     .addClass('enabled');
 
 
+                $('.quick-entry').show();
+                $('.pane-toggle').on('click', function(){
+                    var $me = $(this);
+                    var pane_id = $me.data('pane');
+                    if (!$me.hasClass('active')) {
+                        $('#' + pane_id).show();
+                    } else {
+                        $('#' + pane_id).hide();
+                    }
+                });
+
+                createPersonAutoComplete($('.personAutoComplete'), function(err, person){
+
+                });
+                // TODO - add a datepicker and a due date
+
+
                 $('.topics .topic').click(function() {
                     var me = $(this);
                     var thing_id = me.data('id');
@@ -278,9 +316,17 @@ define('js/events', [
                     if (currentlyActive) {
                         var sessionTopicId = me.data('sessionTopicId');
                         endTopic(sessionTopicId);
+                        if ($('.topics .topic.talking').size() === 0) {
+                            $('.topic-only').removeClass('active').hide();
+                            $('.quick-entry .pane').hide();
+
+                        }
+
                     } else {
                         startTopic(sessionId, thing_id, colour, text, function(err, doc) {
                             me.data('sessionTopicId', doc.id);
+                            last_topic_selected = thing_id;
+                            $('.topic-only').show();
                         });
                     }
 
@@ -304,7 +350,14 @@ define('js/events', [
                 sessionListener(sessionId, $('.transcript'), doc.recordingState.startComplete);
 
 
+                $('.quick-entry textarea').on('mousedown', setStartTime);
+                $('.toggled').on('click', setStartTime);
 
+                $('.mark-cancel').on('click', resetStartTime);
+                $('.mark-save').on('click', function() {
+                    console.log('aaa');
+                    saveSessionMark(sessionId);
+                });
 
 
             }).bind("recordingComplete", function(event, doc) {
@@ -313,6 +366,8 @@ define('js/events', [
                     $('.topics, .participants li')
                         .addClass('disabled')
                         .removeClass('enabled');
+
+                    $('.quick-entry').hide();
 
                     var recordingComplete = {
                         doc_id : doc._id,
@@ -324,7 +379,7 @@ define('js/events', [
                     $('.recordingComplete').html(recording_complete_t(recordingComplete));
                 });
             });
-        $('.tag-text textarea').mentionsInput({
+        $('.quick-entry textarea').mentionsInput({
             triggerChar : ['#', '@'],
             onDataRequest : function(mode, query, callback, triggerChar) {
                 if (triggerChar === '#') {
@@ -792,16 +847,65 @@ define('js/events', [
         ugly_current_session_mark.important = true;
     }
 
-    function saveSessionMark() {
-        $('.tag-text textarea').mentionsInput('val', function(text) {
-            ugly_current_session_mark.text = text;
-            $('.tag-text textarea').mentionsInput('getMentions', function(tags) {
-                ugly_current_session_mark.tags = tags;
-                ugly_current_session_mark.endTime = new Date().getTime();
-                couchr.post('_db', ugly_current_session_mark, function(err) {
-                    $('.tag-text textarea').mentionsInput('reset');
-                    $('.tag-text').hide(100);
+    function saveSessionMark(sessionId, callback) {
+        console.log('save mark', sessionId);
+        var timestamp = quick_start_time;
+        if (!timestamp) {
+            timestamp = new Date().getTime();
+        }
+        var talking = [];
+        $('.participants li.talking').each(function(){
+            talking.push($(this).data('topicid'));
+        });
+
+        var sessionMark = {
+            type : 'sessionEvent',
+            sessionId : sessionId,
+            sessionType: 'mark',
+            startTime : timestamp,
+            endTime : new Date().getTime(),
+            talking : talking,
+            sessionEventCount : 1
+        };
+        if (last_topic_selected) {
+            sessionMark.thing_id = last_topic_selected;
+        }
+
+
+        console.log('das', sessionMark);
+        // add extras.
+        $('.toggled .btn.active').each(function(){
+            var thing = $(this).data('pane');
+            if (thing === 'important-point') sessionMark.importantPoint = true;
+            if (thing === 'action-entry') {
+                sessionMark.action = true;
+                sessionMark.actionAssigned = $('#action-delegate').val();
+            }
+            if (thing === 'vote-entry') {
+                sessionMark.vote = true;
+                sessionMark.voteFor = $('#vote-for').val();
+                sessionMark.voteAgainst = $('#vote-against').val();
+            }
+            if (thing === 'close-topic') {
+                sessionMark.closeTopic = true;
+                sessionMark.closeStatus = $('#close-topic-status').val();
+            }
+        });
+
+        $('.quick-entry textarea').mentionsInput('val', function(text) {
+            $('.quick-entry textarea').mentionsInput('getMentions', function(tags) {
+                sessionMark.text = text;
+                sessionMark.tags = tags;
+                findHighestSessionEventNumber(sessionId, function(err, highest) {
+                    if (err) return callback(err);
+                    highest += 1;
+                    sessionMark.sessionEventCount = highest;
+                    console.log(sessionMark);
+                    couchr.post('_db', sessionMark, function(err){
+                        resetStartTime();
+                    });
                 });
+
             });
         });
     }
