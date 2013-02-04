@@ -155,7 +155,7 @@ define('js/events', [
     exports.event_sessions = function(eventId) {
         events_show_base(eventId, 'sessions_tab', function(resp){
             queries.load_event_sessions(eventId, function(err, data) {
-                console.log('load event sessions');
+
                    var d = {};
                    d.sessions = _.map(data.rows, function(row) {
                        return {
@@ -173,7 +173,7 @@ define('js/events', [
 
 
     exports.session_new = function(eventId) {
-        console.log('new session', eventId);
+
         couchr.get('_db/' + eventId, function(err, event) {
             event.date_formated = moment(event.date).format('MMMM D, YYYY');
             queries.load_event_attendees(event, function(err, attendees) {
@@ -183,7 +183,7 @@ define('js/events', [
                     if (event.agendas_full.length > 0) {
                         event.agendas_full[0].selected = true;
                     }
-                    console.log(event);
+
                     $('.main').html(session_new_t(event));
                     $('table.attendees tr').click(function(event) {
                         if (event.target.type === 'checkbox') return;
@@ -212,7 +212,6 @@ define('js/events', [
                         event_session.agenda = agenda_selected.doc;
                         event_session.created = new Date().getTime();
                         // should validate
-                        console.log(event_session);
 
                         couchr.post('_db/', event_session, function(err, data) {
                             options.router.setRoute('/event/' + eventId + '/session/' + data.id);
@@ -405,8 +404,8 @@ define('js/events', [
     var cached_session_assets;
     function calculateStartTimeSeconds(startRequest, sessionEvents, event_start) {
         if (startRequest === 'start') return 0;
-        if (startRequest.indexOf(':') > 0 ) {
-            return fromTimeString(startRequest);
+        if (startRequest.indexOf('.') > 0 ) {
+            return time.fromTimeString(startRequest,'.');
         }
         // it is an event id
 
@@ -441,8 +440,25 @@ define('js/events', [
     function endsWith(str, suffix) {
        return (str[str.length - 1] == suffix);
     }
+
+
+
     exports.session_play = function(eventId, sessionId, startRequest) {
         var start = start || 0;
+        var currentPlayTime = 0;
+
+        var update_url_hash_instant = function(){
+            if (_.isFunction(history.replaceState) && currentPlayTime >= 1) {
+
+                // one other saftey check that we are on the play screen
+                if ($('.timeband').length === 0) return;
+
+                var timeString = time.convertTime(currentPlayTime, '.');
+                var hash = '#/event/' + eventId +  '/session/'+ sessionId + '/play/' + timeString;
+                history.replaceState({}, time, hash);
+            }
+        };
+        var update_url_hash = _.throttle(update_url_hash_instant, 900);
 
 
         // check to see if we are already loaded
@@ -453,6 +469,7 @@ define('js/events', [
             $('.player').jPlayer('play', startTime);
 
         } else {
+
             queries.load_session_assets(eventId, sessionId, function(err, result) {
                 if (err) return alert('error: ' + err);
 
@@ -482,8 +499,10 @@ define('js/events', [
                         $('.control .btn').removeClass('active');
                         $('.play .timebar .playhead-mini').css('left', '0px');
                 }).bind($.jPlayer.event.timeupdate, function(event) {
-                        var left = time.calculateSecondsPixelSize(event.jPlayer.status.currentTime, pps);
-                        $('.play .timebar .playhead-mini').css('left', left + 'px');
+                    currentPlayTime = parseInt(Math.floor(event.jPlayer.status.currentTime));
+                    var left = time.calculateSecondsPixelSize(event.jPlayer.status.currentTime, pps);
+                    $('.play .timebar .playhead-mini').css('left', left + 'px');
+                    update_url_hash();
                 })
                 ;
                 $('.play .jp-play-bar span').draggable({
@@ -850,7 +869,7 @@ define('js/events', [
     }
 
     function saveSessionMark(sessionId, callback) {
-        console.log('save mark', sessionId);
+
         var timestamp = quick_start_time;
         if (!timestamp) {
             timestamp = new Date().getTime();
@@ -874,7 +893,7 @@ define('js/events', [
         }
 
 
-        console.log('das', sessionMark);
+
         // add extras.
         $('.toggled .btn.active').each(function(){
             var thing = $(this).data('pane');
@@ -902,7 +921,7 @@ define('js/events', [
                     if (err) return callback(err);
                     highest += 1;
                     sessionMark.sessionEventCount = highest;
-                    console.log(sessionMark);
+
                     couchr.post('_db', sessionMark, callback);
                 });
 
@@ -974,7 +993,7 @@ define('js/events', [
        return  {
            '/events' : exports.events_all,
            '/event/:eventId/session/new' : exports.session_new,
-           '/event/:eventId/session/:sessionId/play/:start' : {
+           '/event/:eventId/session/:sessionId/play/*' : {
               on : exports.session_play,
               after : session_play_leave
            },

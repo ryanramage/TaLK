@@ -33,7 +33,8 @@ define([], function(){
          sepSec: ""
      };
 
-    exports.convertTime = function(s) {
+    exports.convertTime = function(s, seperator) {
+         if (!seperator) seperator = ':';
          var myTime = new Date(s * 1000);
          var hour = myTime.getUTCHours();
          var min = myTime.getUTCMinutes();
@@ -41,7 +42,18 @@ define([], function(){
          var strHour = (timeFormat.padHour && hour < 10) ? "0" + hour : hour;
          var strMin = (timeFormat.padMin && min < 10) ? "0" + min : min;
          var strSec = (timeFormat.padSec && sec < 10) ? "0" + sec : sec;
-         return ( strHour + timeFormat.sepHour ) + ((timeFormat.showMin) ? strMin + timeFormat.sepMin : "") + ((timeFormat.showSec) ? strSec + timeFormat.sepSec : "");
+         return ( strHour + seperator ) + ((timeFormat.showMin) ? strMin + seperator : "") + ((timeFormat.showSec) ? strSec + timeFormat.sepSec : "");
     };
+
+
+    exports.fromTimeString = function(s, seperator) {
+        if (!seperator) seperator = ':';
+        var parts = s.split(seperator);
+        var hours = parseInt(parts[0] * 3600);
+        var min   = parseInt(parts[1] * 60);
+        var secs = parseInt(parts[2]);
+        return hours + min + secs;
+    };
+
     return exports;
 });
