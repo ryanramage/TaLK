@@ -362,17 +362,15 @@ define('js/events', [
                         $('textarea').focus();
                     });
                 });
+            }).bind("stopAsked", function(event, doc){
+                $('.topics, .participants li')
+                    .addClass('disabled')
+                    .removeClass('enabled');
 
-
+                $('.quick-entry').hide();
             }).bind("recordingComplete", function(event, doc) {
                 // add some state to the main doc
                 $.post('./_db/_design/'+ddocName+'/_update/endSession/' + sessionId , function(result) {
-                    $('.topics, .participants li')
-                        .addClass('disabled')
-                        .removeClass('enabled');
-
-                    $('.quick-entry').hide();
-
                     var recordingComplete = {
                         doc_id : doc._id,
                         event_id : eventId,
