@@ -290,6 +290,7 @@ define('js/events', [
 
 
                 $('.quick-entry').show();
+                $('textarea').focus();
                 $('.pane-toggle').on('click', function(){
                     var $me = $(this);
                     var pane_id = $me.data('pane');
@@ -350,13 +351,16 @@ define('js/events', [
                 sessionListener(sessionId, $('.transcript'), doc.recordingState.startComplete);
 
 
-                $('.quick-entry textarea').on('mousedown', setStartTime);
+                $('.quick-entry textarea').on('keydown', setStartTime);
                 $('.toggled').on('click', setStartTime);
 
                 $('.mark-cancel').on('click', resetStartTime);
                 $('.mark-save').on('click', function() {
-                    console.log('aaa');
-                    saveSessionMark(sessionId);
+                    saveSessionMark(sessionId, function(err){
+                        if (err) return alert('Count not save.');
+                        resetStartTime();
+                        $('textarea').focus();
+                    });
                 });
 
 
@@ -879,16 +883,16 @@ define('js/events', [
             if (thing === 'important-point') sessionMark.importantPoint = true;
             if (thing === 'action-entry') {
                 sessionMark.action = true;
-                sessionMark.actionAssigned = $('#action-delegate').val();
+                sessionMark.actionAssigned = $('#action-delegate').val().split(':')[1];
             }
             if (thing === 'vote-entry') {
                 sessionMark.vote = true;
                 sessionMark.voteFor = $('#vote-for').val();
                 sessionMark.voteAgainst = $('#vote-against').val();
             }
-            if (thing === 'close-topic') {
-                sessionMark.closeTopic = true;
-                sessionMark.closeStatus = $('#close-topic-status').val();
+            if (thing === 'topic-status') {
+                sessionMark.topicStatus = true;
+                sessionMark.topicStatusValue = $('#topic-status-select').val();
             }
         });
 
@@ -901,9 +905,7 @@ define('js/events', [
                     highest += 1;
                     sessionMark.sessionEventCount = highest;
                     console.log(sessionMark);
-                    couchr.post('_db', sessionMark, function(err){
-                        resetStartTime();
-                    });
+                    couchr.post('_db', sessionMark, callback);
                 });
 
             });

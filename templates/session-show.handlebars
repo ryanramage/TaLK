@@ -34,7 +34,7 @@
         </div>
 
 
-        <div class="quick-entry well">
+        <div class="quick-entry well hide">
             <h4>Quick Entry</h4>
 
 
@@ -48,8 +48,8 @@
                       <button class="btn pane-toggle topic-only hide" data-pane="vote-entry" title="Topic Vote">
                         <i class="icon-question-sign"></i>
                       </button>
-                      <button class="btn pane-toggle topic-only hide" data-pane="close-topic" title="Close Topic">
-                        <i class="icon-off"></i>
+                      <button class="btn pane-toggle topic-only hide" data-pane="topic-status" title="Set Topic Status">
+                        <i class="icon-flag"></i>
                       </button>
                     </div>
                 </div>
@@ -70,9 +70,9 @@
                   <input type="number" id="vote-against" name="vote-against" placeholder="Against" class="input-small"/>
                 </div>
 
-                <div id="close-topic"  class="hide pane">
-                  <h6>Close Topic</h6>
-                  <select name="close-topic-status" id="close-topic-status">
+                <div id="topic-status"  class="hide pane">
+                  <h6>Set Topic Status</h6>
+                  <select name="topic-status-select" id="topic-status-select">
                     <option>Resolved</option>
                     <option>Unresolved</option>
                   </select>
