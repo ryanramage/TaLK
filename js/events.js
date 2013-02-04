@@ -20,14 +20,15 @@ define('js/events', [
     'hbt!templates/events-session-list',
     'hbt!templates/people-table',
     'hbt!templates/events-agenda',
+    'hbt!templates/events-agenda-row',
     'hbt!templates/session-new',
     'hbt!templates/session-show',
     'hbt!templates/session-show-recordingComplete',
     'hbt!templates/session-play',
     'select2'
 ], function ($,_, couchr, moment, jplayer, Mousetrap, garden, form_params, queries, time, all_t,
-            new_t, show_t, session_list_t, people_table_t, events_agenda_t, session_new_t,
-            session_show_t, recording_complete_t, session_play_t) {
+            new_t, show_t, session_list_t, people_table_t, events_agenda_t, events_agenda_row_t,
+            session_new_t, session_show_t, recording_complete_t, session_play_t) {
     var exports = {},
         selector = '.main',
         options,
@@ -611,8 +612,10 @@ define('js/events', [
                     // create a new topic
                     return options.router.setRoute('/topics/new/' + encodeURI(topicHash) + '/agendas/' + agenda._id);
                 } else {
+
                     addAgendaItem(agenda._id, id, 'topic', topicHash, initalColour, function(err, result) {
-                        //addAgendaItemToUI(agenda, id, 'topic', name, initalColour);
+                        addAgendaItemToUI(agenda, id, 'topic', topicHash, initalColour);
+                        $input.select2("val", "");
                     });
                 }
             });
@@ -628,6 +631,36 @@ define('js/events', [
 //            });
 //        });
     }
+
+    function addAgendaItemToUI(agenda, id, type, text, colour) {
+        var item = {
+            id: id,
+            type: type,
+            colour: colour,
+            text: text
+        };
+
+
+        $('#' + agenda._id +  ' table').show();
+
+        $('#' + agenda._id +  ' tbody').append(events_agenda_row_t([item]));
+        $('#' + id +  ' .simple_color').bind('change', function(){
+            var colour = $(this).val();
+            if (colour) colour = '' + colour.substring(1, colour.length); // remove the #
+            var id = $(this).data('id');
+            updateAgendaItemColour(agenda._id, id, colour, function(err, result) {
+
+            });
+        }).simpleColor();
+        $('#' + id +  ' button.delete').bind('click', function(){
+            var $me = $(this);
+            var id = $me.data('id');
+            removeAgendaItem(agenda._id, id,  function(err, result) {
+                $me.closest('tr').remove();
+            });
+        });
+    }
+
 
     function createPersonAutoComplete($elem, callback) {
         var $input = $elem.find('input');
