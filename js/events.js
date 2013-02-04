@@ -362,7 +362,7 @@ define('js/events', [
                         $('textarea').focus();
                     });
                 });
-            }).bind("stopAsked", function(event, doc){
+            }).bind("stopComplete", function(event, doc){
                 $('.topics, .participants li')
                     .addClass('disabled')
                     .removeClass('enabled');
