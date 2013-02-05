@@ -261,6 +261,9 @@ define('js/events', [
             $('.main').html(session_show_t(result));
 
 
+            var session_startTime = sessionStartTime(result);
+            session_show_transcripts(result.events, session_startTime);
+
             // FIXME - need to make couchaudio recorder a jam thing.
             $.couch.urlPrefix = '_db';
             var ddocName = 'TaLK';
@@ -326,11 +329,14 @@ define('js/events', [
                             $('.quick-entry .pane').hide();
 
                         }
-
+                        last_topic_selected = null;
                     } else {
                         startTopic(sessionId, thing_id, colour, text, function(err, doc) {
                             me.data('sessionTopicId', doc.id);
-                            last_topic_selected = thing_id;
+                            last_topic_selected = {
+                                thing_id : thing_id,
+                                colour  : colour
+                            };
                             $('.topic-only').show();
                         });
                     }
@@ -491,6 +497,14 @@ define('js/events', [
                 var pps = time.calculatePixelsPerSecond(timeline_width, audio_duration / 1000, 1 );
 
                 createTimeBand($('#timebar'), audio_duration/1000, pps);
+
+                session_show_transcripts(result.events, session_startTime, {
+                    element : '.playlist',
+                    prepend : false,
+                    show_timebar: true,
+                    pps : pps
+                });
+
                 $player = $('.player');
                 $player.jPlayer({
                    swfPath: "/couchaudiorecorder/js/jPlayer",
@@ -535,8 +549,19 @@ define('js/events', [
                         var start = time.calculateSecondsFromPixals(left, pps);
                         var new_start_time = Math.round( (start * 1000)  + session_startTime );
                         var new_end_time = Math.round( (time.calculateSecondsFromPixals(width, pps) * 1000) + new_start_time );
-                        updateSessionEvent(id, new_start_time, new_end_time, function(err, updated) {
+                        queries.updateSessionEvent(id, new_start_time, new_end_time, function(err, updated) {
                             if (err) return alert('could not update: ' + err);
+
+                            if (cached_session_assets) {
+                                // update any cache
+                                _.each(cached_session_assets.events, function(event) {
+                                    if (event.id === id) {
+                                        event.doc.startTime = new_start_time;
+                                        event.doc.endTime = new_end_time;
+                                    }
+                                });
+                            }
+
                             // only reset the playhead if the start changed
                             if (updated.indexOf('start') > 0 ) {
                                 $player.jPlayer('play', start);
@@ -555,7 +580,7 @@ define('js/events', [
                             var start = time.calculateSecondsFromPixals(left, pps);
                             $player.jPlayer('play', start);
                         } else {
-                            router.setRoute('events/' + eventId + '/session/' + sessionId + '/play/' + id);
+                            options.router.setRoute('event/' + eventId + '/session/' + sessionId + '/play/' + id);
                         }
                   });
 
@@ -780,8 +805,13 @@ define('js/events', [
 
     function session_show_transcripts(transcript_events, startTime, options) {
 
+        console.log(transcript_events);
+
         if (!options) options = {};
         _.each(transcript_events, function(sessionEvent) {
+
+            // hacky
+            if (sessionEvent.doc) sessionEvent = sessionEvent.doc;
 
             if (sessionEvent.sessionType == 'speaker') {
                 if (!options.show_timebar) {
@@ -815,7 +845,7 @@ define('js/events', [
             sessionMark.timebar_left = settings.pps * sessionMark.offset;
             sessionMark.timebar_width = settings.pps * (sessionMark.offset_end - sessionMark.offset);
         }
-
+        console.log(sessionMark);
 
         var rendered = show_transcript_mark_t(sessionMark);
         if (settings.prepend) {
@@ -888,6 +918,7 @@ define('js/events', [
     }
 
     function sessionListener(sessionId, $trascriptDiv, startTime) {
+        console.log('sessionListener');
         var feed = couchr.changes('_db', {filter :  "TaLK/sessionEvents", include_docs: true, sessionId : sessionId});
         feed.on('change', function(change){
             console.log(change);
@@ -986,7 +1017,8 @@ define('js/events', [
             sessionEventCount : 1
         };
         if (last_topic_selected) {
-            sessionMark.thing_id = last_topic_selected;
+            sessionMark.thing_id = last_topic_selected.thing_id;
+            sessionMark.colour = last_topic_selected.colour;
         }
 
 

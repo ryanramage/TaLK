@@ -1,4 +1,4 @@
-<div class="entry" id="{{dom_id}}">
+<div class="entry" id="{{dom_id}}" style="border-left: 5px solid #{{colour}};">
     {{#if show_timebar}}
         <div class="timebar">
             <span class="playhead-mini"></span>
@@ -9,11 +9,8 @@
         <i class="important icon-star" rel="tooltip" title="Important" ></i>
     {{/if}}
      <label class="time">{{startTime_formated}} {{offset_formated}} </label>
-     <label><i class="icon-tag" style="background-color: #{{colour}}"></i> #{{sessionEventCount}}</label>
      <div class="text">
-
-         {{text}}
-
+         <b>[#{{sessionEventCount}}]</b> {{text}}
      </div>
 
 </div>

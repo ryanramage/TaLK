@@ -149,5 +149,16 @@ define([
       });
     };
 
+    exports.updateSessionEvent = function(id, new_start_time, new_end_time, callback) {
+      var update_url ='./_db/_design/TaLK/_update/updateSessionEvent/' + id + '?start_time=' + new_start_time + '&end_time=' + new_end_time;
+      couchr.post(update_url, function(err, result){
+          if (err) return callback(err);
+          if (result.indexOf('update complete') >= 0) return callback(null, result);
+          callback(result);
+      });
+    };
+
+
+
     return exports;
 });
