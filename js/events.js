@@ -805,7 +805,7 @@ define('js/events', [
 
     function session_show_transcripts(transcript_events, startTime, options) {
 
-        console.log(transcript_events);
+
 
         if (!options) options = {};
         _.each(transcript_events, function(sessionEvent) {
@@ -845,7 +845,7 @@ define('js/events', [
             sessionMark.timebar_left = settings.pps * sessionMark.offset;
             sessionMark.timebar_width = settings.pps * (sessionMark.offset_end - sessionMark.offset);
         }
-        console.log(sessionMark);
+
 
         var rendered = show_transcript_mark_t(sessionMark);
         if (settings.prepend) {
@@ -918,10 +918,10 @@ define('js/events', [
     }
 
     function sessionListener(sessionId, $trascriptDiv, startTime) {
-        console.log('sessionListener');
+
         var feed = couchr.changes('_db', {filter :  "TaLK/sessionEvents", include_docs: true, sessionId : sessionId});
         feed.on('change', function(change){
-            console.log(change);
+
             session_show_transcripts([change.doc], startTime);
         });
         feed.resume();

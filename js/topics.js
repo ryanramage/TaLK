@@ -36,7 +36,7 @@ define([
     }
 
     function topics_new(name, agendaId) {
-        console.log('show topic!!');
+
         var data = {};
         if (name) {
             data.name = decodeURI(name);
@@ -108,7 +108,7 @@ define([
 
 
     exports.routes = function() {
-        console.log('me routes');
+
        return  {
            '/topics' : topics_all,
            '/topics/view/:topicId' : topic_details,
