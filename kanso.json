@@ -1,6 +1,6 @@
 {
     "name": "TaLK",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "Record and tag audio in meetings.",
     "long_description": "TaLK is used to gather and record knowledge from people. Setup a meeting agenda, attendees, and then have an easy way to record and tag audio while in a meeting. ",
     "url": "https://github.com/ryanramage/TaLK",
