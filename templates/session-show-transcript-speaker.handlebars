@@ -1,5 +1,10 @@
-<div class="entry">
-    {{{include "session-show-transcript-timebar.html"}}}
+<div class="entry" id="{{dom_id}}">
+    {{#if show_timebar}}
+        <div class="timebar">
+            <span class="playhead-mini"></span>
+            <span class="time" data-id="{{_id}}" title="Click to play. Drag edges to resize." style="left: {{timebar_left}}px; width: {{timebar_width}}px;"></span>
+        </div>
+    {{/if}}
      <label class="time">{{startTime_formated}} {{offset_formated}} </label>
      <div class="text">
          {{#if endTime}}

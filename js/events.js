@@ -25,10 +25,14 @@ define('js/events', [
     'hbt!templates/session-show',
     'hbt!templates/session-show-recordingComplete',
     'hbt!templates/session-play',
+    'hbt!templates/session-show-transcript-mark',
+    'hbt!templates/session-show-transcript-speaker',
+    'hbt!templates/session-show-transcript-topic',
     'select2'
 ], function ($,_, couchr, moment, jplayer, Mousetrap, garden, form_params, queries, time, all_t,
             new_t, show_t, session_list_t, people_table_t, events_agenda_t, events_agenda_row_t,
-            session_new_t, session_show_t, recording_complete_t, session_play_t) {
+            session_new_t, session_show_t, recording_complete_t, session_play_t, show_transcript_mark_t,
+            show_transcript_speaker_t, show_transcript_topic_t) {
     var exports = {},
         selector = '.main',
         options,
@@ -779,28 +783,26 @@ define('js/events', [
         if (!options) options = {};
         _.each(transcript_events, function(sessionEvent) {
 
-            if (sessionEvent.doc.sessionType == 'speaker') {
-                if (options.show_timebar) {
-
-                } else {
-                    renderSpeaker(sessionEvent.doc, startTime, options);
+            if (sessionEvent.sessionType == 'speaker') {
+                if (!options.show_timebar) {
+                    renderSpeaker(sessionEvent, startTime, options);
                 }
-
             }
-            if (sessionEvent.doc.sessionType == 'mark') {
-                renderMark(sessionEvent.doc, startTime, options);
+            if (sessionEvent.sessionType == 'topic') {
+                if (!options.show_timebar) {
+                    renderTopic(sessionEvent, startTime, options);
+                }
+            }
+            if (sessionEvent.sessionType == 'mark') {
+                renderMark(sessionEvent, startTime, options);
             }
         } );
     }
-
-    function addTimeFormatting(sessionThing, startTime) {
-        sessionThing.startTime_formated = moment(parseInt (sessionThing.startTime)).format('h:mm:ssa');
-        sessionThing.offset             = (sessionThing.startTime - startTime) / 1000;
-        sessionThing.offset_end         = (sessionThing.endTime - startTime) / 1000;
-        sessionThing.offset_formated = convertTime(sessionThing.offset);
-    }
-
     function renderMark(sessionMark, startTime, settings) {
+        // safeguard duble posts
+        sessionMark.dom_id = sessionMark._id;
+        if ($('#'  + sessionMark.dom_id).size() > 0) return;
+
         var defaults = {
             element : '.transcript',
             prepend : true,
@@ -815,7 +817,7 @@ define('js/events', [
         }
 
 
-        var rendered = handlebars.templates['session-show-transcript-mark.html'](sessionMark, {});
+        var rendered = show_transcript_mark_t(sessionMark);
         if (settings.prepend) {
             $(settings.element).prepend(rendered);
         } else {
@@ -824,13 +826,75 @@ define('js/events', [
 
     }
 
+
+    function renderSpeaker(sessionEvent, startTime, settings) {
+        // safeguard duble posts
+        sessionEvent.dom_id = sessionEvent._id;
+        if (sessionEvent.endTime) {
+            sessionEvent.dom_id = sessionEvent._id + '_end';
+        }
+
+        if ($('#' + sessionEvent.dom_id).size() > 0) return;
+
+        var defaults = {
+            element : '.transcript',
+            prepend : true,
+            show_timebar : false
+        };
+        settings = _.defaults(settings, defaults);
+        addTimeFormatting(sessionEvent, startTime);
+        sessionEvent.show_timebar = settings.show_timebar;
+        var rendered = show_transcript_speaker_t(sessionEvent);
+        if (settings.prepend) {
+            $(settings.element).prepend(rendered);
+        } else {
+            $(settings.element).append(rendered);
+        }
+    }
+
+
+    function renderTopic(sessionEvent, startTime, settings) {
+        // safeguard duble posts
+        sessionEvent.dom_id = sessionEvent._id;
+        if (sessionEvent.endTime) {
+            sessionEvent.dom_id = sessionEvent._id + '_end';
+        }
+
+        if ($('#' + sessionEvent.dom_id).size() > 0) return;
+
+        var defaults = {
+            element : '.transcript',
+            prepend : true,
+            show_timebar : false
+        };
+        settings = _.defaults(settings, defaults);
+        addTimeFormatting(sessionEvent, startTime);
+        sessionEvent.show_timebar = settings.show_timebar;
+        var rendered = show_transcript_topic_t(sessionEvent);
+        if (settings.prepend) {
+            $(settings.element).prepend(rendered);
+        } else {
+            $(settings.element).append(rendered);
+        }
+    }
+
+
+
+    function addTimeFormatting(sessionThing, startTime) {
+        sessionThing.startTime_formated = moment(parseInt (sessionThing.startTime)).format('h:mm:ssa');
+        sessionThing.offset             = (sessionThing.startTime - startTime) / 1000;
+        sessionThing.offset_end         = (sessionThing.endTime - startTime) / 1000;
+        sessionThing.offset_formated = time.convertTime(sessionThing.offset);
+    }
+
     function sessionListener(sessionId, $trascriptDiv, startTime) {
-        // var $changes = db.changes(null, {filter :  ddocName + "/sessionEvents", include_docs: true, sessionId : sessionId});
-        // $changes.onChange(function (change) {
-        //     _.each(change.results, function(result){
-        //         session_show_transcripts([result], startTime);
-        //     });
-        // });
+        var feed = couchr.changes('_db', {filter :  "TaLK/sessionEvents", include_docs: true, sessionId : sessionId});
+        feed.on('change', function(change){
+            console.log(change);
+            session_show_transcripts([change.doc], startTime);
+        });
+        feed.resume();
+        return feed;
     }
 
     var createTimeBand = function(band, seconds, pps) {
@@ -968,7 +1032,7 @@ define('js/events', [
         var sessionMark = {
             type : 'sessionEvent',
             sessionId : sessionId,
-            sessionType: 'mark',
+            sessionType: 'topic',
             startTime : timestamp,
             thing_id : topicId,
             text: text,

@@ -5,15 +5,13 @@
             <span class="time" data-id="{{_id}}" title="Click to play. Drag edges to resize." style="left: {{timebar_left}}px; width: {{timebar_width}}px;"></span>
         </div>
     {{/if}}
-    {{#if important}}
-        <i class="important icon-star" rel="tooltip" title="Important" ></i>
-    {{/if}}
      <label class="time">{{startTime_formated}} {{offset_formated}} </label>
-     <label><i class="icon-tag" style="background-color: #{{colour}}"></i> #{{sessionEventCount}}</label>
      <div class="text">
-
-         {{text}}
-
+         {{#if endTime}}
+            end topic <b>{{text}}</b>
+         {{else}}
+             start topic <b>{{text}}</b>
+         {{/if}}
      </div>
 
 </div>
