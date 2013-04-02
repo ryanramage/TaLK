@@ -24,7 +24,8 @@ define('js/people', [
         options.showNav('people-all');
         couchr.get('_ddoc/_view/all_people', {include_docs : true}, function(err, resp) {
             garden.get_garden_ctx(function(err, garden_ctx) {
-                resp.userCtx = garden_ctx.userCtx;
+                if (err || !garden_ctx) garden_ctx = {};
+                else resp.userCtx = garden_ctx.userCtx;
                 $('.main').html(all_t(resp));
                 //$("table").tablesorter();
             });

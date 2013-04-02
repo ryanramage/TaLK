@@ -52,7 +52,8 @@ define('js/events', [
                 return row;
             });
             garden.get_garden_ctx(function(err, garden_ctx) {
-                resp.userCtx = garden_ctx.userCtx;
+                if (err || !garden_ctx) garden_ctx = {};
+                else resp.userCtx = garden_ctx.userCtx;
                 $(selector).html(all_t(resp, garden_ctx));
             });
         });
